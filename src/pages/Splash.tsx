@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bus, ArrowRight, GraduationCap, Shield, MapPin } from 'lucide-react'
+import { Bus, ArrowRight, GraduationCap, Shield } from 'lucide-react'
 
 const slides = [
     {

@@ -1,4 +1,4 @@
-import { Search, Filter, MoreHorizontal, Maximize2, School, Route, Bus, AlertCircle, TrendingUp } from 'lucide-react'
+import { Search, Filter, Maximize2, School, Route, Bus, AlertCircle, TrendingUp } from 'lucide-react'
 
 export default function ManagerDashboard() {
     return (

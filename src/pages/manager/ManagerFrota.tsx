@@ -92,8 +92,8 @@ export default function ManagerFrota() {
                                         <p className="text-lg font-bold text-blue-600">{bus.capacidadePadrao}</p>
                                     </div>
                                     <div className="bg-slate-50 dark:bg-slate-950 p-2 rounded-lg border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center gap-1">
-                                        {bus.temArCondicionado && <Zap className="w-3 h-3 text-amber-500" title="Ar Condicionado" />}
-                                        {bus.temBanheiro && <Info className="w-3 h-3 text-blue-500" title="Banheiro" />}
+                                        {bus.temArCondicionado && <span title="Ar Condicionado"><Zap className="w-3 h-3 text-amber-500" /></span>}
+                                        {bus.temBanheiro && <span title="Banheiro"><Info className="w-3 h-3 text-blue-500" /></span>}
                                         <p className="text-[10px] text-slate-400 font-medium">Extra</p>
                                     </div>
                                 </div>

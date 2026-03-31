@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search, Map, ChevronDown, Bus, Plus, Loader2, X, Clock, Calendar } from 'lucide-react'
+import { Search, Map, Bus, Plus, Loader2, X, Clock, Calendar } from 'lucide-react'
 import { api } from '@/lib/api'
 
 export default function ManagerRoutes() {

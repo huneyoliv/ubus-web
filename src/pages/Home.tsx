@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, ArrowRight, CheckCircle, AlertTriangle, Clock, MapPin, MessageCircle, CalendarCheck } from 'lucide-react'
+import { Bell, ArrowRight, CheckCircle, Clock, MapPin, CalendarCheck } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { api } from '@/lib/api'
 import type { Trip, Reservation } from '@/types'
@@ -8,15 +8,11 @@ import type { Trip, Reservation } from '@/types'
 export default function Home() {
     const navigate = useNavigate()
     const user = useAuthStore((s) => s.user)
-    const [currentTime, setCurrentTime] = useState(new Date())
     const [openTrips, setOpenTrips] = useState<Trip[]>([])
     const [myReservations, setMyReservations] = useState<Reservation[]>([])
     const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        const timer = setInterval(() => setCurrentTime(new Date()), 30000)
-        return () => clearInterval(timer)
-    }, [])
+
 
     useEffect(() => {
         const fetchData = async () => {

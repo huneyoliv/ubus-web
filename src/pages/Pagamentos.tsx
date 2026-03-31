@@ -32,7 +32,7 @@ export default function Pagamentos() {
     const [showAll, setShowAll] = useState(false)
 
     const parcelas: Parcela[] = []
-    const config: PaymentConfig | null = null
+    const [config] = useState<PaymentConfig | null>(null)
 
     const atrasadas = parcelas.filter((p) => p.status === 'atrasado')
     const pendentes = parcelas.filter((p) => p.status === 'pendente')
