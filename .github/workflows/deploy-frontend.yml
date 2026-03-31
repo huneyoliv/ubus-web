@@ -1,0 +1,90 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  # Altere para o nome que você desejar para a imagem
+  IMAGE_NAME: ${{ github.repository }}-frontend
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Configuração para compilação multi-arquitetura (amd64, arm64, etc.)
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: type=raw,value=latest
+
+      # Executa Docker buildx com opções multi-arch e faz push para o registry
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          # É preciso cadastrar isso no repositório Settings > Secrets and variables > Actions
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            # Obter a imagem atualizada (O username minúsculo é obrigatório no comando docker login ou URL registry)
+            GH_USER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+            REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
+            IMAGE_URI="ghcr.io/$GH_USER/$REPO_NAME-frontend:latest"
+            
+            # Utiliza o token efêmero e automático do próprio GitHub Actions para o servidor logar no registry
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GH_USER --password-stdin
+            
+            # Baixa a última imagem do registry
+            docker pull $IMAGE_URI
+            
+            # Destroi container existente se houver
+            docker rm -f ubus-frontend || true
+            
+            # Cria o novo container rodando na porta 80 (Você pode alterar 80:80 para outra 8080:80 etc)
+            docker run -d \
+              --name ubus-frontend \
+              -p 80:80 \
+              --restart unless-stopped \
+              $IMAGE_URI
+            
+            # (Opcional) Limpa as imagens suspensas (dangling) e antigas para poupar espaço em disco do servidor
+            docker image prune -f
