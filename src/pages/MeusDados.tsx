@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, User, Mail, Phone, Cpu, Route, Clock, Star } from 'lucide-react'
+import { ArrowLeft, User, Mail, Phone, Cpu, Route, Star } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 
 export default function MeusDados() {
