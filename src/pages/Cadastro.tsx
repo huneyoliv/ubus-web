@@ -196,7 +196,7 @@ export default function Cadastro() {
                                         </div>
                                     </div>
                                     <span className="text-sm leading-relaxed" style={{ color: 'var(--color-text-2)' }}>
-                                        Necessito de ônibus adaptado para cadeirante (Lei de Acessibilidade)
+                                        Declaro que sou pessoa com deficiência (conforme a Lei nº 13.146/2015)
                                     </span>
                                 </label>
                             </div>
