@@ -71,16 +71,8 @@ export default function Login() {
                     </p>
                 </div>
 
-                <div className="relative flex items-center gap-4">
-                    <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl"
-                        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        <span className="text-white/60 text-sm font-medium">Sistema online</span>
-                    </div>
-                    <div className="px-4 py-2.5 rounded-2xl"
-                        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                        <span className="text-white/60 text-sm font-medium">api.ubus.me</span>
-                    </div>
+                <div className="relative flex items-center gap-1.5 text-white/30">
+                    <span className="text-xs">© {new Date().getFullYear()} Ubus — Todos os direitos reservados</span>
                 </div>
             </div>
 

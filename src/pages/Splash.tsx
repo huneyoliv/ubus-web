@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bus, ArrowRight, GraduationCap, Shield, MapPin } from 'lucide-react'
+import { Bus, ArrowRight, GraduationCap, Shield } from 'lucide-react'
 
 const slides = [
     {
@@ -149,8 +149,7 @@ export default function Splash() {
                     </div>
 
                     <div className="flex items-center justify-center gap-1.5 text-white/30">
-                        <MapPin size={11} />
-                        <span className="text-xs">São Paulo, Brasil</span>
+                        <span className="text-xs">© {new Date().getFullYear()} Ubus — Todos os direitos reservados</span>
                     </div>
                 </div>
             </div>
