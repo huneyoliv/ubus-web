@@ -107,6 +107,10 @@ export interface RegisterPayload {
     role?: RoleUsuario
     priorityLevel?: number
     defaultRouteId?: string
+    needsWheelchair?: boolean
+    photoUrl?: string
+    gradeFileUrl?: string
+    residenciaFileUrl?: string
 }
 
 /* ── Reservation DTOs ── */

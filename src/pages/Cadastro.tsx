@@ -170,6 +170,7 @@ export default function Cadastro() {
                 email,
                 password,
                 phone: phone.replace(/\D/g, '') || undefined,
+                needsWheelchair: needsElevator,
             }
             const data = await api.post<LoginResponse>('/auth/register', payload)
             setAuth(data.accessToken, data.user)

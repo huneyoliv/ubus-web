@@ -7,11 +7,11 @@ export default function ManagerRoutes() {
     const [loading, setLoading] = useState(true)
     const [showAddModal, setShowAddModal] = useState(false)
     const [newRoute, setNewRoute] = useState({
-        nome: '',
-        descricao: '',
-        diasDaSemana: [1, 2, 3, 4, 5],
-        horarioAberturaVotacao: '06:00',
-        horarioFechamentoVotacao: '20:00'
+        name: '',
+        description: '',
+        weekDays: [1, 2, 3, 4, 5],
+        votingOpenTime: '06:00',
+        votingCloseTime: '20:00'
     })
 
     useEffect(() => {
@@ -35,11 +35,11 @@ export default function ManagerRoutes() {
             await api.post('/fleet/routes', newRoute)
             setShowAddModal(false)
             setNewRoute({
-                nome: '',
-                descricao: '',
-                diasDaSemana: [1, 2, 3, 4, 5],
-                horarioAberturaVotacao: '06:00',
-                horarioFechamentoVotacao: '20:00'
+                name: '',
+                description: '',
+                weekDays: [1, 2, 3, 4, 5],
+                votingOpenTime: '06:00',
+                votingCloseTime: '20:00'
             })
             fetchRoutes()
         } catch (err) {
@@ -98,9 +98,9 @@ export default function ManagerRoutes() {
                                     <Bus size={22} />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-lg truncate" style={{ color: 'var(--color-text)' }}>{route.nome}</h3>
+                                    <h3 className="font-bold text-lg truncate" style={{ color: 'var(--color-text)' }}>{route.name || route.nome}</h3>
                                     <p className="text-sm line-clamp-2 mt-0.5" style={{ color: 'var(--color-text-2)' }}>
-                                        {route.descricao || 'Nenhuma descrição fornecida.'}
+                                        {route.description || route.descricao || 'Nenhuma descrição fornecida.'}
                                     </p>
                                 </div>
                             </div>
@@ -112,7 +112,7 @@ export default function ManagerRoutes() {
                                         <Clock size={12} /> <span className="text-[10px] uppercase font-bold tracking-wider">Votação</span>
                                     </div>
                                     <span className="text-xs font-semibold" style={{ color: 'var(--color-text)' }}>
-                                        {route.horarioAberturaVotacao} às {route.horarioFechamentoVotacao}
+                                        {route.votingOpenTime || route.horarioAberturaVotacao} às {route.votingCloseTime || route.horarioFechamentoVotacao}
                                     </span>
                                 </div>
                                 <div className="flex flex-col gap-1">
@@ -120,7 +120,7 @@ export default function ManagerRoutes() {
                                         <Calendar size={12} /> <span className="text-[10px] uppercase font-bold tracking-wider">Frequência</span>
                                     </div>
                                     <span className="text-xs font-semibold flex items-center gap-2" style={{ color: 'var(--color-text)' }}>
-                                        {route.diasDaSemana?.length || 0} dias/semana
+                                        {route.weekDays?.length || route.diasDaSemana?.length || 0} dias/semana
                                     </span>
                                 </div>
                             </div>
@@ -159,8 +159,8 @@ export default function ManagerRoutes() {
                                 <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-text-3)' }}>Nome da Linha</label>
                                 <input
                                     type="text"
-                                    value={newRoute.nome}
-                                    onChange={(e) => setNewRoute({ ...newRoute, nome: e.target.value })}
+                                    value={newRoute.name}
+                                    onChange={(e) => setNewRoute({ ...newRoute, name: e.target.value })}
                                     className="w-full px-4 py-3 rounded-xl text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-blue-500/20"
                                     style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                                     placeholder="Ex: Universitária - Noite"
@@ -170,8 +170,8 @@ export default function ManagerRoutes() {
                             <div>
                                 <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-text-3)' }}>Descrição</label>
                                 <textarea
-                                    value={newRoute.descricao}
-                                    onChange={(e) => setNewRoute({ ...newRoute, descricao: e.target.value })}
+                                    value={newRoute.description}
+                                    onChange={(e) => setNewRoute({ ...newRoute, description: e.target.value })}
                                     className="w-full px-4 py-3 rounded-xl text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-blue-500/20 resize-none"
                                     style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                                     placeholder="Detalhes do trajeto..."
@@ -183,8 +183,8 @@ export default function ManagerRoutes() {
                                     <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-text-3)' }}>Abre Votação</label>
                                     <input
                                         type="time"
-                                        value={newRoute.horarioAberturaVotacao}
-                                        onChange={(e) => setNewRoute({ ...newRoute, horarioAberturaVotacao: e.target.value })}
+                                        value={newRoute.votingOpenTime}
+                                        onChange={(e) => setNewRoute({ ...newRoute, votingOpenTime: e.target.value })}
                                         className="w-full px-4 py-3 rounded-xl text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-blue-500/20"
                                         style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                                         required
@@ -194,8 +194,8 @@ export default function ManagerRoutes() {
                                     <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-text-3)' }}>Fecha Votação</label>
                                     <input
                                         type="time"
-                                        value={newRoute.horarioFechamentoVotacao}
-                                        onChange={(e) => setNewRoute({ ...newRoute, horarioFechamentoVotacao: e.target.value })}
+                                        value={newRoute.votingCloseTime}
+                                        onChange={(e) => setNewRoute({ ...newRoute, votingCloseTime: e.target.value })}
                                         className="w-full px-4 py-3 rounded-xl text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-blue-500/20"
                                         style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                                         required

@@ -7,11 +7,11 @@ export default function ManagerFrota() {
     const [loading, setLoading] = useState(true)
     const [showAddModal, setShowAddModal] = useState(false)
     const [newBus, setNewBus] = useState({
-        numeroIdentificacao: '',
-        placa: '',
-        capacidadePadrao: 44,
-        temBanheiro: false,
-        temArCondicionado: true
+        identificationNumber: '',
+        plate: '',
+        standardCapacity: 44,
+        hasBathroom: false,
+        hasAirConditioning: true
     })
 
     useEffect(() => {
@@ -35,11 +35,11 @@ export default function ManagerFrota() {
             await api.post('/fleet/buses', newBus)
             setShowAddModal(false)
             setNewBus({
-                numeroIdentificacao: '',
-                placa: '',
-                capacidadePadrao: 44,
-                temBanheiro: false,
-                temArCondicionado: true
+                identificationNumber: '',
+                plate: '',
+                standardCapacity: 44,
+                hasBathroom: false,
+                hasAirConditioning: true
             })
             fetchBuses()
         } catch (err) {
@@ -96,21 +96,21 @@ export default function ManagerFrota() {
                                         {bus.active !== false ? 'ATIVO' : 'INATIVO'}
                                     </span>
                                 </div>
-                                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text)' }}>Prefixo {bus.numeroIdentificacao}</h3>
+                                <h3 className="text-lg font-bold" style={{ color: 'var(--color-text)' }}>Prefixo {bus.identificationNumber || bus.numeroIdentificacao}</h3>
                                 <div className="flex items-center gap-1.5 mt-1 mb-5">
                                     <CreditCard size={14} style={{ color: 'var(--color-text-3)' }} />
-                                    <p className="text-sm font-semibold tracking-wider font-mono" style={{ color: 'var(--color-text-2)' }}>{bus.placa}</p>
+                                    <p className="text-sm font-semibold tracking-wider font-mono" style={{ color: 'var(--color-text-2)' }}>{bus.plate || bus.placa}</p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3 mb-5">
                                     <div className="p-2 rounded-xl text-center" style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)' }}>
                                         <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-3)' }}>Lotação</p>
-                                        <p className="text-lg font-black" style={{ color: 'var(--color-text)' }}>{bus.capacidadePadrao}</p>
+                                        <p className="text-lg font-black" style={{ color: 'var(--color-text)' }}>{bus.standardCapacity || bus.capacidadePadrao}</p>
                                     </div>
                                     <div className="p-2 rounded-xl flex flex-col items-center justify-center gap-1.5" style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)' }}>
                                         <div className="flex gap-2">
-                                            {bus.temArCondicionado && <span title="Ar Condicionado"><Zap size={15} style={{ color: '#D97706' }} /></span>}
-                                            {bus.temBanheiro && <span title="Banheiro"><Info size={15} style={{ color: 'var(--color-primary)' }} /></span>}
+                                            {(bus.hasAirConditioning ?? bus.temArCondicionado) && <span title="Ar Condicionado"><Zap size={15} style={{ color: '#D97706' }} /></span>}
+                                            {(bus.hasBathroom ?? bus.temBanheiro) && <span title="Banheiro"><Info size={15} style={{ color: 'var(--color-primary)' }} /></span>}
                                         </div>
                                         <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-3)' }}>Extras</p>
                                     </div>
@@ -151,8 +151,8 @@ export default function ManagerFrota() {
                                     <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-text-3)' }}>Prefixo</label>
                                     <input
                                         type="text"
-                                        value={newBus.numeroIdentificacao}
-                                        onChange={(e) => setNewBus({ ...newBus, numeroIdentificacao: e.target.value })}
+                                        value={newBus.identificationNumber}
+                                        onChange={(e) => setNewBus({ ...newBus, identificationNumber: e.target.value })}
                                         className="w-full px-4 py-3 rounded-xl text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-blue-500/20"
                                         style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                                         placeholder="Ex: 20120"
@@ -163,8 +163,8 @@ export default function ManagerFrota() {
                                     <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-text-3)' }}>Placa</label>
                                     <input
                                         type="text"
-                                        value={newBus.placa}
-                                        onChange={(e) => setNewBus({ ...newBus, placa: e.target.value })}
+                                        value={newBus.plate}
+                                        onChange={(e) => setNewBus({ ...newBus, plate: e.target.value })}
                                         className="w-full px-4 py-3 rounded-xl text-sm font-medium font-mono uppercase outline-none transition-all focus:ring-2 focus:ring-blue-500/20"
                                         style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                                         placeholder="ABC-1234"
@@ -176,8 +176,8 @@ export default function ManagerFrota() {
                                 <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-text-3)' }}>Assentos (Capacidade)</label>
                                 <input
                                     type="number"
-                                    value={newBus.capacidadePadrao}
-                                    onChange={(e) => setNewBus({ ...newBus, capacidadePadrao: Number(e.target.value) })}
+                                    value={newBus.standardCapacity}
+                                    onChange={(e) => setNewBus({ ...newBus, standardCapacity: Number(e.target.value) })}
                                     className="w-full px-4 py-3 rounded-xl text-sm font-medium outline-none transition-all focus:ring-2 focus:ring-blue-500/20"
                                     style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                                     required
@@ -188,12 +188,12 @@ export default function ManagerFrota() {
                                     <div className="relative flex items-center">
                                         <input
                                             type="checkbox"
-                                            checked={newBus.temArCondicionado}
-                                            onChange={(e) => setNewBus({ ...newBus, temArCondicionado: e.target.checked })}
+                                            checked={newBus.hasAirConditioning}
+                                            onChange={(e) => setNewBus({ ...newBus, hasAirConditioning: e.target.checked })}
                                             className="peer w-5 h-5 opacity-0 absolute cursor-pointer"
                                         />
                                         <div className="w-5 h-5 rounded border-2 flex items-center justify-center transition-all peer-checked:bg-blue-600 peer-checked:border-blue-600" style={{ borderColor: 'var(--color-border)' }}>
-                                            {newBus.temArCondicionado && <svg className="w-3 h-3 text-white" viewBox="0 0 14 10" fill="none"><path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                                            {newBus.hasAirConditioning && <svg className="w-3 h-3 text-white" viewBox="0 0 14 10" fill="none"><path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                                         </div>
                                     </div>
                                     <span className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>Ar Condicionado</span>
@@ -202,12 +202,12 @@ export default function ManagerFrota() {
                                     <div className="relative flex items-center">
                                         <input
                                             type="checkbox"
-                                            checked={newBus.temBanheiro}
-                                            onChange={(e) => setNewBus({ ...newBus, temBanheiro: e.target.checked })}
+                                            checked={newBus.hasBathroom}
+                                            onChange={(e) => setNewBus({ ...newBus, hasBathroom: e.target.checked })}
                                             className="peer w-5 h-5 opacity-0 absolute cursor-pointer"
                                         />
                                         <div className="w-5 h-5 rounded border-2 flex items-center justify-center transition-all peer-checked:bg-blue-600 peer-checked:border-blue-600" style={{ borderColor: 'var(--color-border)' }}>
-                                            {newBus.temBanheiro && <svg className="w-3 h-3 text-white" viewBox="0 0 14 10" fill="none"><path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                                            {newBus.hasBathroom && <svg className="w-3 h-3 text-white" viewBox="0 0 14 10" fill="none"><path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                                         </div>
                                     </div>
                                     <span className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>Banheiro</span>

@@ -7,7 +7,7 @@ RUN npm ci
 
 COPY . .
 
-ENV VITE_API_URL=https://api.ubus.me/api
+ENV VITE_API_URL=https://api.ubus.me/v1
 
 RUN npm run build
 
