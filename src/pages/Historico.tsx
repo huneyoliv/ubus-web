@@ -20,7 +20,7 @@ export default function Historico() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        api.get<BackendReservationResponse[]>('/reservations/minhas')
+        api.get<BackendReservationResponse[]>('/reservations/mine')
             .then((data) => setReservations(Array.isArray(data) ? data.map(mapBackendReservation) : []))
             .catch(() => setReservations([]))
             .finally(() => setLoading(false))

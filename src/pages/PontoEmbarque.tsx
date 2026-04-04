@@ -42,7 +42,7 @@ export default function SelecionarPontoEmbarque() {
     useEffect(() => {
         if (!selectedLinha) { setPontos([]); return }
         setLoading(true)
-        api.get<PontoEmbarque[]>(`/fleet/routes/${selectedLinha}/pontos`)
+        api.get<PontoEmbarque[]>(`/fleet/routes/${selectedLinha}/points`)
             .then((data) => setPontos(Array.isArray(data) ? data : []))
             .catch(() => setPontos([]))
             .finally(() => setLoading(false))
@@ -52,7 +52,7 @@ export default function SelecionarPontoEmbarque() {
         if (!selectedPonto) return
         setSaving(true)
         try {
-            await api.patch('/users/me/ponto-embarque', { pontoEmbarqueId: selectedPonto })
+            await api.patch('/users/me/point', { pointId: selectedPonto })
             setSuccess(true)
             setTimeout(() => navigate('/dashboard'), 1200)
         } catch (err) {

@@ -64,7 +64,7 @@ export default function Cadastro() {
     useEffect(() => {
         if (step === 2 && prefeituras.length === 0) {
             setLoadingPrefeituras(true)
-            api.get<Prefeitura[]>('/prefeitura')
+            api.get<Prefeitura[]>('/management/public')
                 .then((data) => {
                     const list = Array.isArray(data) ? data : []
                     setPrefeituras(list.filter(p => p.ativo !== false))

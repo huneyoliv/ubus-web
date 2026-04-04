@@ -20,7 +20,7 @@ export default function Home() {
             try {
                 const [trips, backendReservations] = await Promise.all([
                     api.get<Trip[]>('/trips/open').catch(() => [] as Trip[]),
-                    api.get<BackendReservationResponse[]>('/reservations/minhas').catch(() => [] as BackendReservationResponse[]),
+                    api.get<BackendReservationResponse[]>('/reservations/mine').catch(() => [] as BackendReservationResponse[]),
                 ])
                 setOpenTrips(trips)
                 setMyReservations(backendReservations.map(mapBackendReservation))

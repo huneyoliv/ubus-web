@@ -31,7 +31,7 @@ export default function Bilhete() {
                 .catch(() => { })
                 .finally(() => setLoading(false))
         } else {
-            api.get<BackendReservationResponse[]>('/reservations/minhas')
+            api.get<BackendReservationResponse[]>('/reservations/mine')
                 .then((list) => { if (list.length > 0) setReservation(mapBackendReservation(list[0])) })
                 .catch(() => { })
                 .finally(() => setLoading(false))

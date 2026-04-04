@@ -31,7 +31,7 @@ export default function ManagerValidations() {
         setLoading(true)
         setError(null)
         try {
-            const data = await api.get<PendingUser[]>('/usuarios/pendentes')
+            const data = await api.get<PendingUser[]>('/users/pending')
             setStudents(data)
             if (data.length > 0 && !selectedId) setSelectedId(data[0].id)
         } catch {
@@ -44,7 +44,7 @@ export default function ManagerValidations() {
     async function handleAction(id: string, status: 'APROVADO' | 'REJEITADO') {
         setActionLoading(true)
         try {
-            await api.patch(`/usuarios/${id}/status`, { status })
+            await api.patch(`/users/${id}/status`, { status })
             setStudents(prev => prev.filter(s => s.id !== id))
             setSelectedId(() => {
                 const remaining = students.filter(s => s.id !== id)

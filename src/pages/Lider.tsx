@@ -47,7 +47,7 @@ export default function Lider() {
         if (!tripId) return
         setError('')
         try {
-            await api.post(`/trips/${tripId}/alerta-confirmacao`)
+            await api.post(`/trips/${tripId}/confirmation-alert`)
             setAlertaEnviado(true)
             setTimeout(() => { setAlertaEnviado(false); fetchPassageiros() }, 3000)
         } catch (err) {
@@ -62,7 +62,7 @@ export default function Lider() {
         if (!tripId) return
         setError('')
         try {
-            await api.post(`/trips/${tripId}/encerrar-e-punir`)
+            await api.post(`/trips/${tripId}/finish-and-punish`)
             setPunicaoAplicada(true)
             setTimeout(() => setPunicaoAplicada(false), 3000)
         } catch (err) {
