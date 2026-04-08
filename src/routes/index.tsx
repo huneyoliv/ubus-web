@@ -31,6 +31,7 @@ import ManagerFrota from '@/pages/manager/ManagerFrota'
 import ManagerRelatorios from '@/pages/manager/ManagerRelatorios'
 import ManagerConfiguracoes from '@/pages/manager/ManagerConfiguracoes'
 import SuperAdminManagement from '@/pages/manager/SuperAdminManagement'
+import NotFound from '@/pages/NotFound'
 
 import ProtectedRoute from '@/components/ProtectedRoute'
 
@@ -99,4 +100,5 @@ export const router = createBrowserRouter([
             },
         ],
     },
+    { path: '*', element: <NotFound /> },
 ])

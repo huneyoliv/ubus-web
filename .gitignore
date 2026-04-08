@@ -1,9 +1,0 @@
-node_modules
-dist
-.mockups
-*.local
-.env
-.env.*
-!.env.example
-/ubus-api/*
-/pgdata/

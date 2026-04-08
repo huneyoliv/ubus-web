@@ -65,7 +65,7 @@ export default function SuperAdminDashboard() {
   ]
 
   const filtered = municipalities.filter(m =>
-    m.nome.toLowerCase().includes(searchTerm.toLowerCase())
+    (m.nome || '').toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   if (loading) {
@@ -178,7 +178,7 @@ export default function SuperAdminDashboard() {
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold shrink-0"
                             style={{ background: 'rgba(37,99,235,0.08)', color: 'var(--color-primary)', border: '1px solid rgba(37,99,235,0.1)' }}>
-                            {pref.nome.charAt(0).toUpperCase()}
+                            {(pref.nome || '-').charAt(0).toUpperCase()}
                           </div>
                           <span className="font-bold">{pref.nome}</span>
                         </div>
