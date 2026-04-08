@@ -1,341 +1,342 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, CheckCircle2 } from 'lucide-react'
-import clsx from 'clsx'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, CheckCircle, Bus, IdentificationCard, Suitcase, WifiHigh, Snowflake, Toilet, Wheelchair, CaretRight, WarningCircle, ListNumbers, SquaresFour, HardDrive } from 'phosphor-react';
+import { cn } from '@/lib/utils';
 
 export default function CadastroVeiculo() {
-    const navigate = useNavigate()
-    const [step, setStep] = useState(1)
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
 
-    const [formData, setFormData] = useState({
-        numero: '',
-        assentos: '',
-        temNumeracao: null as boolean | null,
-        cadeirasPrimeiraFila: '',
-        logicaNumeracao: '',
-        facilidades: {
-            arCondicionado: false,
-            wifi: false,
-            banheiro: false,
-            acessibilidade: false
-        }
-    })
-
-    const totalSteps = 6
-
-    const handleNext = () => {
-        if (step <= totalSteps) {
-            setStep(step + 1)
-        }
+  const [formData, setFormData] = useState({
+    numero: '',
+    assentos: '',
+    temNumeracao: null as boolean | null,
+    cadeirasPrimeiraFila: '',
+    logicaNumeracao: '',
+    facilidades: {
+      arCondicionado: false,
+      wifi: false,
+      banheiro: false,
+      acessibilidade: false
     }
+  });
 
-    const handleBack = () => {
-        if (step > 1) {
-            setStep(step - 1)
-        } else {
-            navigate(-1)
-        }
+  const totalSteps = 6;
+
+  console.log('[DEBUG] Entrada em nova etapa de configuração do host:', step);
+
+  const handleNext = () => {
+    if (step < 7) {
+      if (step === 3 && formData.temNumeracao === false) {
+        console.log('[DEBUG] Segmentação ignorada: Pular para facilidades');
+        setStep(6);
+      } else {
+        setStep(step + 1);
+      }
     }
+  };
 
-    const handleToggleFacilidade = (key: keyof typeof formData.facilidades) => {
-        setFormData(prev => ({
-            ...prev,
-            facilidades: {
-                ...prev.facilidades,
-                [key]: !prev.facilidades[key]
-            }
-        }))
+  const handleBack = () => {
+    if (step === 6 && formData.temNumeracao === false) {
+      setStep(3);
+    } else if (step > 1) {
+      setStep(step - 1);
+    } else {
+      console.log('[DEBUG] Abortando registro de unidade');
+      navigate(-1);
     }
+  };
 
-    const renderProgressBar = () => (
-        <div className="flex w-full flex-row items-center justify-center gap-2 py-5 shrink-0 px-6">
-            {Array.from({ length: totalSteps }).map((_, idx) => (
-                <div
-                    key={idx}
-                    className={clsx(
-                        "h-1.5 flex-1 rounded-full transition-colors",
-                        (idx + 1) <= step ? "bg-primary" : "bg-slate-200 dark:bg-slate-800"
-                    )}
-                />
+  const handleToggleFacilidade = (key: keyof typeof formData.facilidades) => {
+    console.log('[DEBUG] Alternando módulo de hardware:', key);
+    setFormData(prev => ({
+      ...prev,
+      facilidades: {
+        ...prev.facilidades,
+        [key]: !prev.facilidades[key]
+      }
+    }));
+  };
+
+  const isStepValid = () => {
+    if (step === 1) return formData.numero.trim() !== '';
+    if (step === 2) return formData.assentos.trim() !== '';
+    if (step === 3) return formData.temNumeracao !== null;
+    if (step === 4) return formData.cadeirasPrimeiraFila.trim() !== '';
+    if (step === 5) return formData.logicaNumeracao !== '';
+    return true;
+  };
+
+  return (
+    <div className="bg-[var(--color-bg)] min-h-screen text-[var(--color-text)] flex justify-center w-full transition-colors duration-500 overflow-x-hidden selection:bg-blue-500 selection:text-white">
+      <div className="relative flex min-h-screen w-full max-w-md flex-col px-6">
+        <header className="sticky top-0 z-30 flex items-center py-10 gap-6 bg-[var(--color-bg)]/80 backdrop-blur-3xl">
+          <button
+            onClick={handleBack}
+            className="w-14 h-14 flex items-center justify-center rounded-[24px] glass border-2 border-[var(--color-border)] text-[var(--color-text)] active:scale-90 transition-all hover:border-blue-500/30"
+          >
+            <ArrowLeft size={24} weight="bold" />
+          </button>
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <HardDrive size={12} weight="bold" className="text-blue-500" />
+              <span className="text-blue-500 text-[8px] font-black uppercase tracking-[0.4em]">Configurador</span>
+            </div>
+            <h1 className="text-3xl font-black font-display tracking-tighter leading-none mt-1">
+              Registro <span className="text-zinc-500">Host</span>
+            </h1>
+          </div>
+        </header>
+
+        {step <= totalSteps && (
+          <div className="px-2 pb-6 flex gap-2">
+            {Array.from({ length: totalSteps }).map((_, i) => (
+              <div key={i} className={cn(
+                "h-1 rounded-full transition-all duration-700",
+                (i + 1) === step ? "flex-1 bg-blue-500" : (i + 1) < step ? "w-4 bg-blue-500/30" : "w-2 bg-[var(--color-border)]"
+              )} />
             ))}
-        </div>
-    )
+          </div>
+        )}
 
-    const renderStepContent = () => {
-        switch (step) {
-            case 1:
-                return (
-                    <div className="flex flex-col py-3 w-full shrink-0 animate-slide-up">
-                        <h1 className="text-slate-900 dark:text-white tracking-tight text-3xl font-bold leading-tight pb-3">
-                            Qual o número do ônibus?
-                        </h1>
-                        <p className="text-slate-600 dark:text-slate-400 text-base font-normal leading-normal pb-8">
-                            Digite ou confirme o número de identificação do veículo.
-                        </p>
-                        <label className="flex flex-col w-full group">
-                            <span className="text-slate-900 dark:text-white text-base font-medium leading-normal pb-3">Número do ônibus</span>
-                            <input
-                                type="number"
-                                value={formData.numero}
-                                onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
-                                placeholder="00000"
-                                className="form-input flex w-full rounded-2xl text-slate-900 dark:text-white focus:outline-none focus:ring-0 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-primary dark:focus:border-primary h-20 px-6 text-4xl text-center font-bold tracking-[0.1em] shadow-sm transition-colors"
-                            />
-                        </label>
-                    </div>
-                )
-            case 2:
-                return (
-                    <div className="flex flex-col py-3 w-full shrink-0 animate-slide-up">
-                        <h1 className="text-slate-900 dark:text-white tracking-tight text-3xl font-bold leading-tight pb-3">
-                            Capacidade
-                        </h1>
-                        <p className="text-slate-600 dark:text-slate-400 text-base font-normal leading-normal pb-8">
-                            Quantos assentos para passageiros o veículo possui?
-                        </p>
-                        <label className="flex flex-col w-full group">
-                            <span className="text-slate-900 dark:text-white text-base font-medium leading-normal pb-3">Quantidade de assentos</span>
-                            <input
-                                type="number"
-                                value={formData.assentos}
-                                onChange={(e) => setFormData({ ...formData, assentos: e.target.value })}
-                                placeholder="Ex: 42"
-                                className="form-input flex w-full rounded-2xl text-slate-900 dark:text-white focus:outline-none focus:ring-0 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-primary dark:focus:border-primary h-20 px-6 text-4xl text-center font-bold shadow-sm transition-colors"
-                            />
-                        </label>
-                    </div>
-                )
-            case 3:
-                return (
-                    <div className="flex flex-col py-3 w-full shrink-0 animate-slide-up">
-                        <h1 className="text-slate-900 dark:text-white tracking-tight text-3xl font-bold leading-tight pb-3">
-                            Numeração
-                        </h1>
-                        <p className="text-slate-600 dark:text-slate-400 text-base font-normal leading-normal pb-8">
-                            As poltronas deste veículo são numeradas?
-                        </p>
-                        <div className="flex flex-col gap-4">
-                            <button
-                                onClick={() => setFormData({ ...formData, temNumeracao: true })}
-                                className={clsx(
-                                    "p-6 rounded-2xl border-2 text-left transition-all",
-                                    formData.temNumeracao === true
-                                        ? "border-primary bg-primary/5"
-                                        : "border-slate-200 dark:border-slate-800 hover:border-primary/50"
-                                )}
-                            >
-                                <div className="font-bold text-xl mb-1 dark:text-white">Sim</div>
-                                <div className="text-slate-500 text-sm">Passageiros podem reservar cadeiras específicas.</div>
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setFormData({ ...formData, temNumeracao: false })
-                                    // Se não tem numeração, podemos pular os passos 4 e 5!
-                                }}
-                                className={clsx(
-                                    "p-6 rounded-2xl border-2 text-left transition-all",
-                                    formData.temNumeracao === false
-                                        ? "border-primary bg-primary/5"
-                                        : "border-slate-200 dark:border-slate-800 hover:border-primary/50"
-                                )}
-                            >
-                                <div className="font-bold text-xl mb-1 dark:text-white">Não</div>
-                                <div className="text-slate-500 text-sm">Ordem de chegada, sem lugar marcado.</div>
-                            </button>
-                        </div>
-                    </div>
-                )
-            case 4:
-                return (
-                    <div className="flex flex-col py-3 w-full shrink-0 animate-slide-up">
-                        <h1 className="text-slate-900 dark:text-white tracking-tight text-3xl font-bold leading-tight pb-3">
-                            Layout (Frente)
-                        </h1>
-                        <p className="text-slate-600 dark:text-slate-400 text-base font-normal leading-normal pb-8">
-                            Para montar o mapa de assentos, precisamos de algumas informações.
-                        </p>
-                        <label className="flex flex-col w-full group">
-                            <span className="text-slate-900 dark:text-white text-base font-medium leading-normal pb-3">Quantas cadeiras na primeira fila?</span>
-                            <input
-                                type="number"
-                                value={formData.cadeirasPrimeiraFila}
-                                onChange={(e) => setFormData({ ...formData, cadeirasPrimeiraFila: e.target.value })}
-                                placeholder="Ex: 4"
-                                className="form-input flex w-full rounded-2xl text-slate-900 dark:text-white focus:outline-none focus:ring-0 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-primary dark:focus:border-primary h-20 px-6 text-4xl text-center font-bold shadow-sm transition-colors"
-                            />
-                        </label>
-                    </div>
-                )
-            case 5:
-                return (
-                    <div className="flex flex-col py-3 w-full shrink-0 animate-slide-up">
-                        <h1 className="text-slate-900 dark:text-white tracking-tight text-3xl font-bold leading-tight pb-3">
-                            Lógica de Numeração
-                        </h1>
-                        <p className="text-slate-600 dark:text-slate-400 text-base font-normal leading-normal pb-8">
-                            Como a numeração das poltronas se comporta?
-                        </p>
-                        <div className="flex flex-col gap-4">
-                            {[
-                                { id: 'sequencial', label: 'Sequencial Clássica', desc: '1, 2, 3, 4 (esquerda para direita)' },
-                                { id: 'impar-par', label: 'Ímpar/Par Janela', desc: 'Ímpares na janela, pares no corredor' }
-                            ].map(opt => (
-                                <button
-                                    key={opt.id}
-                                    onClick={() => setFormData({ ...formData, logicaNumeracao: opt.id })}
-                                    className={clsx(
-                                        "p-6 rounded-2xl border-2 text-left transition-all",
-                                        formData.logicaNumeracao === opt.id
-                                            ? "border-primary bg-primary/5"
-                                            : "border-slate-200 dark:border-slate-800 hover:border-primary/50"
-                                    )}
-                                >
-                                    <div className="font-bold text-xl mb-1 dark:text-white">{opt.label}</div>
-                                    <div className="text-slate-500 text-sm">{opt.desc}</div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )
-            case 6:
-                return (
-                    <div className="flex flex-col py-3 w-full shrink-0 animate-slide-up">
-                        <h1 className="text-slate-900 dark:text-white tracking-tight text-3xl font-bold leading-tight pb-3">
-                            Facilidades
-                        </h1>
-                        <p className="text-slate-600 dark:text-slate-400 text-base font-normal leading-normal pb-8">
-                            Selecione os recursos disponíveis neste veículo.
-                        </p>
-                        <div className="grid grid-cols-2 gap-4">
-                            {[
-                                { id: 'arCondicionado' as const, label: 'Ar Cond.', icon: '❄️' },
-                                { id: 'wifi' as const, label: 'Wi-Fi', icon: '📶' },
-                                { id: 'banheiro' as const, label: 'Banheiro', icon: '🚻' },
-                                { id: 'acessibilidade' as const, label: 'Acess.', icon: '♿' }
-                            ].map(opt => (
-                                <button
-                                    key={opt.id}
-                                    onClick={() => handleToggleFacilidade(opt.id)}
-                                    className={clsx(
-                                        "p-5 rounded-2xl border-2 flex flex-col justify-center items-center gap-3 transition-all",
-                                        formData.facilidades[opt.id]
-                                            ? "border-primary bg-primary/5 text-primary"
-                                            : "border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-primary/50"
-                                    )}
-                                >
-                                    <div className="text-3xl">{opt.icon}</div>
-                                    <div className="font-bold text-sm tracking-wide">{opt.label}</div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )
-            case 7:
-                return (
-                    <div className="flex flex-col py-3 w-full shrink-0 animate-slide-up">
-                        <div className="flex justify-center mb-6">
-                            <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center">
-                                <CheckCircle2 className="w-10 h-10 text-primary" />
-                            </div>
-                        </div>
-                        <h1 className="text-slate-900 dark:text-white text-center tracking-tight text-3xl font-bold leading-tight pb-2">
-                            Resumo Técnico
-                        </h1>
-                        <p className="text-slate-600 dark:text-slate-400 text-center text-sm font-normal leading-normal pb-8">
-                            Confirme os dados antes de finalizar o cadastro.
-                        </p>
+        <main className="flex-1 flex flex-col pt-4">
+          <AnimatePresence mode="wait">
+            {step === 1 && (
+              <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
+                <div className="space-y-4">
+                  <div className="w-16 h-16 rounded-[24px] bg-blue-500/10 text-blue-500 flex items-center justify-center border border-blue-500/20 shadow-2xl">
+                    <IdentificationCard size={32} weight="duotone" />
+                  </div>
+                  <h2 className="text-4xl font-black font-display tracking-tight leading-none text-white">Prefixo de<br />Identificação?</h2>
+                  <p className="text-[var(--color-text-3)] text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed max-w-[280px]">Número serial atribuído à lateral do chassis da unidade.</p>
+                </div>
+                <div className="relative group">
+                   <input
+                    type="tel"
+                    placeholder="0000"
+                    value={formData.numero}
+                    onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+                    className="w-full h-32 text-center text-6xl font-black font-display glass border-4 border-[var(--color-border)] rounded-[40px] focus:border-blue-500 focus:bg-blue-500/5 outline-none transition-all tracking-tight text-white placeholder:text-zinc-900"
+                   />
+                </div>
+              </motion.div>
+            )}
 
-                        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4">
-                            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
-                                <span className="text-slate-500 text-sm">Veículo ID</span>
-                                <span className="font-bold dark:text-white">ÔNIBUS {formData.numero || 'N/A'}</span>
-                            </div>
-                            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
-                                <span className="text-slate-500 text-sm">Capacidade Total</span>
-                                <span className="font-bold dark:text-white">{formData.assentos || '0'} Lugares</span>
-                            </div>
-                            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
-                                <span className="text-slate-500 text-sm">Numeração</span>
-                                <span className="font-bold dark:text-white">{formData.temNumeracao ? 'Sim' : 'Não'}</span>
-                            </div>
-                            <div className="flex flex-col gap-2 pt-1">
-                                <span className="text-slate-500 text-sm">Facilidades Confirmadas</span>
-                                <div className="flex gap-2 flex-wrap">
-                                    {Object.entries(formData.facilidades).map(([k, v]) => v && (
-                                        <div key={k} className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-bold uppercase dark:text-slate-300">
-                                            {k}
-                                        </div>
-                                    ))}
-                                    {!Object.values(formData.facilidades).some(Boolean) && (
-                                        <span className="text-sm dark:text-slate-400 italic">Nenhuma facilidade selecionada</span>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+            {step === 2 && (
+              <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
+                <div className="space-y-4">
+                  <div className="w-16 h-16 rounded-[24px] bg-blue-500/10 text-blue-500 flex items-center justify-center border border-blue-500/20 shadow-2xl">
+                    <Suitcase size={32} weight="duotone" />
+                  </div>
+                  <h2 className="text-4xl font-black font-display tracking-tight leading-none text-white">Capacidade do<br />Compartimento</h2>
+                  <p className="text-[var(--color-text-3)] text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed">Volume total de assentos homologados para operação.</p>
+                </div>
+                <input
+                  type="tel"
+                  placeholder="00"
+                  value={formData.assentos}
+                  onChange={(e) => setFormData({ ...formData, assentos: e.target.value })}
+                  className="w-full h-32 text-center text-6xl font-black font-display glass border-4 border-[var(--color-border)] rounded-[40px] focus:border-blue-500 focus:bg-blue-500/5 outline-none transition-all tracking-tight text-white placeholder:text-zinc-900"
+                />
+              </motion.div>
+            )}
+
+            {step === 3 && (
+              <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
+                <div className="space-y-4">
+                  <div className="w-16 h-16 rounded-[24px] bg-blue-500/10 text-blue-500 flex items-center justify-center border border-blue-500/20 shadow-2xl">
+                    <ListNumbers size={32} weight="duotone" />
+                  </div>
+                  <h2 className="text-4xl font-black font-display tracking-tight leading-none text-white">Mapa de<br />Poltronas?</h2>
+                  <p className="text-[var(--color-text-3)] text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed">Habilitar seleção por ID individual para os usuários.</p>
+                </div>
+                <div className="grid grid-cols-1 gap-4">
+                  <button onClick={() => setFormData({ ...formData, temNumeracao: true })} className={cn(
+                    "p-8 rounded-[40px] border-2 text-left transition-all flex items-center gap-6 relative overflow-hidden",
+                    formData.temNumeracao === true ? "glass border-blue-500 bg-blue-500/5 shadow-2xl" : "glass border-white/5 opacity-40 hover:opacity-100"
+                  )}>
+                    <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center shrink-0", formData.temNumeracao === true ? "bg-blue-600 text-white shadow-lg shadow-blue-500/50" : "bg-zinc-800 text-zinc-500")}>
+                      <CheckCircle size={28} weight="bold" />
                     </div>
-                )
-            default:
-                return null
-        }
-    }
+                    <div>
+                      <h3 className="text-sm font-black font-display tracking-tight uppercase">Assento Individual</h3>
+                      <p className="text-[8px] font-black text-blue-500/60 uppercase tracking-widest mt-1">SLA Ativo</p>
+                    </div>
+                  </button>
+                  <button onClick={() => setFormData({ ...formData, temNumeracao: false })} className={cn(
+                    "p-8 rounded-[40px] border-2 text-left transition-all flex items-center gap-6 relative overflow-hidden",
+                    formData.temNumeracao === false ? "glass border-blue-500 bg-blue-500/5 shadow-2xl" : "glass border-white/5 opacity-40 hover:opacity-100"
+                  )}>
+                    <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center shrink-0", formData.temNumeracao === false ? "bg-blue-600 text-white shadow-lg shadow-blue-500/50" : "bg-zinc-800 text-zinc-500")}>
+                      <WarningCircle size={28} weight="bold" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black font-display tracking-tight uppercase">Fluxo Livre</h3>
+                      <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mt-1">Escolha por Embarque</p>
+                    </div>
+                  </button>
+                </div>
+              </motion.div>
+            )}
 
-    const isStepValid = () => {
-        if (step === 1) return formData.numero.trim() !== ''
-        if (step === 2) return formData.assentos.trim() !== ''
-        if (step === 3) return formData.temNumeracao !== null
-        if (step === 4) return formData.cadeirasPrimeiraFila.trim() !== ''
-        if (step === 5) return formData.logicaNumeracao !== ''
-        return true // steps 6 e 7 sempre validos
-    }
+            {step === 4 && (
+              <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
+                <div className="space-y-4">
+                  <div className="w-16 h-16 rounded-[24px] bg-blue-500/10 text-blue-500 flex items-center justify-center border border-blue-500/20 shadow-2xl">
+                    <SquaresFour size={32} weight="duotone" />
+                  </div>
+                  <h2 className="text-4xl font-black font-display tracking-tight leading-none text-white">Matriz de<br />Front-Row</h2>
+                  <p className="text-[var(--color-text-3)] text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed text-zinc-500">Unidades na primeira fileira operacional.</p>
+                </div>
+                <input
+                  type="tel"
+                  placeholder="0"
+                  value={formData.cadeirasPrimeiraFila}
+                  onChange={(e) => setFormData({ ...formData, cadeirasPrimeiraFila: e.target.value })}
+                  className="w-full h-32 text-center text-6xl font-black font-display glass border-4 border-[var(--color-border)] rounded-[40px] focus:border-blue-500 focus:bg-blue-500/5 outline-none transition-all tracking-tight text-white placeholder:text-zinc-900"
+                />
+              </motion.div>
+            )}
 
-    const handleActionClick = () => {
-        if (step === 7) {
-            navigate('/selecionar-veiculo')
-        } else {
-            if (step === 3 && formData.temNumeracao === false) {
-                setStep(6)
-            } else {
-                handleNext()
-            }
-        }
-    }
-
-    return (
-        <div className="bg-bg-light dark:bg-[#020617] font-sans flex flex-col min-h-screen text-slate-900 dark:text-slate-100 w-full">
-            <div className="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto">
-                <div className="flex items-center p-4 pb-2 justify-between shrink-0">
-                    <button
-                        onClick={handleBack}
-                        className="flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-slate-900 dark:text-white"
-                    >
-                        <ChevronLeft className="w-8 h-8" />
+            {step === 5 && (
+              <motion.div key="s5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
+                <div className="space-y-4">
+                  <div className="w-16 h-16 rounded-[24px] bg-blue-500/10 text-blue-500 flex items-center justify-center border border-blue-500/20 shadow-2xl">
+                    <ListNumbers size={32} weight="duotone" />
+                  </div>
+                  <h2 className="text-4xl font-black font-display tracking-tight leading-none text-white">Algoritmo de<br />Indexação</h2>
+                  <p className="text-[var(--color-text-3)] text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed">Defina o comportamento da numeração.</p>
+                </div>
+                <div className="grid grid-cols-1 gap-4">
+                  {[
+                    { id: 'sequencial', label: 'Eixo Sequencial', desc: '1, 2, 3, 4 (Padrão Urbano)' },
+                    { id: 'impar-par', label: 'Janela Alternada', desc: 'Ímpares Janela / Pares Corredor' }
+                  ].map(opt => (
+                    <button key={opt.id} onClick={() => setFormData({ ...formData, logicaNumeracao: opt.id })} className={cn(
+                      "p-8 rounded-[40px] border-2 text-left transition-all flex items-center gap-6 relative overflow-hidden",
+                      formData.logicaNumeracao === opt.id ? "glass border-blue-500 bg-blue-500/5 shadow-2xl" : "glass border-white/5 opacity-40 hover:opacity-100"
+                    )}>
+                      <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center shrink-0", formData.logicaNumeracao === opt.id ? "bg-blue-600 text-white shadow-lg shadow-blue-500/50" : "bg-zinc-800 text-zinc-500")}>
+                        <CaretRight size={20} weight="bold" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-black font-display tracking-tight uppercase">{opt.label}</h3>
+                        <p className="text-[8px] font-black text-zinc-500 uppercase tracking-widest mt-1.5">{opt.desc}</p>
+                      </div>
                     </button>
-                    {step <= totalSteps && (
-                        <span className="text-sm font-bold text-slate-400 mr-4">Passo {step} de {totalSteps}</span>
-                    )}
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {step === 6 && (
+              <motion.div key="s6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-10">
+                <div className="space-y-4">
+                  <div className="w-16 h-16 rounded-[24px] bg-blue-500/10 text-blue-500 flex items-center justify-center border border-blue-500/20 shadow-2xl">
+                    <Bus size={32} weight="duotone" />
+                  </div>
+                  <h2 className="text-4xl font-black font-display tracking-tight leading-none text-white">Módulos de<br />Hardware</h2>
+                  <p className="text-[var(--color-text-3)] text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed">Sistemas auxiliares ativos na unidade.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { id: 'arCondicionado' as const, label: 'Climatização', icon: Snowflake },
+                    { id: 'wifi' as const, label: 'WIFI Host', icon: WifiHigh },
+                    { id: 'banheiro' as const, label: 'Sanitário', icon: Toilet },
+                    { id: 'acessibilidade' as const, label: 'Elevador PCD', icon: Wheelchair }
+                  ].map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => handleToggleFacilidade(opt.id)}
+                      className={cn(
+                        "p-8 rounded-[45px] border-2 flex flex-col justify-center items-center gap-4 transition-all relative overflow-hidden group",
+                        formData.facilidades[opt.id] ? "glass border-blue-500 bg-blue-500/5 text-blue-500 shadow-2xl shadow-blue-500/10" : "glass border-white/5 text-zinc-600 grayscale opacity-60 hover:grayscale-0 hover:opacity-100"
+                      )}
+                    >
+                      <opt.icon size={36} weight={formData.facilidades[opt.id] ? "fill" : "duotone"} className="group-hover:scale-110 transition-transform duration-500" />
+                      <div className="font-black text-[9px] uppercase tracking-[0.25em] text-center leading-tight">{opt.label}</div>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {step === 7 && (
+              <motion.div key="s7" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-10">
+                <div className="flex flex-col items-center justify-center text-center space-y-6">
+                  <div className="w-24 h-24 bg-emerald-500/10 rounded-[35px] flex items-center justify-center text-emerald-500 border-2 border-emerald-500/20 shadow-2xl shadow-emerald-500/10 animate-spring-up">
+                    <CheckCircle size={48} weight="bold" />
+                  </div>
+                  <div>
+                    <h2 className="text-4xl font-black font-display tracking-tighter text-white leading-none">Status: Pronto</h2>
+                    <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mt-3">Manifesto Operacional Sincronizado</p>
+                  </div>
                 </div>
 
-                {step <= totalSteps && renderProgressBar()}
+                <div className="glass border-2 border-white/5 rounded-[48px] p-10 space-y-6 relative overflow-hidden group">
+                  <div className="flex justify-between items-center border-b border-white/5 pb-5">
+                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Identidade Unit</span>
+                    <span className="font-black font-display text-2xl text-blue-500 tracking-tight">#{formData.numero || '----'}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-white/5 pb-5">
+                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Capacidade Total</span>
+                    <span className="font-black font-display text-lg text-white tracking-tight">{formData.assentos || '--'} Poltronas</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-white/5 pb-5">
+                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Grid de Reserva</span>
+                    <span className="font-black font-display text-[10px] uppercase tracking-widest text-white">{formData.temNumeracao ? 'Ativado' : 'Automático'}</span>
+                  </div>
+                  <div className="space-y-4">
+                    <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">Módulos de Hardware</span>
+                    <div className="flex gap-2 flex-wrap">
+                      {Object.entries(formData.facilidades).map(([k, v]) => v && (
+                        <div key={k} className="px-4 py-2 glass rounded-2xl text-[8px] font-black uppercase tracking-widest border border-blue-500/20 text-blue-400">
+                          {k.replace('arCondicionado', 'Climate Control').replace('wifi', 'Starlink').replace('acessibilidade', 'PCD Access')}
+                        </div>
+                      ))}
+                      {!Object.values(formData.facilidades).some(Boolean) && <span className="text-[10px] font-black text-zinc-800 uppercase">Configuração Base</span>}
+                    </div>
+                  </div>
+                  <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-500/5 blur-3xl rounded-full group-hover:bg-blue-500/10 transition-colors duration-700" />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </main>
 
-                <main className="flex-1 flex flex-col px-6 w-full max-w-md mx-auto">
-                    {renderStepContent()}
-                </main>
-
-                <footer className="p-6 pb-10 mt-auto shrink-0 w-full max-w-md mx-auto">
-                    <button
-                        onClick={handleActionClick}
-                        disabled={!isStepValid()}
-                        className={clsx(
-                            "w-full h-14 rounded-2xl font-bold text-lg flex items-center justify-center transition-all",
-                            isStepValid()
-                                ? "bg-primary text-white hover:bg-primary/90 shadow-[0_4px_14px_0_rgba(13,127,242,0.25)] active:scale-[0.98]"
-                                : "bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed"
-                        )}
-                    >
-                        {step === 7 ? "Confirmar e Salvar" : "Continuar"}
-                    </button>
-                </footer>
-            </div>
-        </div>
-    )
+        <footer className="py-12 mt-auto">
+          <button
+            onClick={() => {
+              if (step === 7) {
+                console.log('[DEBUG] Persistindo novo registro de host no backend:', formData);
+                navigate('/selecionar-veiculo');
+              } else {
+                handleNext();
+              }
+            }}
+            disabled={!isStepValid()}
+            className={cn(
+              "w-full h-24 rounded-[40px] font-black font-display text-sm uppercase tracking-[0.25em] flex items-center justify-center gap-4 transition-all relative overflow-hidden",
+              isStepValid() 
+                ? "bg-blue-600 text-white shadow-[0_20px_50px_rgba(37,99,235,0.3)] hover:bg-blue-500 active:scale-[0.98]" 
+                : "bg-zinc-800/50 text-zinc-700 border-2 border-white/5 cursor-not-allowed"
+            )}
+          >
+            <span>{step === 7 ? "Integrar Unidade" : "Próxima Etapa"}</span>
+            <CaretRight size={24} weight="bold" />
+            
+            {isStepValid() && step < 7 && (
+               <motion.div 
+                 className="absolute inset-0 bg-white/10" 
+                 initial={{ x: '-100%' }}
+                 animate={{ x: '100%' }}
+                 transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+               />
+            )}
+          </button>
+        </footer>
+      </div>
+    </div>
+  );
 }

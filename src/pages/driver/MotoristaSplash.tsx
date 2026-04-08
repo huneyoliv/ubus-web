@@ -1,97 +1,110 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Bus, IdCard, Lock, ArrowRight } from 'lucide-react'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { IdentificationBadge, Fingerprint, UserSquare, ArrowRight, ShieldCheck, Bus } from 'phosphor-react';
 
 export default function MotoristaSplash() {
-    const navigate = useNavigate()
-    const [driverId, setDriverId] = useState('')
-    const [password, setPassword] = useState('')
+  const navigate = useNavigate();
+  const [driverId, setDriverId] = useState('');
+  const [password, setPassword] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        navigate('/selecionar-veiculo')
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('[DEBUG] Tentativa de início de jornada - ID:', driverId);
+    navigate('/selecionar-veiculo');
+  };
 
-    return (
-        <div className="bg-[#f5f8f5] dark:bg-[#102210] min-h-screen flex flex-col items-center justify-center p-4 selection:bg-[#0df20d] selection:text-[#102210] w-full">
-            <div className="w-full max-w-md flex flex-col min-h-[min(884px,100dvh)] justify-between gap-8 py-8">
+  return (
+    <div className="bg-[var(--color-bg)] min-h-screen flex flex-col items-center justify-center p-6 selection:bg-blue-500 selection:text-white w-full overflow-hidden transition-colors duration-500">
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
+        <div className="absolute top-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-blue-500/10 blur-[120px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-indigo-500/10 blur-[100px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
 
-                <div className="flex flex-col items-center justify-center pt-10 gap-6">
-                    <div className="flex items-center justify-center size-24 rounded-full bg-slate-800/50 border-2 border-slate-700">
-                        <Bus className="text-white w-12 h-12" />
-                    </div>
+      <div className="w-full max-w-sm flex flex-col justify-between gap-12 relative z-10 animate-spring-up">
+        <div className="flex flex-col items-center justify-center gap-6">
+          <motion.div 
+            whileHover={{ scale: 1.1 }}
+            transition={{ type: 'spring', stiffness: 100 }}
+            className="w-24 h-24 rounded-3xl glass border-2 border-[var(--color-border)] flex items-center justify-center text-blue-500 shadow-2xl bg-gradient-to-br from-blue-500/20 to-transparent"
+          >
+            <IdentificationBadge size={48} weight="duotone" />
+          </motion.div>
 
-                    <div className="text-center space-y-2">
-                        <h1 className="text-slate-900 dark:text-white text-3xl font-extrabold tracking-tight leading-tight">
-                            MuniMobility<br />Motorista
-                        </h1>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                            Sistema Municipal de Transporte Escolar
-                        </p>
-                    </div>
-                </div>
-
-                <div className="w-full space-y-6 px-2 flex-1 flex flex-col justify-center">
-                    <form onSubmit={handleSubmit} className="space-y-6 w-full">
-                        <div className="space-y-2">
-                            <label className="text-slate-700 dark:text-slate-200 text-sm font-bold uppercase tracking-wider" htmlFor="driver-id">
-                                ID do Motorista
-                            </label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <IdCard className="text-slate-400 group-focus-within:text-[#0df20d] transition-colors w-6 h-6" />
-                                </div>
-                                <input
-                                    id="driver-id"
-                                    type="text"
-                                    placeholder="Digite seu ID"
-                                    value={driverId}
-                                    onChange={(e) => setDriverId(e.target.value)}
-                                    className="block w-full rounded-lg border-0 bg-slate-200 dark:bg-slate-800 py-4 pl-12 pr-4 text-slate-900 dark:text-white placeholder:text-slate-500 focus:ring-2 focus:ring-[#0df20d] focus:bg-slate-100 dark:focus:bg-slate-700 transition-all font-medium text-lg outline-none"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-slate-700 dark:text-slate-200 text-sm font-bold uppercase tracking-wider" htmlFor="password">
-                                Senha
-                            </label>
-                            <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <Lock className="text-slate-400 group-focus-within:text-[#0df20d] transition-colors w-6 h-6" />
-                                </div>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    placeholder="••••••••"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="block w-full rounded-lg border-0 bg-slate-200 dark:bg-slate-800 py-4 pl-12 pr-4 text-slate-900 dark:text-white placeholder:text-slate-500 focus:ring-2 focus:ring-[#0df20d] focus:bg-slate-100 dark:focus:bg-slate-700 transition-all font-medium text-lg outline-none"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex justify-end pt-1">
-                            <a href="#" className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-[#0df20d] dark:hover:text-[#0df20d] transition-colors">
-                                Esqueceu a senha?
-                            </a>
-                        </div>
-
-                        <div className="w-full pt-4 pb-8 space-y-4">
-                            <button
-                                type="submit"
-                                className="w-full bg-[#0df20d] text-[#102210] hover:bg-opacity-90 active:scale-[0.98] transition-all h-16 rounded-xl font-extrabold text-lg uppercase tracking-wide shadow-lg shadow-[#0df20d]/20 flex items-center justify-center gap-3"
-                            >
-                                <span>Iniciar Jornada</span>
-                                <ArrowRight className="w-6 h-6" />
-                            </button>
-                            <p className="text-center text-xs text-slate-500 dark:text-slate-600 font-medium">
-                                Versão 2.4.0 • Build 892
-                            </p>
-                        </div>
-                    </form>
-                </div>
+          <div className="text-center space-y-2">
+            <h1 className="text-[var(--color-text)] text-4xl font-black font-display tracking-tighter leading-none">
+              Início de<br /><span className="text-blue-500">Jornada</span>
+            </h1>
+            <div className="flex items-center justify-center gap-2 px-3 py-1 bg-blue-500/10 rounded-full border border-blue-500/20 w-fit mx-auto">
+              <ShieldCheck size={12} weight="bold" className="text-blue-500" />
+              <span className="text-blue-500 text-[8px] font-black uppercase tracking-[0.2em]">Painel Operacional</span>
             </div>
+          </div>
         </div>
-    )
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-3">
+            <label className="text-[var(--color-text-3)] text-[10px] font-black uppercase tracking-[0.3em] px-1 ml-1" htmlFor="driver-id">
+              Credencial ID
+            </label>
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500 text-[var(--color-text-3)]">
+                <UserSquare size={24} weight="duotone" />
+              </div>
+              <input
+                id="driver-id"
+                type="text"
+                placeholder="ID do Operador"
+                value={driverId}
+                onChange={(e) => setDriverId(e.target.value)}
+                className="block w-full h-18 rounded-[24px] glass border-2 border-[var(--color-border)] pl-14 pr-6 text-[var(--color-text)] placeholder:text-[var(--color-text-3)] focus:border-blue-500 focus:bg-blue-500/5 transition-all font-black text-sm outline-none font-display tracking-tight"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between px-1 ml-1">
+              <label className="text-[var(--color-text-3)] text-[10px] font-black uppercase tracking-[0.3em]" htmlFor="password">
+                Senha de Acesso
+              </label>
+              <button type="button" className="text-[8px] font-black text-blue-500 uppercase tracking-widest hover:underline">Recuperar</button>
+            </div>
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500 text-[var(--color-text-3)]">
+                <Fingerprint size={24} weight="duotone" />
+              </div>
+              <input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="block w-full h-18 rounded-[24px] glass border-2 border-[var(--color-border)] pl-14 pr-6 text-[var(--color-text)] placeholder:text-[var(--color-text-3)] focus:border-blue-500 focus:bg-blue-500/5 transition-all font-black text-sm outline-none font-display tracking-tight"
+              />
+            </div>
+          </div>
+
+          <div className="pt-6 space-y-6">
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white hover:bg-blue-500 active:scale-[0.98] transition-all h-20 rounded-[30px] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/30 flex items-center justify-center gap-4 group font-display"
+            >
+              <span>Autenticar Shift</span>
+              <ArrowRight size={24} weight="bold" className="group-hover:translate-x-1 transition-transform" />
+            </button>
+
+            <div className="flex flex-col items-center gap-2 opacity-30">
+              <div className="w-10 h-[1.5px] bg-[var(--color-text-3)]" />
+              <p className="text-[8px] font-black uppercase tracking-[0.5em]">v2.4.0 · Operação Ubus</p>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div className="absolute bottom-8 flex items-center gap-2 text-[var(--color-text-3)] opacity-40">
+        <Bus size={16} weight="duotone" />
+        <span className="text-[10px] font-black uppercase tracking-widest">MuniMobility Systems</span>
+      </div>
+    </div>
+  );
 }

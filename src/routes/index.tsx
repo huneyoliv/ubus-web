@@ -13,7 +13,7 @@ import Pagamentos from '@/pages/Pagamentos'
 import MeusDados from '@/pages/MeusDados'
 import AlterarSenha from '@/pages/AlterarSenha'
 import RenovarSemestre from '@/pages/RenovarSemestre'
-import BaixaMobilidade from '@/pages/BaixaMobilidade'
+import Acessibilidade from '@/pages/Acessibilidade'
 import Regras from '@/pages/Regras'
 import RedefinirSenha from '@/pages/RedefinirSenha'
 
@@ -64,7 +64,7 @@ export const router = createBrowserRouter([
                     { path: '/me/dados', element: <MeusDados /> },
                     { path: '/me/alterar-senha', element: <AlterarSenha /> },
                     { path: '/me/renovar-semestre', element: <RenovarSemestre /> },
-                    { path: '/me/baixa-mobilidade', element: <BaixaMobilidade /> },
+                    { path: '/me/acessibilidade', element: <Acessibilidade /> },
                     { path: '/me/regras', element: <Regras /> },
                     { path: '/ponto-embarque', element: <PontoEmbarque /> },
                 ],

@@ -1,251 +1,162 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Lock, CheckCircle, Loader2, AlertCircle, Eye, EyeOff, ShieldCheck } from 'lucide-react'
-import { api, ApiError } from '@/lib/api'
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, LockSimple, CheckCircle, CircleNotch, Warning, Eye, EyeClosed, ShieldCheckered } from 'phosphor-react';
+import { api, ApiError } from '@/lib/api';
 
 export default function RedefinirSenha() {
-    const navigate = useNavigate()
-    const [searchParams] = useSearchParams()
-    const token = searchParams.get('token')
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
 
-    const [password, setPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = useState('')
-    const [showPassword, setShowPassword] = useState(false)
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-    const [loading, setLoading] = useState(false)
-    const [success, setSuccess] = useState(false)
-    const [error, setError] = useState('')
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
 
-    useEffect(() => {
-        if (!token) {
-            setError('Token de redefinição não encontrado. Solicite um novo link.')
-        }
-    }, [token])
+  useEffect(() => {
+    if (!token) {
+      console.warn('[DEBUG] Token de redefinição ausente na URL');
+      setError('Link de redefinição inválido ou expirado.');
+    }
+  }, [token]);
 
-    const validateForm = (): string | null => {
-        if (!password || !confirmPassword) {
-            return 'Preencha todos os campos.'
-        }
-        if (password.length < 6) {
-            return 'A senha deve ter no mínimo 6 caracteres.'
-        }
-        if (password !== confirmPassword) {
-            return 'As senhas não coincidem.'
-        }
-        return null
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (password.length < 6) {
+      setError('A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('As senhas digitadas não coincidem.');
+      return;
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setError('')
-
-        const validationError = validateForm()
-        if (validationError) {
-            setError(validationError)
-            return
-        }
-
-        if (!token) {
-            setError('Token inválido. Solicite um novo link de redefinição.')
-            return
-        }
-
-        setLoading(true)
-        try {
-            await api.post('/auth/password-redefinition', { token, password })
-            setSuccess(true)
-        } catch (err) {
-            if (err instanceof ApiError) {
-                const body = err.body as Record<string, unknown> | null
-                if (body && typeof body.message === 'string') {
-                    setError(body.message)
-                } else if (err.status === 400) {
-                    setError('Token inválido ou expirado. Solicite um novo link.')
-                } else {
-                    setError('Erro ao redefinir senha. Tente novamente.')
-                }
-            } else {
-                setError('Erro de conexão. Tente novamente.')
-            }
-        } finally {
-            setLoading(false)
-        }
+    setLoading(true);
+    console.log('[DEBUG] Iniciando redefinição de senha...');
+    try {
+      await api.post('/auth/password-redefinition', { token, password });
+      console.log('[DEBUG] Senha redefinida com sucesso');
+      setSuccess(true);
+    } catch (err) {
+      console.error('[DEBUG] Erro na redefinição:', err);
+      if (err instanceof ApiError) {
+        setError(err.status === 400 ? 'Token expirado. Solicite um novo link.' : 'Falha ao redefinir. Tente mais tarde.');
+      } else {
+        setError('Erro de conexão com o servidor.');
+      }
+    } finally {
+      setLoading(false);
     }
+  };
 
-    return (
-        <div className="flex flex-col min-h-dvh" style={{ background: 'var(--color-bg)' }}>
-            <div className="sticky top-0 z-20 flex items-center gap-3 px-5 py-4"
-                style={{ background: 'rgba(240,244,255,0.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--color-border)' }}>
-                <button onClick={() => navigate('/login')}
-                    className="flex items-center justify-center w-10 h-10 rounded-xl transition-all hover:bg-white"
-                    style={{ border: '1.5px solid var(--color-border)' }}>
-                    <ArrowLeft size={18} style={{ color: 'var(--color-text)' }} />
-                </button>
-                <div>
-                    <h1 className="font-bold text-base" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>Redefinir Senha</h1>
-                    <p className="text-xs" style={{ color: 'var(--color-text-3)' }}>Crie uma nova senha</p>
-                </div>
-            </div>
-
-            <div className="flex-1 px-5 py-6 flex flex-col gap-5">
-                <AnimatePresence mode="wait">
-                    {success ? (
-                        <motion.div
-                            key="success"
-                            initial={{ opacity: 0, y: 12 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="flex flex-col items-center justify-center text-center py-16 gap-4"
-                        >
-                            <div className="w-20 h-20 rounded-full flex items-center justify-center"
-                                style={{ background: 'rgba(16,185,129,0.1)' }}>
-                                <CheckCircle size={36} style={{ color: 'var(--color-success)' }} />
-                            </div>
-                            <h2 className="text-xl font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
-                                Senha redefinida!
-                            </h2>
-                            <p className="text-sm max-w-xs" style={{ color: 'var(--color-text-2)' }}>
-                                Sua senha foi alterada com sucesso. Agora você pode fazer login com a nova senha.
-                            </p>
-                            <button
-                                onClick={() => navigate('/login')}
-                                className="mt-4 px-8 py-3 rounded-xl font-bold text-sm transition-all"
-                                style={{
-                                    background: 'var(--color-primary)',
-                                    color: 'white',
-                                    fontFamily: 'var(--font-display)',
-                                    boxShadow: '0 4px 16px -4px rgba(37,99,235,0.5)',
-                                }}
-                            >
-                                Ir para o Login
-                            </button>
-                        </motion.div>
-                    ) : (
-                        <motion.form
-                            key="form"
-                            initial={{ opacity: 0, y: 12 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            onSubmit={handleSubmit}
-                            className="flex flex-col gap-5"
-                        >
-                            <div className="flex items-start gap-3 p-4 rounded-2xl"
-                                style={{ background: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.12)' }}>
-                                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                                    style={{ background: 'rgba(37,99,235,0.12)', color: 'var(--color-primary)' }}>
-                                    <ShieldCheck size={16} />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-bold" style={{ color: 'var(--color-primary)' }}>Nova senha segura</p>
-                                    <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-2)' }}>
-                                        Crie uma senha forte com no mínimo 6 caracteres. Recomendamos usar letras, números e símbolos.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-4">
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs font-semibold px-1" style={{ color: 'var(--color-text-2)' }}>
-                                        Nova senha
-                                    </label>
-                                    <div className="relative">
-                                        <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                                            <Lock size={16} style={{ color: 'var(--color-text-3)' }} />
-                                        </div>
-                                        <input
-                                            type={showPassword ? 'text' : 'password'}
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            placeholder="Mínimo 6 caracteres"
-                                            className="w-full h-12 pl-11 pr-12 rounded-xl text-sm transition-all outline-none"
-                                            style={{
-                                                background: 'var(--color-surface)',
-                                                border: '1.5px solid var(--color-border)',
-                                                color: 'var(--color-text)',
-                                            }}
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2"
-                                        >
-                                            {showPassword ? (
-                                                <EyeOff size={16} style={{ color: 'var(--color-text-3)' }} />
-                                            ) : (
-                                                <Eye size={16} style={{ color: 'var(--color-text-3)' }} />
-                                            )}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs font-semibold px-1" style={{ color: 'var(--color-text-2)' }}>
-                                        Confirmar nova senha
-                                    </label>
-                                    <div className="relative">
-                                        <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                                            <Lock size={16} style={{ color: 'var(--color-text-3)' }} />
-                                        </div>
-                                        <input
-                                            type={showConfirmPassword ? 'text' : 'password'}
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                            placeholder="Repita a nova senha"
-                                            className="w-full h-12 pl-11 pr-12 rounded-xl text-sm transition-all outline-none"
-                                            style={{
-                                                background: 'var(--color-surface)',
-                                                border: '1.5px solid var(--color-border)',
-                                                color: 'var(--color-text)',
-                                            }}
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2"
-                                        >
-                                            {showConfirmPassword ? (
-                                                <EyeOff size={16} style={{ color: 'var(--color-text-3)' }} />
-                                            ) : (
-                                                <Eye size={16} style={{ color: 'var(--color-text-3)' }} />
-                                            )}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {error && (
-                                <div className="flex items-center gap-2 p-3.5 rounded-xl text-sm font-medium"
-                                    style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444' }}>
-                                    <AlertCircle size={16} />
-                                    {error}
-                                </div>
-                            )}
-                        </motion.form>
-                    )}
-                </AnimatePresence>
-            </div>
-
-            {!success && (
-                <div className="sticky bottom-0 px-5 py-4"
-                    style={{ background: 'rgba(240,244,255,0.92)', backdropFilter: 'blur(20px)', borderTop: '1px solid var(--color-border)' }}>
-                    <button
-                        onClick={handleSubmit}
-                        disabled={loading || !token}
-                        className="w-full h-14 rounded-2xl font-bold text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
-                        style={{
-                            background: 'var(--color-primary)',
-                            color: 'white',
-                            fontFamily: 'var(--font-display)',
-                            boxShadow: '0 4px 16px -4px rgba(37,99,235,0.5)',
-                        }}
-                    >
-                        {loading ? (
-                            <><Loader2 size={18} className="animate-spin" /> Redefinindo...</>
-                        ) : (
-                            <><Lock size={18} /> Redefinir Senha</>
-                        )}
-                    </button>
-                </div>
-            )}
+  return (
+    <div className="w-full min-h-screen flex flex-col bg-[var(--color-bg)] transition-colors duration-500">
+      <header className="sticky top-0 z-30 bg-[var(--color-bg)]/80 backdrop-blur-xl border-b border-[var(--color-border)]">
+        <div className="max-w-md mx-auto px-6 py-5 flex items-center justify-between">
+          <button
+            onClick={() => navigate('/login')}
+            className="w-10 h-10 flex items-center justify-center rounded-xl glass border-[var(--color-border)] transition-transform hover:scale-105"
+          >
+            <ArrowLeft size={20} weight="bold" className="text-[var(--color-text)]" />
+          </button>
+          <div className="text-center">
+            <h1 className="text-sm font-black uppercase tracking-widest text-[var(--color-text)]">Redefinir</h1>
+          </div>
+          <div className="w-10" />
         </div>
-    )
+      </header>
+
+      <main className="flex-1 flex flex-col items-center justify-center p-6">
+        <div className="w-full max-w-[400px] animate-spring-up overflow-hidden">
+          <AnimatePresence mode="wait">
+            {success ? (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center space-y-6"
+              >
+                <div className="w-24 h-24 rounded-3xl bg-green-500/10 flex items-center justify-center mx-auto">
+                  <CheckCircle size={48} weight="duotone" className="text-green-500" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-black text-[var(--color-text)] font-display tracking-tight mb-3">Tudo pronto!</h2>
+                  <p className="text-[var(--color-text-2)] font-medium leading-relaxed">
+                    Sua senha foi redefinida com sucesso. Use suas novas credenciais para acessar a conta.
+                  </p>
+                </div>
+                <button onClick={() => navigate('/login')} className="btn-primary">
+                  Voltar ao login
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div key="form" className="space-y-8">
+                <div className="text-center md:text-left">
+                  <h2 className="text-4xl font-black text-[var(--color-text)] font-display tracking-tight mb-3">Nova Senha</h2>
+                  <p className="text-[var(--color-text-2)] text-lg font-medium">Crie uma combinação segura para proteger sua conta.</p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex gap-4">
+                  <ShieldCheckered size={24} weight="duotone" className="text-blue-500 shrink-0" />
+                  <p className="text-xs font-bold text-blue-600 leading-relaxed uppercase tracking-wider">
+                    Dica: Use pelo menos 6 caracteres intercalando letras e números para maior segurança.
+                  </p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <PasswordField label="Nova Senha" value={password} onChange={setPassword} show={showPassword} onToggle={() => setShowPassword(!showPassword)} />
+                  <PasswordField label="Confirmar Senha" value={confirmPassword} onChange={setConfirmPassword} show={showConfirmPassword} onToggle={() => setShowConfirmPassword(!showConfirmPassword)} />
+
+                  {error && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3 p-4 rounded-2xl bg-red-500/10 text-red-500 text-sm font-bold">
+                      <Warning size={18} weight="bold" />
+                      {error}
+                    </motion.div>
+                  )}
+
+                  <button type="submit" disabled={loading || !token} className="btn-primary">
+                    {loading ? <CircleNotch size={24} className="animate-spin" /> : 'Redefinir Senha'}
+                  </button>
+                </form>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function PasswordField({ label, value, onChange, show, onToggle }: { label: string; value: string; onChange: (v: string) => void; show: boolean; onToggle: () => void }) {
+  return (
+    <div className="space-y-2">
+      <label className="text-sm font-bold text-[var(--color-text)] ml-1 uppercase tracking-widest">{label}</label>
+      <div className="relative group">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-3)] group-focus-within:text-[var(--color-primary)]">
+          <LockSimple size={22} weight="duotone" />
+        </div>
+        <input
+          type={show ? 'text' : 'password'}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="input-field pl-12 pr-12"
+          placeholder="••••••••"
+          required
+        />
+        <button
+          type="button"
+          onClick={onToggle}
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-text-3)] hover:text-[var(--color-text)] transition-colors"
+        >
+          {show ? <Eye size={22} weight="bold" /> : <EyeClosed size={22} weight="bold" />}
+        </button>
+      </div>
+    </div>
+  );
 }

@@ -1,130 +1,144 @@
-import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { User, Lock, FileText, Shield, ChevronRight, LogOut, Settings, Accessibility } from 'lucide-react'
-import { useAuthStore } from '@/store/useAuthStore'
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { User, LockSimple, FileText, Shield, CaretRight, SignOut, Gear, Wheelchair, Moon, Sun } from 'phosphor-react';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useThemeStore } from '@/store/useThemeStore';
 
 export default function Perfil() {
-    const navigate = useNavigate()
-    const { user, logout } = useAuthStore()
+  const navigate = useNavigate();
+  const { user, logout } = useAuthStore();
+  const { isDarkMode, toggleTheme } = useThemeStore();
 
-    const initials = user?.name
-        ? user.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
-        : '?'
+  const initials = user?.name
+    ? user.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+    : '?';
 
-    const menuItems = [
-        { icon: User, label: 'Meus Dados Pessoais', sub: 'Nome, CPF, Telefone', route: '/me/dados', color: 'var(--color-primary)', bg: 'rgba(37,99,235,0.08)' },
-        { icon: Lock, label: 'Alterar Senha', sub: 'Segurança da conta', route: '/me/alterar-senha', color: 'var(--color-primary)', bg: 'rgba(37,99,235,0.08)' },
-        { icon: FileText, label: 'Renovar Semestre', sub: 'Documentação necessária', route: '/me/renovar-semestre', color: '#D97706', bg: 'rgba(245,158,11,0.1)' },
-        { icon: Accessibility, label: 'Acessibilidade e Locomoção', sub: 'Laudos PCD, gestantes e idosos', route: '/me/baixa-mobilidade', color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
-        { icon: Shield, label: 'Regras e Penalidades', sub: 'Advertências e condutas', route: '/me/regras', color: 'var(--color-secondary)', bg: 'rgba(124,58,237,0.08)' },
-    ]
+  const menuItems = [
+    { icon: User, label: 'Dados Pessoais', sub: 'Nome, CPF e contato', route: '/me/dados', color: 'text-blue-500' },
+    { icon: LockSimple, label: 'Alterar Senha', sub: 'Segurança da conta', route: '/me/alterar-senha', color: 'text-indigo-500' },
+    { icon: FileText, label: 'Renovação Semestral', sub: 'Envio de documentos', route: '/me/renovar-semestre', color: 'text-amber-500' },
+    { icon: Wheelchair, label: 'Acessibilidade', sub: 'Laudos e atendimento PCD', route: '/me/acessibilidade', color: 'text-emerald-500' },
+    { icon: Shield, label: 'Regras de Uso', sub: 'Advertências e conduta', route: '/me/regras', color: 'text-rose-500' },
+  ];
 
-    const handleLogout = () => {
-        logout()
-        navigate('/login')
-    }
+  const handleLogout = () => {
+    console.log('[DEBUG] Tentando encerrar sessão...');
+    logout();
+    console.log('[DEBUG] Sessão encerrada, redirecionando para login');
+    navigate('/login');
+  };
 
-    const roleLabel: Record<string, string> = {
-        STUDENT: 'Estudante',
-        LEADER: 'Líder de Turma',
-        RIDE_SHARE: 'Caronista',
-        DRIVER: 'Motorista',
-        MANAGER: 'Gestor',
-        SUPER_ADMIN: 'Super Admin',
-    }
+  const roleLabel: Record<string, string> = {
+    STUDENT: 'Estudante',
+    LEADER: 'Líder',
+    RIDE_SHARE: 'Caronista',
+    DRIVER: 'Motorista',
+    MANAGER: 'Gestor',
+    SUPER_ADMIN: 'Diretor',
+  };
 
-    return (
-        <div className="flex flex-col min-h-full">
-            <div className="px-5 pt-8 pb-5">
-                <h1 className="text-2xl font-black mb-1" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
-                    Perfil
-                </h1>
-                <p className="text-sm" style={{ color: 'var(--color-text-2)' }}>Gerencie sua conta</p>
+  return (
+    <div className="flex flex-col min-h-screen bg-[var(--color-bg)] transition-colors duration-500 pb-24">
+      <header className="px-6 pt-10 pb-6">
+        <h1 className="text-4xl font-black text-[var(--color-text)] font-display tracking-tight leading-tight">Configurações</h1>
+        <p className="text-[var(--color-text-2)] font-medium mt-1 uppercase tracking-widest text-[10px]">Privacidade & Preferências</p>
+      </header>
+
+      <div className="px-6 space-y-8 animate-spring-up overflow-hidden">
+        <motion.div
+          whileHover={{ y: -4 }}
+          className="relative overflow-hidden rounded-[32px] p-8 shadow-2xl border-2 border-white/10"
+          style={{ background: 'linear-gradient(135deg, #18181b 0%, #27272a 100%)' }}
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 blur-[80px] rounded-full" />
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-indigo-500/10 blur-[60px] rounded-full" />
+          
+          <div className="relative flex items-center gap-6">
+            <div className="w-20 h-20 rounded-3xl glass border-2 border-white/20 flex items-center justify-center font-black text-2xl text-white font-display shadow-inner bg-gradient-to-br from-blue-600 to-indigo-600">
+              {initials}
             </div>
-
-            <div className="px-5 mb-5">
-                <motion.div
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="relative overflow-hidden rounded-2xl p-5"
-                    style={{
-                        background: 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #7C3AED 100%)',
-                        boxShadow: '0 12px 40px -12px rgba(37,99,235,0.4)',
-                    }}
-                >
-                    <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-15 bg-white blur-2xl" />
-                    <div className="absolute bottom-0 left-10 w-24 h-24 rounded-full opacity-10 bg-white blur-xl" />
-
-                    <div className="relative flex items-start gap-4">
-                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center font-bold text-xl shrink-0"
-                            style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontFamily: 'var(--font-display)', border: '1px solid rgba(255,255,255,0.2)' }}>
-                            {initials}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h3 className="text-white font-bold text-lg leading-tight truncate" style={{ fontFamily: 'var(--font-display)' }}>
-                                {user?.name ?? '—'}
-                            </h3>
-                            <p className="text-white/60 text-xs mt-0.5 truncate">{user?.email ?? '—'}</p>
-                            <p className="text-white/40 text-xs mt-0.5">CPF: {user?.cpf ? `***${user.cpf.slice(-4)}` : '—'}</p>
-                        </div>
-                    </div>
-
-                    <div className="relative mt-4 pt-4 border-t flex items-center justify-between" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
-                        <div>
-                            <p className="text-white/40 text-[10px] uppercase tracking-widest mb-0.5">Função</p>
-                            <p className="text-white font-semibold text-sm">
-                                {roleLabel[user?.role ?? ''] ?? user?.role ?? '—'}
-                            </p>
-                        </div>
-                        <div className="px-3 py-1.5 rounded-full flex items-center gap-1.5"
-                            style={{ background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.25)' }}>
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
-                            <span className="text-emerald-200 text-xs font-bold">Ativo</span>
-                        </div>
-                    </div>
-                </motion.div>
-            </div>
-
-            <div className="px-5 flex-1 pb-6">
-                <p className="text-xs font-semibold uppercase tracking-wider mb-3 px-1" style={{ color: 'var(--color-text-3)' }}>
-                    <Settings size={11} className="inline mr-1.5" />Configurações
-                </p>
-                <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
-                    {menuItems.map((item, i) => (
-                        <div key={i}>
-                            <button
-                                onClick={() => navigate(item.route)}
-                                className="w-full flex items-center gap-4 px-4 py-4 text-left transition-all hover:bg-slate-50 active:bg-slate-100 group"
-                            >
-                                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
-                                    style={{ background: item.bg, color: item.color }}>
-                                    <item.icon size={18} />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-semibold" style={{ color: 'var(--color-text)' }}>{item.label}</p>
-                                    <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-3)' }}>{item.sub}</p>
-                                </div>
-                                <ChevronRight size={16} className="transition-transform group-hover:translate-x-0.5"
-                                    style={{ color: 'var(--color-text-3)' }} />
-                            </button>
-                            {i < menuItems.length - 1 && (
-                                <div className="h-px mx-4" style={{ background: 'var(--color-border)' }} />
-                            )}
-                        </div>
-                    ))}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-white font-black text-2xl font-display tracking-tight truncate">
+                {user?.name ?? '—'}
+              </h3>
+              <p className="text-white/40 text-sm font-bold truncate mt-0.5">{user?.email}</p>
+              <div className="flex items-center gap-2 mt-3">
+                <span className="px-3 py-1 rounded-full bg-white/10 text-white/80 text-[10px] font-black uppercase tracking-widest border border-white/10">
+                  {roleLabel[user?.role ?? ''] || 'Visitante'}
+                </span>
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">Ativo</span>
                 </div>
-
-                <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center justify-center gap-2 mt-4 py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-[0.98]"
-                    style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', color: '#DC2626', fontFamily: 'var(--font-display)' }}
-                >
-                    <LogOut size={18} />
-                    Sair da conta
-                </button>
-
-                <p className="text-center text-xs mt-6" style={{ color: 'var(--color-text-3)' }}>v1.0.0 · ubus.me</p>
+              </div>
             </div>
+          </div>
+        </motion.div>
+
+        <section className="space-y-4">
+          <h4 className="px-1 text-xs font-black uppercase tracking-widest text-[var(--color-text-3)] flex items-center gap-2">
+            <Gear size={16} weight="bold" /> Preferências do Sistema
+          </h4>
+          
+          <div className="rounded-[28px] glass border-2 border-[var(--color-border)] overflow-hidden">
+            <div className="flex items-center justify-between p-5">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[var(--color-text)]">
+                  {isDarkMode ? <Moon size={24} weight="duotone" /> : <Sun size={24} weight="duotone" />}
+                </div>
+                <div>
+                  <p className="font-black text-[var(--color-text)] font-display tracking-tight">Tema Escuro</p>
+                  <p className="text-xs font-bold text-[var(--color-text-3)] uppercase tracking-widest">Interface Noturna</p>
+                </div>
+              </div>
+              <button 
+                onClick={toggleTheme}
+                className={`w-14 h-8 rounded-full relative transition-all duration-300 ${isDarkMode ? 'bg-blue-600' : 'bg-zinc-300 dark:bg-zinc-700'}`}
+              >
+                <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all duration-300 ${isDarkMode ? 'left-7' : 'left-1'}`} />
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <h4 className="px-1 text-xs font-black uppercase tracking-widest text-[var(--color-text-3)] flex items-center gap-2">
+            <User size={16} weight="bold" /> Conta & Documentos
+          </h4>
+          
+          <div className="rounded-[28px] glass border-2 border-[var(--color-border)] divide-y divide-[var(--color-border)] overflow-hidden">
+            {menuItems.map((item, idx) => (
+              <motion.button
+                key={idx}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate(item.route)}
+                className="w-full flex items-center gap-4 p-5 text-left group hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
+              >
+                <div className={`w-12 h-12 rounded-2xl bg-${item.color.split('-')[1]}-500/10 flex items-center justify-center shrink-0 transition-transform group-hover:scale-110`}>
+                  <item.icon size={26} weight="duotone" className={item.color} />
+                </div>
+                <div className="flex-1">
+                  <p className="font-black text-[var(--color-text)] font-display tracking-tight leading-tight">{item.label}</p>
+                  <p className="text-xs font-bold text-[var(--color-text-3)] uppercase tracking-widest mt-0.5">{item.sub}</p>
+                </div>
+                <CaretRight size={20} weight="bold" className="text-[var(--color-text-3)] group-hover:translate-x-1 transition-transform" />
+              </motion.button>
+            ))}
+          </div>
+        </section>
+
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-4 p-6 rounded-[28px] glass border-2 border-red-500/20 text-red-500 font-black font-display tracking-widest uppercase text-sm hover:bg-red-500/5 transition-all shadow-sm"
+        >
+          <SignOut size={24} weight="bold" /> Sair da conta
+        </button>
+
+        <div className="flex flex-col items-center gap-2 pt-4 opacity-30">
+          <div className="w-10 h-1 h-px bg-[var(--color-text-3)]" />
+          <p className="text-[10px] font-black uppercase tracking-[0.4em]">v1.2.0 · Ubus Prime</p>
         </div>
-    )
+      </div>
+    </div>
+  );
 }

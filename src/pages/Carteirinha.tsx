@@ -1,118 +1,122 @@
-import { motion } from 'framer-motion'
-import { CreditCard, Shield, CheckCircle } from 'lucide-react'
-import { useAuthStore } from '@/store/useAuthStore'
+import { motion } from 'framer-motion';
+import { IdentificationCard, ShieldCheckered, CheckCircle, Clock, ArrowsClockwise, UserCircle } from 'phosphor-react';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function Carteirinha() {
-    const user = useAuthStore((s) => s.user)
+  const user = useAuthStore((s) => s.user);
 
-    const initials = user?.name
-        ? user.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
-        : '?'
+  const initials = user?.name
+    ? user.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+    : '?';
 
-    const roleLabel: Record<string, string> = {
-        STUDENT: 'Estudante',
-        LEADER: 'Líder de Turma',
-        RIDE_SHARE: 'Caronista',
-        DRIVER: 'Motorista',
-        MANAGER: 'Gestor',
-        SUPER_ADMIN: 'Super Admin',
-    }
+  const roleLabel: Record<string, string> = {
+    STUDENT: 'Estudante',
+    LEADER: 'Líder',
+    RIDE_SHARE: 'Caronista',
+    DRIVER: 'Motorista',
+    MANAGER: 'Gestor',
+    SUPER_ADMIN: 'Diretor',
+  };
 
-    return (
-        <div className="flex flex-col min-h-full">
-            <div className="px-5 pt-8 pb-5">
-                <h1 className="text-2xl font-black mb-1" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
-                    Carteirinha Digital
-                </h1>
-                <p className="text-sm" style={{ color: 'var(--color-text-2)' }}>Apresente ao motorista quando solicitado</p>
-            </div>
+  console.log('[DEBUG] Gerando carteirinha digital para:', user?.name);
 
-            <div className="flex-1 flex flex-col items-center px-5 pb-8">
-                <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="w-full max-w-sm rounded-3xl overflow-hidden"
-                    style={{ boxShadow: '0 20px 60px -16px rgba(37,99,235,0.35)', border: '1px solid rgba(37,99,235,0.1)' }}
-                >
-                    <div className="relative overflow-hidden px-6 pt-8 pb-6 flex flex-col items-center"
-                        style={{ background: 'linear-gradient(160deg, #0F172A 0%, #1E3A8A 50%, #2563EB 100%)' }}>
-                        <div className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-15 blur-3xl bg-blue-400" />
-                        <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full opacity-10 blur-2xl bg-violet-400" />
-
-                        <div className="relative mb-4">
-                            <div className="w-24 h-24 rounded-2xl flex items-center justify-center text-white font-black text-3xl"
-                                style={{ background: 'rgba(255,255,255,0.12)', border: '2px solid rgba(255,255,255,0.2)', fontFamily: 'var(--font-display)' }}>
-                                {initials}
-                            </div>
-                            <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 rounded-full flex items-center justify-center"
-                                style={{ background: 'var(--color-success)', border: '2.5px solid #1E3A8A' }}>
-                                <CheckCircle size={14} className="text-white" strokeWidth={3} />
-                            </div>
-                        </div>
-
-                        <h2 className="text-white font-bold text-lg text-center relative" style={{ fontFamily: 'var(--font-display)' }}>
-                            {user?.name ?? '—'}
-                        </h2>
-                        <p className="text-white/50 text-xs mt-0.5 relative">{user?.email ?? '—'}</p>
-
-                        <div className="relative mt-4 flex items-center gap-2 px-4 py-2 rounded-full"
-                            style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
-                            <Shield size={12} className="text-blue-300" />
-                            <span className="text-blue-200 text-xs font-semibold">{roleLabel[user?.role ?? ''] ?? user?.role ?? '—'}</span>
-                        </div>
-                    </div>
-
-                    <div className="bg-white px-6 py-5">
-                        <div className="flex items-center justify-center mb-4">
-                            <div className="w-36 h-36 rounded-2xl p-3 flex items-center justify-center"
-                                style={{ background: 'var(--color-bg)', border: '1.5px solid var(--color-border)' }}>
-                                <svg viewBox="0 0 100 100" className="w-full h-full">
-                                    {Array.from({ length: 10 }).map((_, row) =>
-                                        Array.from({ length: 10 }).map((_, col) => (
-                                            <rect
-                                                key={`${row}-${col}`}
-                                                x={col * 10} y={row * 10} width="8" height="8" rx="1.5"
-                                                fill={(row + col) % 3 === 0 ? '#0F172A' : ((row * col) % 5 < 2 ? '#0F172A' : 'transparent')}
-                                            />
-                                        ))
-                                    )}
-                                </svg>
-                            </div>
-                        </div>
-
-                        <p className="text-center text-[10px] mb-5" style={{ color: 'var(--color-text-3)' }}>
-                            Gerado em {new Date().toLocaleString('pt-BR')}
-                        </p>
-
-                        <div className="flex flex-col divide-y" style={{ borderColor: 'var(--color-border)' }}>
-                            {[
-                                ['CPF', user?.cpf ?? '—'],
-                                ['Email', user?.email ?? '—'],
-                                ['Status', 'Ativo'],
-                            ].map(([k, v]) => (
-                                <div key={k} className="flex justify-between items-center py-3">
-                                    <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'var(--color-text-3)' }}>{k}</span>
-                                    {k === 'Status' ? (
-                                        <span className="flex items-center gap-1.5 text-xs font-bold" style={{ color: 'var(--color-success)' }}>
-                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                            {v}
-                                        </span>
-                                    ) : (
-                                        <span className="text-xs font-semibold font-mono" style={{ color: 'var(--color-text)' }}>{v}</span>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-center gap-2 py-3"
-                        style={{ background: 'var(--color-bg)', borderTop: '1px solid var(--color-border)' }}>
-                        <CreditCard size={12} style={{ color: 'var(--color-text-3)' }} />
-                        <span className="text-[10px] font-medium" style={{ color: 'var(--color-text-3)' }}>Carteirinha Digital Ubus • v1.0</span>
-                    </div>
-                </motion.div>
-            </div>
+  return (
+    <div className="w-full min-h-screen flex flex-col bg-[var(--color-bg)] transition-colors duration-500 pb-24">
+      <header className="px-6 pt-10 pb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-black text-[var(--color-text)] font-display tracking-tight leading-tight">Digital ID</h1>
+          <p className="text-[var(--color-text-2)] font-medium mt-1 uppercase tracking-widest text-[10px]">Identificação Oficial</p>
         </div>
-    )
+        <div className="w-12 h-12 rounded-2xl glass border-2 border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-3)]">
+          <ArrowsClockwise size={24} weight="bold" className="animate-spin-slow" />
+        </div>
+      </header>
+
+      <main className="flex-1 flex flex-col items-center px-6 animate-spring-up">
+        <motion.div
+          whileHover={{ rotateY: 5, rotateX: -5 }}
+          className="w-full max-w-[360px] relative group"
+        >
+          <div className="absolute inset-0 bg-blue-600/20 blur-[100px] rounded-full group-hover:bg-blue-600/30 transition-colors" />
+          
+          <div className="relative overflow-hidden rounded-[40px] border-2 border-white/20 shadow-2xl transition-transform duration-500 perspective-1000">
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-br from-white/10 to-transparent" />
+            
+            <div className="p-8 space-y-8" style={{ background: 'linear-gradient(145deg, #09090b 0%, #18181b 100%)' }}>
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-blue-500">
+                    <IdentificationCard size={28} weight="duotone" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em]">Ubus Network</span>
+                  </div>
+                  <h2 className="text-white text-3xl font-black font-display tracking-tight leading-tight mt-2">
+                    {user?.name?.split(' ')[0]} <br/>
+                    <span className="text-white/40">{user?.name?.split(' ').slice(1).join(' ')}</span>
+                  </h2>
+                </div>
+                <div className="w-20 h-20 rounded-[28px] glass border-2 border-white/20 flex items-center justify-center text-white font-black text-3xl font-display bg-gradient-to-br from-blue-600 to-indigo-600 shadow-xl">
+                  {initials}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <InfoItem label="Cargo" value={roleLabel[user?.role ?? ''] || 'Visitante'} />
+                <InfoItem label="Matrícula" value={user?.id?.slice(0, 8).toUpperCase() || '—'} />
+                <InfoItem label="CPF" value={user?.cpf || '—'} />
+                <InfoItem label="Emissão" value={new Date().toLocaleDateString('pt-BR')} />
+              </div>
+
+              <div className="flex flex-col items-center pt-4">
+                <div className="p-4 rounded-[32px] bg-white flex items-center justify-center shadow-inner relative group/qr">
+                  <svg viewBox="0 0 100 100" className="w-40 h-40">
+                    <rect width="100" height="100" fill="white" />
+                    {Array.from({ length: 15 }).map((_, r) =>
+                      Array.from({ length: 15 }).map((_, c) => (
+                        <rect
+                          key={`${r}-${c}`}
+                          x={c * 6.6} y={r * 6.6} width="5" height="5"
+                          fill={(r + c) % 3 === 0 || (r * c) % 4 === 1 ? '#09090b' : 'transparent'}
+                          rx="1"
+                        />
+                      ))
+                    )}
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/qr:opacity-100 transition-opacity bg-white/10 backdrop-blur-sm rounded-[32px]">
+                    <span className="text-[10px] font-black text-zinc-900 bg-white px-3 py-1 rounded-full shadow-lg">Validar Agora</span>
+                  </div>
+                </div>
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-4 flex items-center gap-2">
+                   <Clock size={12} weight="bold" /> Expira em 24h
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-blue-600 px-8 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CheckCircle size={16} weight="bold" className="text-white" />
+                <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">Verificado pelo Sistema</span>
+              </div>
+              <ShieldCheckered size={24} weight="duotone" className="text-white/40" />
+            </div>
+          </div>
+        </motion.div>
+
+        <div className="mt-12 max-w-sm w-full p-6 rounded-[32px] glass border-2 border-[var(--color-border)] flex items-start gap-4">
+          <UserCircle size={32} weight="duotone" className="text-blue-500 shrink-0" />
+          <p className="text-xs font-bold text-[var(--color-text-2)] leading-relaxed uppercase tracking-wider">
+            Mantenha seu brilho no brilho máximo ao apresentar este documento ao motorista ou fiscal.
+          </p>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function InfoItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="space-y-1">
+      <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">{label}</p>
+      <p className="text-xs font-bold text-white uppercase tracking-tight truncate">{value}</p>
+    </div>
+  );
 }

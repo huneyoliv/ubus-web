@@ -1,224 +1,225 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Bell, ArrowRight, CheckCircle, Clock, MapPin, CalendarCheck, Bus, Zap } from 'lucide-react'
-import { useAuthStore } from '@/store/useAuthStore'
-import { api } from '@/lib/api'
-import type { Trip, Reservation, BackendReservationResponse } from '@/types'
-import { mapBackendReservation } from '@/types'
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Bell, ArrowRight, CheckCircle, Clock, MapPin, CalendarCheck, Bus, Lightning, CaretRight, Info } from 'phosphor-react';
+import { useAuthStore } from '@/store/useAuthStore';
+import { api } from '@/lib/api';
+import type { Trip, Reservation, BackendReservationResponse } from '@/types';
+import { mapBackendReservation } from '@/types';
 
 export default function Home() {
-    const navigate = useNavigate()
-    const user = useAuthStore((s) => s.user)
-    const [openTrips, setOpenTrips] = useState<Trip[]>([])
-    const [myReservations, setMyReservations] = useState<Reservation[]>([])
-    const [loading, setLoading] = useState(true)
+  const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const [openTrips, setOpenTrips] = useState<Trip[]>([]);
+  const [myReservations, setMyReservations] = useState<Reservation[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true)
-            try {
-                const [trips, backendReservations] = await Promise.all([
-                    api.get<Trip[]>('/trips/open').catch(() => [] as Trip[]),
-                    api.get<BackendReservationResponse[]>('/reservations/mine').catch(() => [] as BackendReservationResponse[]),
-                ])
-                setOpenTrips(trips)
-                setMyReservations(backendReservations.map(mapBackendReservation))
-            } catch {
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchData()
-    }, [])
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      console.log('[DEBUG] Carregando dados do dashboard do estudante...');
+      try {
+        const [trips, backendReservations] = await Promise.all([
+          api.get<Trip[]>('/trips/open').catch(() => [] as Trip[]),
+          api.get<BackendReservationResponse[]>('/reservations/mine').catch(() => [] as BackendReservationResponse[]),
+        ]);
+        console.log(`[DEBUG] Viagens abertas encontradas: ${trips.length}`);
+        console.log(`[DEBUG] Reservas ativas encontradas: ${backendReservations.length}`);
+        setOpenTrips(trips);
+        setMyReservations(backendReservations.map(mapBackendReservation));
+      } catch (err) {
+        console.error('[DEBUG] Erro ao carregar dados do dashboard:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-    const initials = user?.name
-        ? user.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
-        : '?'
+  const initials = user?.name
+    ? user.name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+    : '?';
 
-    const firstName = user?.name?.split(' ')[0] ?? ''
-    const hasReservation = myReservations.length > 0
-    const hasOpenTrips = openTrips.length > 0
+  const firstName = user?.name?.split(' ')[0] ?? 'Viajante';
+  const hasReservation = myReservations.length > 0;
+  const hasOpenTrips = openTrips.length > 0;
 
-    return (
-        <div className="flex flex-col min-h-full">
-            <div className="px-5 pt-8 pb-5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="relative">
-                        <div className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm"
-                            style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))', color: 'white', fontFamily: 'var(--font-display)' }}>
-                            {initials}
-                        </div>
-                        <div className="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white"
-                            style={{ background: 'var(--color-success)' }} />
-                    </div>
-                    <div>
-                        <p className="text-xs font-medium" style={{ color: 'var(--color-text-3)' }}>Bem-vindo de volta</p>
-                        <h2 className="text-base font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>{firstName}</h2>
-                    </div>
-                </div>
-                <button className="relative flex items-center justify-center w-10 h-10 rounded-xl transition-all hover:bg-white"
-                    style={{ border: '1.5px solid var(--color-border)' }}>
-                    <Bell size={18} style={{ color: 'var(--color-text-2)' }} />
-                </button>
+  return (
+    <div className="flex flex-col min-h-screen bg-[var(--color-bg)] transition-colors duration-500">
+      <div className="px-6 pt-10 pb-6 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <motion.div 
+            whileHover={{ scale: 1.05 }}
+            className="relative"
+          >
+            <div className="w-14 h-14 rounded-2xl glass border-2 border-white/20 flex items-center justify-center font-black text-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-display shadow-xl">
+              {initials}
             </div>
-
-            <div className="px-5 pb-6 flex flex-col gap-4">
-                {loading && (
-                    <div className="flex flex-col gap-3">
-                        {[1, 2].map((i) => (
-                            <div key={i} className="h-24 rounded-2xl skeleton" />
-                        ))}
-                    </div>
-                )}
-
-                {!loading && !hasReservation && !hasOpenTrips && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex flex-col items-center justify-center py-16 text-center"
-                    >
-                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-                            style={{ background: 'rgba(37,99,235,0.08)' }}>
-                            <Clock size={28} style={{ color: 'var(--color-primary)' }} />
-                        </div>
-                        <h3 className="font-bold text-base mb-1" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
-                            Nenhuma viagem disponível
-                        </h3>
-                        <p className="text-sm leading-relaxed max-w-xs" style={{ color: 'var(--color-text-2)' }}>
-                            Viagens abertas para reserva aparecerão aqui quando estiverem disponíveis.
-                        </p>
-                    </motion.div>
-                )}
-
-                {!loading && hasOpenTrips && !hasReservation && (
-                    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-3">
-                        <div className="flex items-center gap-3 p-4 rounded-2xl"
-                            style={{ background: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.15)' }}>
-                            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                                style={{ background: 'rgba(37,99,235,0.12)' }}>
-                                <Zap size={18} style={{ color: 'var(--color-primary)' }} />
-                            </div>
-                            <div>
-                                <p className="text-sm font-bold" style={{ color: 'var(--color-primary)' }}>Viagens abertas!</p>
-                                <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-2)' }}>
-                                    {openTrips.length} viagem(ns) disponíveis para reserva.
-                                </p>
-                            </div>
-                        </div>
-
-                        <h3 className="font-bold text-sm uppercase tracking-wide px-1" style={{ color: 'var(--color-text-3)' }}>Reserve agora</h3>
-
-                        {openTrips.map((trip, idx) => (
-                            <motion.button
-                                key={trip.idViagem}
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: idx * 0.06 }}
-                                onClick={() => navigate('/reservar', { state: { tripId: trip.idViagem, trip } })}
-                                className="card-hover w-full p-5 text-left"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                                        style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.08))' }}>
-                                        <CalendarCheck size={22} style={{ color: 'var(--color-primary)' }} />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-bold text-sm" style={{ color: 'var(--color-text)' }}>
-                                            {trip.direcao === 'IDA' ? '→ Ida' : '← Volta'} — {trip.turno}
-                                        </p>
-                                        <p className="text-xs mt-0.5 flex items-center gap-1" style={{ color: 'var(--color-text-3)' }}>
-                                            <MapPin size={10} />
-                                            {trip.dataViagem} • {trip.linha?.nome ?? trip.idViagem}
-                                        </p>
-                                    </div>
-                                    <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                                        style={{ background: 'rgba(37,99,235,0.08)' }}>
-                                        <ArrowRight size={16} style={{ color: 'var(--color-primary)' }} />
-                                    </div>
-                                </div>
-                            </motion.button>
-                        ))}
-                    </motion.div>
-                )}
-
-                {!loading && hasReservation && (
-                    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-3">
-                        <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: 'var(--color-success)' }} />
-                            <span className="text-xs font-semibold" style={{ color: 'var(--color-success)' }}>
-                                {myReservations.length} reserva(s) ativa(s)
-                            </span>
-                        </div>
-
-                        {myReservations.map((reservation, idx) => {
-                            const isIda = reservation.viagem?.direcao === 'IDA'
-                            return (
-                                <motion.div
-                                    key={reservation.id}
-                                    initial={{ opacity: 0, y: 8 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: idx * 0.06 }}
-                                    className="rounded-2xl overflow-hidden"
-                                    style={{ boxShadow: '0 8px 32px -8px rgba(37,99,235,0.18)', border: '1px solid var(--color-border)' }}
-                                >
-                                    <div className="p-1" style={{ background: isIda ? 'linear-gradient(135deg, #2563EB, #7C3AED)' : 'linear-gradient(135deg, #059669, #047857)' }}>
-                                        <div className="flex items-center justify-between px-4 py-2.5">
-                                            <span className="text-white/80 text-xs font-semibold uppercase tracking-widest">
-                                                {reservation.viagem?.direcao ?? 'Viagem'}
-                                            </span>
-                                            <span className="text-white text-xs font-bold">{reservation.viagem?.turno ?? '—'}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="p-5" style={{ background: 'var(--color-surface)' }}>
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div>
-                                                <h4 className="font-bold text-base" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
-                                                    {isIda ? 'Ida para Faculdade' : 'Volta para Casa'}
-                                                </h4>
-                                                <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-3)' }}>
-                                                    {reservation.viagem?.linha?.nome ?? reservation.idViagem}
-                                                </p>
-                                            </div>
-                                            <div className="px-3 py-1 rounded-full text-xs font-bold"
-                                                style={{ background: 'rgba(16,185,129,0.1)', color: 'var(--color-success)' }}>
-                                                {reservation.status}
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-4 mb-4 p-3 rounded-xl" style={{ background: 'var(--color-bg)' }}>
-                                            <div className="flex items-center gap-1.5" style={{ color: 'var(--color-text-2)' }}>
-                                                <Bus size={14} />
-                                                <span className="text-xs font-medium">Poltrona {reservation.numeroAssento ?? 'Excesso'}</span>
-                                            </div>
-                                            <div className="w-px h-4" style={{ background: 'var(--color-border)' }} />
-                                            <div className="flex items-center gap-1.5" style={{ color: 'var(--color-text-2)' }}>
-                                                <CalendarCheck size={14} />
-                                                <span className="text-xs font-medium">{reservation.viagem?.dataViagem ?? '—'}</span>
-                                            </div>
-                                        </div>
-
-                                        <button
-                                            onClick={() => navigate('/bilhete', { state: { reservationId: reservation.id, reservation } })}
-                                            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm transition-all active:scale-[0.98]"
-                                            style={{
-                                                background: isIda ? 'var(--color-primary)' : 'var(--color-success)',
-                                                color: 'white',
-                                                fontFamily: 'var(--font-display)',
-                                                boxShadow: isIda ? '0 4px 16px -4px rgba(37,99,235,0.4)' : '0 4px 16px -4px rgba(16,185,129,0.4)',
-                                            }}
-                                        >
-                                            <CheckCircle size={16} />
-                                            Ver Bilhete
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            )
-                        })}
-                    </motion.div>
-                )}
-            </div>
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[var(--color-bg)] bg-green-500 shadow-lg" />
+          </motion.div>
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-[var(--color-text-3)] mb-0.5">Painel Geral</p>
+            <h2 className="text-2xl font-black text-[var(--color-text)] font-display tracking-tight leading-tight">Olá, {firstName}</h2>
+          </div>
         </div>
-    )
+        <button className="relative w-12 h-12 flex items-center justify-center rounded-2xl glass border-[var(--color-border)] hover:bg-white/50 transition-all">
+          <Bell size={24} weight="bold" className="text-[var(--color-text-2)]" />
+          {hasReservation && (
+            <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[var(--color-bg)]" />
+          )}
+        </button>
+      </div>
+
+      <div className="px-6 pb-24 space-y-8">
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[1, 2, 3].map((i) => <div key={i} className="h-40 rounded-3xl skeleton" />)}
+          </div>
+        ) : (
+          <div className="animate-spring-up space-y-8">
+            {hasReservation && (
+              <section className="space-y-4">
+                <div className="flex items-center justify-between px-1">
+                  <h3 className="text-sm font-black uppercase tracking-widest text-[var(--color-text-3)] flex items-center gap-2">
+                    <CheckCircle size={18} weight="duotone" className="text-green-500" /> Reservas Ativas
+                  </h3>
+                  <span className="text-[10px] font-black bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full uppercase truncate">Confirmado</span>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-4">
+                  {myReservations.map((res) => (
+                    <motion.div
+                      key={res.id}
+                      whileHover={{ scale: 1.01 }}
+                      className="group relative overflow-hidden rounded-3xl glass border-2 border-[var(--color-border)] hover:border-[var(--color-primary)]/30 transition-all duration-300 shadow-sm"
+                    >
+                      <div className={`absolute top-0 left-0 w-2 h-full bg-gradient-to-b ${res.viagem?.direcao === 'IDA' ? 'from-blue-500 to-indigo-600' : 'from-green-500 to-emerald-600'}`} />
+                      <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3">
+                            <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-white shadow-lg ${res.viagem?.direcao === 'IDA' ? 'bg-blue-500' : 'bg-green-600'}`}>
+                              {res.viagem?.direcao === 'IDA' ? 'Indo' : 'Voltando'}
+                            </span>
+                            <span className="text-sm font-black text-[var(--color-text-2)] uppercase">{res.viagem?.turno}</span>
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-black text-[var(--color-text)] font-display tracking-tight leading-tight">
+                              {res.viagem?.linha?.nome ?? 'Linha Especial'}
+                            </h4>
+                            <div className="flex flex-wrap items-center gap-4 mt-2">
+                              <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--color-text-3)]">
+                                <CalendarCheck size={16} weight="duotone" className="text-blue-500" /> {res.viagem?.dataViagem}
+                              </div>
+                              <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--color-text-3)]">
+                                <Bus size={16} weight="duotone" className="text-indigo-500" /> Assento {res.numeroAssento ?? 'Livre'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => navigate('/bilhete', { state: { reservationId: res.id, reservation: res } })}
+                          className={`flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-black text-sm text-white shadow-xl transition-transform active:scale-95 ${res.viagem?.direcao === 'IDA' ? 'bg-blue-600' : 'bg-green-600'}`}
+                        >
+                          Acessar Bilhete <CaretRight size={18} weight="bold" />
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <section className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <h3 className="text-sm font-black uppercase tracking-widest text-[var(--color-text-3)] flex items-center gap-2">
+                  <Lightning size={18} weight="duotone" className="text-amber-500" /> {hasOpenTrips ? 'Reservar Próxima Viagem' : 'Status do Sistema'}
+                </h3>
+              </div>
+
+              {!hasOpenTrips ? (
+                <div className="p-8 rounded-3xl glass border-2 border-dashed border-[var(--color-border)] flex flex-col items-center text-center space-y-4">
+                  <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[var(--color-text-3)]">
+                    <Clock size={32} weight="duotone" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-[var(--color-text)]">Aguardando novas janelas</p>
+                    <p className="text-sm text-[var(--color-text-3)] mt-1">Fique atento às notificações para novas viagens abertas.</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {openTrips.map((trip) => (
+                    <motion.button
+                      key={trip.idViagem}
+                      whileHover={{ y: -4 }}
+                      onClick={() => navigate('/reservar', { state: { tripId: trip.idViagem, trip } })}
+                      className="group p-6 rounded-3xl bg-white dark:bg-zinc-900 border-2 border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all shadow-sm flex flex-col justify-between min-h-[160px]"
+                    >
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-start">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${trip.direcao === 'IDA' ? 'bg-blue-500/10 text-blue-500' : 'bg-green-500/10 text-green-500'}`}>
+                            <Bus size={22} weight="duotone" />
+                          </div>
+                          <div className="px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-[10px] font-black uppercase tracking-widest text-[var(--color-text-3)]">
+                            {trip.direcao}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-[var(--color-text-3)] uppercase tracking-wider mb-1">{trip.turno}</p>
+                          <h5 className="font-black text-[var(--color-text)] font-display tracking-tight line-clamp-1">{trip.linha?.nome ?? 'Linha Especial'}</h5>
+                          <div className="flex items-center gap-1.5 mt-2 text-[10px] font-bold text-[var(--color-text-3)]">
+                            <MapPin size={12} weight="bold" /> {trip.direcao === 'IDA' ? 'Centro' : 'Bairro'}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-[var(--color-primary)]">
+                        <span className="text-xs font-black uppercase tracking-widest">Reservar Vaga</span>
+                        <ArrowRight size={18} weight="bold" className="transition-transform group-hover:translate-x-1" />
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <QuickAction 
+                icon={<Info size={28} weight="duotone" />} 
+                title="Regras do Uso" 
+                desc="Consulte direitos e deveres do estudante." 
+                onClick={() => navigate('/regras')} 
+              />
+              <QuickAction 
+                icon={<MapPin size={28} weight="duotone" />} 
+                title="Pontos de Embarque" 
+                desc="Localização de todas as paradas." 
+                onClick={() => navigate('/ponto-embarque')} 
+                color="indigo" 
+              />
+            </section>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function QuickAction({ icon, title, desc, onClick, color = 'blue' }: { icon: React.ReactNode; title: string; desc: string; onClick: () => void; color?: string }) {
+  const themes: Record<string, string> = {
+    blue: 'bg-blue-500/5 text-blue-600 hover:bg-blue-500/10',
+    indigo: 'bg-indigo-500/5 text-indigo-600 hover:bg-indigo-500/10',
+  };
+  
+  return (
+    <button onClick={onClick} className={`p-6 rounded-3xl border-2 border-transparent transition-all text-left flex items-start gap-4 ${themes[color] || themes.blue}`}>
+      <div className="w-12 h-12 rounded-2xl glass flex items-center justify-center shrink-0 border-white/20">
+        {icon}
+      </div>
+      <div>
+        <h6 className="font-black text-[var(--color-text)] font-display tracking-tight leading-tight">{title}</h6>
+        <p className="text-xs font-semibold text-zinc-500 mt-1">{desc}</p>
+      </div>
+    </button>
+  );
 }

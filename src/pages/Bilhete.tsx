@@ -1,194 +1,215 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
-import { ArrowLeft, Bus, Clock, AlertTriangle, CheckCircle } from 'lucide-react'
-import { motion } from 'framer-motion'
-import { api } from '@/lib/api'
-import { useAuthStore } from '@/store/useAuthStore'
-import type { Reservation, BackendReservationResponse } from '@/types'
-import { mapBackendReservation } from '@/types'
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Bus, Clock, Warning, CheckCircle, Ticket, CalendarBlank, MapPin, IdentificationCard } from 'phosphor-react';
+import { api } from '@/lib/api';
+import { useAuthStore } from '@/store/useAuthStore';
+import type { Reservation, BackendReservationResponse } from '@/types';
+import { mapBackendReservation } from '@/types';
 
 export default function Bilhete() {
-    const navigate = useNavigate()
-    const location = useLocation()
-    const user = useAuthStore((s) => s.user)
-    const [time, setTime] = useState(new Date())
+  const navigate = useNavigate();
+  const location = useLocation();
+  const user = useAuthStore((s) => s.user);
+  const [time, setTime] = useState(new Date());
 
-    const stateData = location.state as { reservationId?: string; reservation?: Reservation; tripId?: string; seatNumber?: number; trip?: unknown } | undefined
-    const [reservation, setReservation] = useState<Reservation | null>(stateData?.reservation ?? null)
-    const [loading, setLoading] = useState(!stateData?.reservation)
-    const isRelocated = reservation?.status === 'EXCESSO'
+  const stateData = location.state as { reservationId?: string; reservation?: Reservation; tripId?: string; seatNumber?: number; trip?: unknown } | undefined;
+  const [reservation, setReservation] = useState<Reservation | null>(stateData?.reservation ?? null);
+  const [loading, setLoading] = useState(!stateData?.reservation);
 
-    useEffect(() => {
-        const timer = setInterval(() => setTime(new Date()), 1000)
-        return () => clearInterval(timer)
-    }, [])
+  const isRelocated = reservation?.status === 'EXCESSO';
 
-    useEffect(() => {
-        if (reservation) return
-        if (stateData?.reservationId) {
-            api.get<Reservation>(`/reservations/${stateData.reservationId}`)
-                .then(setReservation)
-                .catch(() => { })
-                .finally(() => setLoading(false))
-        } else {
-            api.get<BackendReservationResponse[]>('/reservations/mine')
-                .then((list) => { if (list.length > 0) setReservation(mapBackendReservation(list[0])) })
-                .catch(() => { })
-                .finally(() => setLoading(false))
-        }
-    }, [stateData?.reservationId, reservation])
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
-    const formatTime = (d: Date) => d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-    const formatDate = (d: Date) => d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-dvh">
-                <div className="w-10 h-10 border-3 border-t-transparent rounded-full animate-spin"
-                    style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-primary)', borderWidth: 3 }} />
-            </div>
-        )
+  useEffect(() => {
+    if (reservation) return;
+    console.log('[DEBUG] Buscando detalhes do bilhete...');
+    if (stateData?.reservationId) {
+      api.get<Reservation>(`/reservations/${stateData.reservationId}`)
+        .then(setReservation)
+        .catch((err) => console.error('[DEBUG] Erro ao buscar reserva:', err))
+        .finally(() => setLoading(false));
+    } else {
+      api.get<BackendReservationResponse[]>('/reservations/mine')
+        .then((list) => { 
+          if (list.length > 0) {
+            setReservation(mapBackendReservation(list[0]));
+          }
+        })
+        .catch((err) => console.error('[DEBUG] Erro ao buscar lista de reservas:', err))
+        .finally(() => setLoading(false));
     }
+  }, [stateData?.reservationId, reservation]);
 
-    const viagem = reservation?.viagem
-    const seatDisplay = reservation?.numeroAssento ?? stateData?.seatNumber ?? '—'
-    const dirDisplay = viagem?.direcao ?? 'Viagem'
-    const linhaDisplay = viagem?.linha?.nome ?? viagem?.idViagem ?? reservation?.idViagem ?? '—'
-    const turnoDisplay = viagem?.turno ?? ''
-    const dataDisplay = viagem?.dataViagem ?? ''
-    const isIda = dirDisplay === 'IDA'
+  const formatTime = (d: Date) => d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const formatDate = (d: Date) => d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
 
-    const gradient = isRelocated
-        ? 'linear-gradient(160deg, #92400E 0%, #B45309 40%, #78350F 100%)'
-        : isIda
-            ? 'linear-gradient(160deg, #1E1B4B 0%, #2563EB 40%, #0EA5E9 100%)'
-            : 'linear-gradient(160deg, #064E3B 0%, #059669 40%, #10B981 100%)'
-
+  if (loading) {
     return (
-        <div className="w-full min-h-dvh flex flex-col relative overflow-hidden" style={{ background: gradient }}>
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full opacity-15 blur-3xl bg-white" />
-                <div className="absolute bottom-20 -left-10 w-60 h-60 rounded-full opacity-10 blur-2xl bg-white" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full opacity-5 blur-3xl bg-white" />
-            </div>
+      <div className="flex items-center justify-center min-h-screen bg-zinc-950">
+        <div className="w-12 h-12 border-4 border-white/20 border-t-blue-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
-            <div className="relative z-10 flex flex-col min-h-dvh max-w-xl mx-auto w-full">
-                <div className="flex items-center justify-between px-5 pt-12 pb-4">
-                    <button onClick={() => navigate('/dashboard')}
-                        className="flex items-center justify-center w-10 h-10 rounded-xl transition-all"
-                        style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
-                        <ArrowLeft size={18} className="text-white" />
-                    </button>
-                    <h1 className="text-white font-bold text-base" style={{ fontFamily: 'var(--font-display)' }}>Bilhete Digital</h1>
-                    <div className="w-10" />
-                </div>
+  const viagem = reservation?.viagem;
+  const seatDisplay = reservation?.numeroAssento ?? stateData?.seatNumber ?? 'Livre';
+  const dirDisplay = viagem?.direcao ?? 'Viagem';
+  const isIda = dirDisplay === 'IDA';
 
-                {isRelocated && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mx-5 mb-4 p-3.5 rounded-2xl flex items-center gap-3"
-                        style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}
-                    >
-                        <AlertTriangle size={18} className="text-amber-300 shrink-0" />
-                        <div>
-                            <p className="text-white font-bold text-sm">Transbordo Ativo</p>
-                            <p className="text-white/70 text-xs">Você foi realocado para um veículo de apoio.</p>
-                        </div>
-                    </motion.div>
-                )}
+  const themeConfig = isRelocated
+    ? { 
+        gradient: 'from-amber-900 via-zinc-950 to-zinc-950', 
+        accent: 'text-amber-500', 
+        bgAccent: 'bg-amber-500/10',
+        label: 'Em Transbordo'
+      }
+    : isIda
+      ? { 
+          gradient: 'from-blue-900 via-zinc-950 to-zinc-950', 
+          accent: 'text-blue-500', 
+          bgAccent: 'bg-blue-500/10',
+          label: 'Indo (IDA)'
+        }
+      : { 
+          gradient: 'from-emerald-900 via-zinc-950 to-zinc-950', 
+          accent: 'text-emerald-500', 
+          bgAccent: 'bg-emerald-500/10',
+          label: 'Voltando (VOLTA)'
+        };
 
-                <div className="flex-1 flex flex-col items-center justify-center px-5 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.1 }}
-                        className="mb-8"
-                    >
-                        <p className="text-white/50 text-xs font-semibold uppercase tracking-widest mb-2">Horário Atual</p>
-                        <div className="text-white font-black tracking-tight tabular-nums" style={{ fontSize: '3.5rem', fontFamily: 'var(--font-display)', lineHeight: 1 }}>
-                            {formatTime(time)}
-                        </div>
-                        <p className="text-white/50 text-sm mt-2 capitalize">{formatDate(time)}</p>
-                    </motion.div>
+  return (
+    <div className={`w-full min-h-screen flex flex-col bg-gradient-to-b ${themeConfig.gradient} transition-all duration-1000`}>
+      <header className="px-6 pt-12 pb-4 flex items-center justify-between z-20">
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="w-12 h-12 flex items-center justify-center rounded-2xl glass border-2 border-white/10 text-white"
+        >
+          <ArrowLeft size={24} weight="bold" />
+        </button>
+        <h1 className="text-sm font-black text-white uppercase tracking-[0.4em] font-display opacity-60">Boarding Pass</h1>
+        <div className="w-12" />
+      </header>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="w-full rounded-3xl overflow-hidden"
-                        style={{ background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)' }}
-                    >
-                        <div className="p-5">
-                            <div className="flex items-center justify-between mb-5">
-                                <div className="flex items-center gap-3 text-left">
-                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-                                        style={{ background: 'rgba(255,255,255,0.15)' }}>
-                                        <Bus size={18} className="text-white" />
-                                    </div>
-                                    <div>
-                                        <p className="text-white font-bold text-sm">{linhaDisplay}</p>
-                                        <p className="text-white/60 text-xs">{dirDisplay} • {turnoDisplay}</p>
-                                    </div>
-                                </div>
-                                <div className="px-3 py-1.5 rounded-xl text-xs font-bold text-white"
-                                    style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' }}>
-                                    Poltrona {seatDisplay}
-                                </div>
-                            </div>
-
-                            <div className="h-px mb-5" style={{ background: 'rgba(255,255,255,0.15)' }} />
-
-                            <div className="grid grid-cols-2 gap-4 mb-5 text-left">
-                                <div>
-                                    <p className="text-white/40 text-[10px] uppercase tracking-widest mb-1">Data da Viagem</p>
-                                    <p className="text-white font-semibold text-sm">{dataDisplay || '—'}</p>
-                                </div>
-                                <div>
-                                    <p className="text-white/40 text-[10px] uppercase tracking-widest mb-1">ID Reserva</p>
-                                    <p className="text-white font-semibold text-xs font-mono truncate">{reservation?.id?.slice(0, 8) ?? '—'}</p>
-                                </div>
-                            </div>
-
-                            <div className="h-px mb-5" style={{ background: 'rgba(255,255,255,0.15)' }} />
-
-                            <div className="grid grid-cols-3 gap-3 text-center">
-                                <div>
-                                    <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">Passageiro</p>
-                                    <p className="text-white text-xs font-semibold truncate">{user?.name?.split(' ')[0] ?? '—'}</p>
-                                </div>
-                                <div>
-                                    <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">CPF</p>
-                                    <p className="text-white text-xs font-semibold font-mono">
-                                        {user?.cpf ? `***${user.cpf.slice(-4)}` : '—'}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-white/40 text-[10px] uppercase tracking-wider mb-1">Status</p>
-                                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full"
-                                        style={{ background: 'rgba(52,211,153,0.2)' }}>
-                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
-                                        <span className="text-emerald-200 text-[10px] font-bold">{reservation?.status ?? 'ATIVO'}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-center gap-2 py-4 border-t"
-                            style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
-                            <CheckCircle size={13} className="text-white/30" />
-                            <span className="text-white/30 text-xs">Bilhete gerado em tempo real • Não compartilhe</span>
-                        </div>
-                    </motion.div>
-                </div>
-
-                <div className="px-5 pb-10 pt-4 flex items-center justify-center">
-                    <div className="flex items-center gap-2">
-                        <Clock size={12} className="text-white/30" />
-                        <span className="text-white/30 text-xs">Válido somente para a data da viagem</span>
-                    </div>
-                </div>
-            </div>
+      <main className="flex-1 flex flex-col items-center justify-center -mt-8 px-6 space-y-12 z-10 animate-spring-up overflow-hidden">
+        <div className="text-center space-y-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-white font-black tabular-nums tracking-tighter font-display flex items-baseline gap-2"
+            style={{ fontSize: 'clamp(4rem, 15vw, 6rem)', lineHeight: 0.8 }}
+          >
+            {formatTime(time).split(':').map((chunk, i, arr) => (
+              <span key={i} className="flex items-baseline">
+                {chunk}
+                {i < arr.length - 1 && <span className="opacity-20 mx-1 mb-1" style={{ fontSize: '0.6em' }}>:</span>}
+              </span>
+            ))}
+          </motion.div>
+          <p className="text-white/40 font-black uppercase tracking-[0.2em] text-[10px] sm:text-xs">
+            {formatDate(time).toUpperCase()}
+          </p>
         </div>
-    )
+
+        <div className="w-full max-w-[420px] relative group">
+          <div className={`absolute inset-0 blur-[100px] opacity-20 rounded-full transition-colors ${isIda ? 'bg-blue-500' : 'bg-emerald-500'}`} />
+          
+          <div className="relative rounded-[48px] overflow-hidden glass border-2 border-white/20 shadow-[0_32px_100px_-20px_rgba(0,0,0,0.5)]">
+            <div className={`h-2 w-full ${isIda ? 'bg-blue-500' : 'bg-emerald-500'} opacity-80`} />
+            
+            <div className="p-8 space-y-8">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${themeConfig.bgAccent}`}>
+                    <Bus size={32} weight="duotone" className={themeConfig.accent} />
+                  </div>
+                  <div>
+                    <h2 className="text-white text-xl font-black font-display tracking-tight leading-tight">
+                      {viagem?.linha?.nome || 'Viagem Local'}
+                    </h2>
+                    <p className="text-white/40 text-[10px] font-black uppercase tracking-widest mt-1">
+                      {viagem?.turno} • {themeConfig.label}
+                    </p>
+                  </div>
+                </div>
+                <div className="h-10 w-[2px] bg-white/10" />
+                <div className="text-right">
+                  <p className="text-white/30 text-[10px] font-black uppercase tracking-widest leading-none">Assento</p>
+                  <p className="text-white text-3xl font-black font-display tracking-tighter mt-1">{seatDisplay}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-8">
+                <TicketInfo icon={<CalendarBlank size={18} weight="duotone" />} label="Data" value={viagem?.dataViagem || '—'} />
+                <TicketInfo icon={<Clock size={18} weight="duotone" />} label="Turno" value={viagem?.turno || '—'} />
+                <TicketInfo icon={<IdentificationCard size={18} weight="duotone" />} label="Reserva" value={reservation?.id?.slice(0, 8).toUpperCase() || '—'} />
+                <TicketInfo icon={<MapPin size={18} weight="duotone" />} label="Status" value={viagem?.status || 'Confirmada'} />
+              </div>
+
+              <div className="flex flex-col items-center pt-2 space-y-4">
+                 <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                 <div className="flex items-center gap-6">
+                    <div className="text-center">
+                      <p className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-1">Passageiro</p>
+                      <p className="text-white font-bold text-sm uppercase">{user?.name?.split(' ')[0]}</p>
+                    </div>
+                    <div className="w-px h-8 bg-white/10" />
+                    <div className="text-center">
+                      <p className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-1">Status</p>
+                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/20">
+                        <CheckCircle size={10} weight="bold" className="text-emerald-400" />
+                        <span className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">Validado</span>
+                      </div>
+                    </div>
+                 </div>
+              </div>
+            </div>
+
+            <div className="bg-zinc-100 dark:bg-zinc-800 p-6 flex items-center justify-between border-t border-white/5">
+              <div className="flex items-center gap-3">
+                <Ticket size={24} weight="duotone" className="text-zinc-400" />
+                <span className="text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em]">Generated via Ubus Protocol v1.4</span>
+              </div>
+              <div className="px-3 py-1 rounded-md bg-zinc-200 dark:bg-zinc-900 text-[9px] font-black text-zinc-500 uppercase">
+                Secure Token 0x{reservation?.id?.slice(-4).toUpperCase()}
+              </div>
+            </div>
+          </div>
+
+          <div className="absolute top-1/2 -left-4 w-8 h-8 rounded-full bg-zinc-950 border-r-2 border-white/20 -translate-y-1/2" />
+          <div className="absolute top-1/2 -right-4 w-8 h-8 rounded-full bg-zinc-950 border-l-2 border-white/20 -translate-y-1/2" />
+        </div>
+
+        {isRelocated && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-[420px] p-6 rounded-[32px] glass border-2 border-amber-500/30 bg-amber-500/5 flex items-start gap-4"
+          >
+            <Warning size={32} weight="duotone" className="text-amber-500 shrink-0" />
+            <div className="space-y-1">
+              <p className="text-amber-500 font-black uppercase tracking-widest text-xs">Transbordo Ativo</p>
+              <p className="text-zinc-400 text-xs font-medium leading-relaxed uppercase tracking-wider">
+                Atenção: Você foi realocado para um veículo de apoio. Procure o fiscal da sua rota para embarque.
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </main>
+    </div>
+  );
+}
+
+function TicketInfo({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 text-white/30 uppercase tracking-[0.2em] text-[10px] font-black">
+        {icon} {label}
+      </div>
+      <p className="text-white font-bold text-sm tracking-tight truncate leading-none uppercase">{value}</p>
+    </div>
+  );
 }
