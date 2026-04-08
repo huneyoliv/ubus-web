@@ -8,7 +8,7 @@ export default function BottomNav() {
     const lider = user?.role === 'LEADER'
 
     const navItems = [
-        { icon: Home, label: 'Início', route: '/home' },
+        { icon: Home, label: 'Início', route: '/dashboard' },
         { icon: Clock, label: 'Histórico', route: '/historico' },
         ...(pagamentos ? [{ icon: Wallet, label: 'Pagamentos', route: '/pagamentos' }] : []),
         ...(lider ? [{ icon: ShieldCheck, label: 'Líder', route: '/lider' }] : []),

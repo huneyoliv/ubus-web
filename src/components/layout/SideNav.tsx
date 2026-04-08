@@ -13,7 +13,7 @@ export default function SideNav() {
     const navigate = useNavigate()
 
     const navItems = [
-        { icon: Home, label: 'Início', route: '/home' },
+        { icon: Home, label: 'Início', route: '/dashboard' },
         { icon: Clock, label: 'Histórico', route: '/historico' },
         { icon: CreditCard, label: 'Carteirinha', route: '/carteirinha' },
         ...(pagamentos ? [{ icon: Wallet, label: 'Pagamentos', route: '/pagamentos' }] : []),
