@@ -67,7 +67,7 @@ export default function Cadastro() {
             api.get<Prefeitura[]>('/management/public')
                 .then((data) => {
                     const list = Array.isArray(data) ? data : []
-                    setPrefeituras(list.filter(p => p.ativo !== false))
+                    setPrefeituras(list.filter(p => p.active !== false))
                 })
                 .catch(() => setPrefeituras([]))
                 .finally(() => setLoadingPrefeituras(false))
@@ -75,7 +75,7 @@ export default function Cadastro() {
     }, [step, prefeituras.length])
 
     const filteredPrefeituras = prefeituras.filter((p) =>
-        (p.nome || '').toLowerCase().includes((search || '').toLowerCase())
+        (p.name || '').toLowerCase().includes((search || '').toLowerCase())
     )
 
     const formatCpf = (value: string) => {
@@ -310,7 +310,7 @@ export default function Cadastro() {
                                                     }}
                                                 >
                                                     <div className="flex-1">
-                                                        <p className="font-semibold text-sm" style={{ color: 'var(--color-text)' }}>{pref.nome}</p>
+                                                        <p className="font-semibold text-sm" style={{ color: 'var(--color-text)' }}>{pref.name}</p>
                                                         <p className="text-xs mt-0.5" style={{ color: isSelected ? 'var(--color-primary)' : 'var(--color-text-3)' }}>
                                                             {isSelected ? '✓ Selecionado' : 'Disponível'}
                                                         </p>

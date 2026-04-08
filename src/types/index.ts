@@ -23,8 +23,10 @@ export interface User {
 
 export interface Prefeitura {
     id: string
-    nome: string
-    ativo: boolean
+    name: string
+    active: boolean
+    managerId?: string
+    createdAt?: string
 }
 
 /* ── Linha (Rota) ── */

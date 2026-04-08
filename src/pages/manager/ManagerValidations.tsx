@@ -4,15 +4,15 @@ import { api } from '@/lib/api'
 
 interface PendingUser {
     id: string
-    nome: string
+    name: string
     email: string
     cpf: string
-    telefone?: string
+    phone?: string
     role: string
-    fotoPerfilUrl?: string
-    gradeHorarioUrl?: string
-    criadoEm?: string
-    idLinhaPadrao?: string
+    profilePictureUrl?: string
+    scheduleUrl?: string
+    createdAt?: string
+    defaultRouteId?: string
 }
 
 export default function ManagerValidations() {
@@ -58,12 +58,12 @@ export default function ManagerValidations() {
     }
 
     const filtered = students.filter(s =>
-        (s.nome || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
+        (s.name || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
         (s.cpf || '').includes(searchTerm || '')
     )
 
     const selected = students.find(s => s.id === selectedId)
-    const initials = selected?.nome ? selected.nome.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() : '?'
+    const initials = selected?.name ? selected.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase() : '?'
 
     if (loading) {
         return (
@@ -134,20 +134,20 @@ export default function ManagerValidations() {
                                 <div className="flex items-center gap-3 overflow-hidden">
                                     <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center font-bold text-sm overflow-hidden"
                                         style={{ background: 'rgba(37,99,235,0.08)', color: 'var(--color-primary)' }}>
-                                        {student.fotoPerfilUrl ? (
-                                            <img src={student.fotoPerfilUrl} alt="" className="w-full h-full object-cover" />
+                                        {student.profilePictureUrl ? (
+                                            <img src={student.profilePictureUrl} alt="" className="w-full h-full object-cover" />
                                         ) : (
-                                            student.nome.substring(0, 2).toUpperCase()
+                                            (student.name || '?').substring(0, 2).toUpperCase()
                                         )}
                                     </div>
                                     <div className="overflow-hidden">
-                                        <h4 className="text-sm font-semibold truncate" style={{ color: 'var(--color-text)' }}>{student.nome}</h4>
+                                        <h4 className="text-sm font-semibold truncate" style={{ color: 'var(--color-text)' }}>{student.name}</h4>
                                         <p className="text-xs truncate" style={{ color: 'var(--color-text-3)' }}>{student.email}</p>
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-end gap-1 shrink-0">
                                     <span className="text-[10px]" style={{ color: 'var(--color-text-3)' }}>
-                                        {student.criadoEm ? new Date(student.criadoEm).toLocaleDateString('pt-BR') : '—'}
+                                        {student.createdAt ? new Date(student.createdAt).toLocaleDateString('pt-BR') : '—'}
                                     </span>
                                     <span className="text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide"
                                         style={{ background: 'rgba(37,99,235,0.08)', color: 'var(--color-primary)' }}>
@@ -209,11 +209,11 @@ export default function ManagerValidations() {
                                 <div className="flex flex-col items-center text-center">
                                     <div className="w-24 h-24 rounded-full mb-4 flex items-center justify-center text-2xl font-bold overflow-hidden"
                                         style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))', color: 'white', fontFamily: 'var(--font-display)', border: '4px solid var(--color-surface)', boxShadow: '0 4px 16px -4px rgba(37,99,235,0.3)' }}>
-                                        {selected.fotoPerfilUrl ? (
-                                            <img src={selected.fotoPerfilUrl} alt="" className="w-full h-full object-cover" />
+                                        {selected.profilePictureUrl ? (
+                                            <img src={selected.profilePictureUrl} alt="" className="w-full h-full object-cover" />
                                         ) : initials}
                                     </div>
-                                    <h3 className="text-lg font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>{selected.nome}</h3>
+                                    <h3 className="text-lg font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>{selected.name}</h3>
                                     <p className="text-sm mt-1" style={{ color: 'var(--color-text-3)' }}>CPF: {selected.cpf}</p>
                                 </div>
 
@@ -224,9 +224,9 @@ export default function ManagerValidations() {
                                             style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                                             {[
                                                 ['Email', selected.email],
-                                                ['Telefone', selected.telefone || '—'],
+                                                ['Telefone', selected.phone || '—'],
                                                 ['Tipo', selected.role],
-                                                ['Data Cadastro', selected.criadoEm ? new Date(selected.criadoEm).toLocaleDateString('pt-BR') : '—'],
+                                                ['Data Cadastro', selected.createdAt ? new Date(selected.createdAt).toLocaleDateString('pt-BR') : '—'],
                                             ].map(([label, value]) => (
                                                 <div key={label}>
                                                     <span className="text-xs block" style={{ color: 'var(--color-text-3)' }}>{label}</span>
@@ -252,8 +252,8 @@ export default function ManagerValidations() {
                                             </span>
                                         </div>
                                         <div className="flex-1 p-4 flex items-center justify-center" style={{ background: 'var(--color-bg)' }}>
-                                            {selected.fotoPerfilUrl ? (
-                                                <img src={selected.fotoPerfilUrl} alt="Selfie" className="max-h-full max-w-full object-contain rounded-lg shadow-md" />
+                                            {selected.profilePictureUrl ? (
+                                                <img src={selected.profilePictureUrl} alt="Selfie" className="max-h-full max-w-full object-contain rounded-lg shadow-md" />
                                             ) : (
                                                 <div className="flex flex-col items-center justify-center text-center p-6">
                                                     <UserCheck size={32} className="mb-3" style={{ color: 'var(--color-text-3)' }} />
@@ -273,8 +273,8 @@ export default function ManagerValidations() {
                                             </span>
                                         </div>
                                         <div className="flex-1 p-4 flex items-center justify-center" style={{ background: 'var(--color-bg)' }}>
-                                            {selected.gradeHorarioUrl ? (
-                                                <a href={selected.gradeHorarioUrl} target="_blank" rel="noopener noreferrer"
+                                            {selected.scheduleUrl ? (
+                                                <a href={selected.scheduleUrl} target="_blank" rel="noopener noreferrer"
                                                     className="flex flex-col items-center justify-center text-center p-6">
                                                     <FileText size={32} className="mb-3" style={{ color: 'var(--color-primary)' }} />
                                                     <p className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>Visualizar documento</p>

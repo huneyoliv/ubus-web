@@ -16,10 +16,10 @@ import { api } from '@/lib/api'
 
 interface Municipality {
   id: string
-  nome: string
-  ativo: boolean
-  idGestor?: string | null
-  criadoEm?: string
+  name: string
+  active: boolean
+  managerId?: string | null
+  createdAt?: string
 }
 
 export default function SuperAdminDashboard() {
@@ -34,8 +34,8 @@ export default function SuperAdminDashboard() {
       .finally(() => setLoading(false))
   }, [])
 
-  const totalActive = municipalities.filter(m => m.ativo !== false).length
-  const totalSuspended = municipalities.filter(m => m.ativo === false).length
+  const totalActive = municipalities.filter(m => m.active !== false).length
+  const totalSuspended = municipalities.filter(m => m.active === false).length
 
   const kpis = [
     {
@@ -56,8 +56,8 @@ export default function SuperAdminDashboard() {
     },
     {
       title: 'Com Gestor Vinculado',
-      value: String(municipalities.filter(m => m.idGestor).length),
-      sub: `${municipalities.filter(m => !m.idGestor).length} sem gestor`,
+      value: String(municipalities.filter(m => m.managerId).length),
+      sub: `${municipalities.filter(m => !m.managerId).length} sem gestor`,
       icon: ShieldCheck,
       color: '#D97706',
       bgColor: 'rgba(245,158,11,0.08)',
@@ -65,7 +65,7 @@ export default function SuperAdminDashboard() {
   ]
 
   const filtered = municipalities.filter(m =>
-    (m.nome || '').toLowerCase().includes((searchTerm || '').toLowerCase())
+    (m.name || '').toLowerCase().includes((searchTerm || '').toLowerCase())
   )
 
   if (loading) {
@@ -178,27 +178,27 @@ export default function SuperAdminDashboard() {
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold shrink-0"
                             style={{ background: 'rgba(37,99,235,0.08)', color: 'var(--color-primary)', border: '1px solid rgba(37,99,235,0.1)' }}>
-                            {(pref.nome || '-').charAt(0).toUpperCase()}
+                            {(pref.name || '-').charAt(0).toUpperCase()}
                           </div>
-                          <span className="font-bold">{pref.nome}</span>
+                          <span className="font-bold">{pref.name}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          pref.ativo !== false
+                          pref.active !== false
                             ? 'text-emerald-700'
                             : 'text-rose-700'
                         }`}
-                          style={{ background: pref.ativo !== false ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)' }}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${pref.ativo !== false ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                          {pref.ativo !== false ? 'Ativo' : 'Suspenso'}
+                          style={{ background: pref.active !== false ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)' }}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${pref.active !== false ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                          {pref.active !== false ? 'Ativo' : 'Suspenso'}
                         </span>
                       </td>
                       <td className="px-6 py-4 font-semibold" style={{ color: 'var(--color-text-2)' }}>
-                        {pref.idGestor ? '✓ Vinculado' : '— Sem gestor'}
+                        {pref.managerId ? '✓ Vinculado' : '— Sem gestor'}
                       </td>
                       <td className="px-6 py-4 font-semibold" style={{ color: 'var(--color-text-2)' }}>
-                        {pref.criadoEm ? new Date(pref.criadoEm).toLocaleDateString('pt-BR') : '—'}
+                        {pref.createdAt ? new Date(pref.createdAt).toLocaleDateString('pt-BR') : '—'}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button className="p-2 -mr-2 rounded-lg transition-colors hover:bg-slate-100" style={{ color: 'var(--color-text-3)' }}>

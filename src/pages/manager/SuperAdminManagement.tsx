@@ -149,7 +149,7 @@ export default function SuperAdminManagement() {
                             >
                                 <option value="">Selecione uma prefeitura</option>
                                 {municipalities.filter(m => m.id !== '00000000-0000-0000-0000-000000000001').map((m) => (
-                                    <option key={m.id} value={m.id}>{m.nome}</option>
+                                    <option key={m.id} value={m.id}>{m.name}</option>
                                 ))}
                             </select>
                         </div>
