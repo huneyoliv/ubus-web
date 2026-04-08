@@ -75,7 +75,7 @@ export default function Cadastro() {
     }, [step, prefeituras.length])
 
     const filteredPrefeituras = prefeituras.filter((p) =>
-        p.nome.toLowerCase().includes(search.toLowerCase())
+        (p.nome || '').toLowerCase().includes((search || '').toLowerCase())
     )
 
     const formatCpf = (value: string) => {

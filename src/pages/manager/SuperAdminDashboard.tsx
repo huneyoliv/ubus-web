@@ -65,7 +65,7 @@ export default function SuperAdminDashboard() {
   ]
 
   const filtered = municipalities.filter(m =>
-    (m.nome || '').toLowerCase().includes(searchTerm.toLowerCase())
+    (m.nome || '').toLowerCase().includes((searchTerm || '').toLowerCase())
   )
 
   if (loading) {

@@ -58,8 +58,8 @@ export default function ManagerValidations() {
     }
 
     const filtered = students.filter(s =>
-        s.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.cpf.includes(searchTerm)
+        (s.nome || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
+        (s.cpf || '').includes(searchTerm || '')
     )
 
     const selected = students.find(s => s.id === selectedId)
