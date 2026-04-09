@@ -11,6 +11,8 @@ interface PendingUser {
     role: string
     profilePictureUrl?: string
     scheduleUrl?: string
+    residenceProofUrl?: string
+    needsWheelchair?: boolean
     createdAt?: string
     defaultRouteId?: string
 }
@@ -219,6 +221,11 @@ export default function ManagerValidations() {
                                     </div>
                                     <h3 className="text-lg font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>{selected.name}</h3>
                                     <p className="text-sm mt-1" style={{ color: 'var(--color-text-3)' }}>CPF: {selected.cpf}</p>
+                                    {selected.needsWheelchair && (
+                                        <div className="mt-2 text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                            Acessibilidade Solicitada
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-5">
@@ -287,6 +294,31 @@ export default function ManagerValidations() {
                                                 <div className="flex flex-col items-center justify-center text-center p-6">
                                                     <FileText size={32} className="mb-3" style={{ color: 'var(--color-text-3)' }} />
                                                     <p className="text-sm font-medium" style={{ color: 'var(--color-text-2)' }}>Nenhuma grade enviada</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col rounded-2xl overflow-hidden h-full min-h-[300px]"
+                                        style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+                                        <div className="p-3 flex items-center justify-between"
+                                            style={{ borderBottom: '1px solid var(--color-border)', background: 'var(--color-bg)' }}>
+                                            <span className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--color-text)' }}>
+                                                <FileText className="w-4 h-4" style={{ color: 'var(--color-text-3)' }} />
+                                                Comp. de Residência
+                                            </span>
+                                        </div>
+                                        <div className="flex-1 p-4 flex items-center justify-center" style={{ background: 'var(--color-bg)' }}>
+                                            {selected.residenceProofUrl ? (
+                                                <a href={selected.residenceProofUrl} target="_blank" rel="noopener noreferrer"
+                                                    className="flex flex-col items-center justify-center text-center p-6 hover:opacity-80 transition-opacity">
+                                                    <FileText size={32} className="mb-3" style={{ color: 'var(--color-primary)' }} />
+                                                    <p className="text-sm font-medium" style={{ color: 'var(--color-primary)' }}>Visualizar documento</p>
+                                                </a>
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center text-center p-6">
+                                                    <FileText size={32} className="mb-3" style={{ color: 'var(--color-text-3)' }} />
+                                                    <p className="text-sm font-medium" style={{ color: 'var(--color-text-2)' }}>Nenhum doc enviado</p>
                                                 </div>
                                             )}
                                         </div>

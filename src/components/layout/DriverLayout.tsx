@@ -1,10 +1,13 @@
-import { Outlet, useLocation, Link } from 'react-router-dom'
-import { LayoutDashboard, Map, MessageSquare, Settings } from 'lucide-react'
+import { Outlet, useLocation, Link, useNavigate } from 'react-router-dom'
+import { LayoutDashboard, Map, MessageSquare, Settings, LogOut } from 'lucide-react'
 import clsx from 'clsx'
+import { useAuthStore } from '@/store/useAuthStore'
 
 export default function DriverLayout({ children }: { children?: React.ReactNode }) {
     const location = useLocation()
     const currentPath = location.pathname
+    const navigate = useNavigate()
+    const { logout } = useAuthStore()
 
     const navItems = [
         { icon: LayoutDashboard, label: 'Painel', path: '/dashboard' },
@@ -13,8 +16,19 @@ export default function DriverLayout({ children }: { children?: React.ReactNode 
         { icon: Settings, label: 'Config', path: '/config' },
     ]
 
+    const handleLogout = () => {
+        logout()
+        navigate('/login')
+    }
+
     return (
         <div className="w-full max-w-md mx-auto h-[100dvh] relative overflow-hidden bg-[#f8f8f5] dark:bg-[#221f10] flex flex-col text-slate-900 dark:text-slate-100">
+            <header className="flex justify-between items-center px-6 py-4 border-b border-[#393628]">
+                <h1 className="font-bold text-lg">UBUS Driver</h1>
+                <button onClick={handleLogout} className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                    <LogOut className="w-5 h-5 text-red-500" />
+                </button>
+            </header>
             <div className="flex-1 overflow-y-auto no-scrollbar pb-20">
                 {children ?? <Outlet />}
             </div>

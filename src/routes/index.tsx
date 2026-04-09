@@ -31,6 +31,7 @@ import ManagerValidations from '@/pages/manager/ManagerValidations'
 import ManagerFrota from '@/pages/manager/ManagerFrota'
 import ManagerRelatorios from '@/pages/manager/ManagerRelatorios'
 import ManagerConfiguracoes from '@/pages/manager/ManagerConfiguracoes'
+import ManagerMotoristas from '@/pages/manager/ManagerMotoristas'
 import SuperAdminManagement from '@/pages/manager/SuperAdminManagement'
 import NotFound from '@/pages/NotFound'
 
@@ -64,7 +65,7 @@ export const router = createBrowserRouter([
                     { path: '/me/dados', element: <MeusDados /> },
                     { path: '/me/alterar-senha', element: <AlterarSenha /> },
                     { path: '/me/renovar-semestre', element: <RenovarSemestre /> },
-                    { path: '/me/baixa-mobilidade', element: <BaixaMobilidade /> },
+                    { path: '/me/acessibilidade', element: <BaixaMobilidade /> },
                     { path: '/me/regras', element: <Regras /> },
                     { path: '/ponto-embarque', element: <PontoEmbarque /> },
                 ],
@@ -95,6 +96,7 @@ export const router = createBrowserRouter([
                     { path: '/rotas', element: <ManagerRoutes /> },
                     { path: '/validacoes', element: <ManagerValidations /> },
                     { path: '/frota', element: <ManagerFrota /> },
+                    { path: '/motoristas', element: <ManagerMotoristas /> },
                     { path: '/relatorios', element: <ManagerRelatorios /> },
                     { path: '/configuracoes', element: <ManagerConfiguracoes /> },
                     { path: '/admin-management', element: <SuperAdminManagement /> },

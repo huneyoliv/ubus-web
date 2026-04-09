@@ -10,10 +10,10 @@ import {
   Download,
   Edit3,
   Search,
-  Bell,
   Loader2
 } from 'lucide-react'
 import { api } from '@/lib/api'
+import NotificationPopover from '@/components/NotificationPopover'
 
 interface Municipality {
   id: string
@@ -110,9 +110,7 @@ export default function SuperAdminDashboard() {
                 style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
               />
             </div>
-            <button className="p-2.5 rounded-xl transition-colors relative" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-3)' }}>
-              <Bell size={18} />
-            </button>
+            <NotificationPopover />
           </div>
         </div>
 

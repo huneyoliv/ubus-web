@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Bell, ArrowRight, CheckCircle, Clock, MapPin, CalendarCheck, Bus, Zap } from 'lucide-react'
+import { ArrowRight, CheckCircle, Clock, MapPin, CalendarCheck, Bus, Zap } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { api } from '@/lib/api'
 import type { Trip, Reservation, BackendReservationResponse } from '@/types'
 import { mapBackendReservation } from '@/types'
+import NotificationPopover from '@/components/NotificationPopover'
 
 export default function Home() {
     const navigate = useNavigate()
@@ -57,10 +58,7 @@ export default function Home() {
                         <h2 className="text-base font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>{firstName}</h2>
                     </div>
                 </div>
-                <button className="relative flex items-center justify-center w-10 h-10 rounded-xl transition-all hover:bg-white"
-                    style={{ border: '1.5px solid var(--color-border)' }}>
-                    <Bell size={18} style={{ color: 'var(--color-text-2)' }} />
-                </button>
+                <NotificationPopover />
             </div>
 
             <div className="px-5 pb-6 flex flex-col gap-4">

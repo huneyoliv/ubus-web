@@ -1,27 +1,37 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
+
 import {
     LayoutDashboard,
     Route as RouteIcon,
     UserCheck,
     Bus,
+    UserSearch,
     BarChart3,
     Settings,
-    Bell,
     Menu,
     Landmark,
-    ShieldCheck
+    ShieldCheck,
+    LogOut
 } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import NotificationPopover from '@/components/NotificationPopover'
 
 export default function ManagerLayout({ children }: { children?: React.ReactNode }) {
     const location = useLocation()
-    const { user } = useAuthStore()
+    const navigate = useNavigate()
+    const { user, logout } = useAuthStore()
+
+    const handleLogout = () => {
+        logout()
+        navigate('/login')
+    }
 
     const navItems = [
         { path: '/dashboard', icon: LayoutDashboard, label: 'Início', activePrefix: '/dashboard' },
         { path: '/rotas', icon: RouteIcon, label: 'Rotas', activePrefix: '/rotas' },
         { path: '/validacoes', icon: UserCheck, label: 'Validações', activePrefix: '/validacoes', badge: 12 },
         { path: '/frota', icon: Bus, label: 'Frota', activePrefix: '/frota' },
+        { path: '/motoristas', icon: UserSearch, label: 'Motoristas', activePrefix: '/motoristas' },
         { path: '/relatorios', icon: BarChart3, label: 'Relatórios', activePrefix: '/relatorios' },
     ]
 
@@ -87,14 +97,19 @@ export default function ManagerLayout({ children }: { children?: React.ReactNode
                     </div>
                 </nav>
 
-                <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-600 font-bold border border-blue-600/20 shrink-0">
-                        GM
+                <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="w-10 h-10 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-600 font-bold border border-blue-600/20 shrink-0">
+                            {user?.name?.[0]?.toUpperCase() || 'U'}
+                        </div>
+                        <div className="overflow-hidden">
+                            <p className="text-sm font-semibold truncate text-slate-900 dark:text-slate-50">{user?.name || 'Gestor'}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email || 'gestor@contato.com'}</p>
+                        </div>
                     </div>
-                    <div className="overflow-hidden">
-                        <p className="text-sm font-semibold truncate text-slate-900 dark:text-slate-50">{user?.name || 'Gestor'}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email || 'gestor@contato.com'}</p>
-                    </div>
+                    <button onClick={handleLogout} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 p-2 rounded-lg transition-colors shadow-sm">
+                        <LogOut size={18} />
+                    </button>
                 </div>
             </aside>
 
@@ -107,12 +122,9 @@ export default function ManagerLayout({ children }: { children?: React.ReactNode
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <button className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50 relative">
-                            <Bell className="w-6 h-6" />
-                            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-900"></span>
-                        </button>
+                        <NotificationPopover />
                         <div className="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
-                        <div className="flex items-center gap-3 cursor-pointer">
+                        <div className="flex items-center gap-3">
                             <div className="text-right">
                                 <p className="text-sm font-semibold leading-none">{user?.name || 'Carregando...'}</p>
                                 <p className="text-xs text-slate-500 mt-1">
@@ -123,6 +135,10 @@ export default function ManagerLayout({ children }: { children?: React.ReactNode
                                 {user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'US'}
                             </div>
                         </div>
+                        <div className="h-8 w-px bg-slate-200 dark:bg-slate-800"></div>
+                        <button onClick={handleLogout} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 p-2 rounded-lg transition-colors">
+                            <LogOut size={20} />
+                        </button>
                     </div>
                 </header>
 
@@ -132,9 +148,9 @@ export default function ManagerLayout({ children }: { children?: React.ReactNode
                         <Menu className="w-6 h-6" />
                     </button>
                     <h2 className="text-lg font-bold leading-tight flex-1 text-center truncate px-2">GovMobility</h2>
-                    <div className="w-10 h-10 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-600 font-bold border border-blue-600/20 shrink-0">
-                        {user?.name?.[0] || 'U'}
-                    </div>
+                    <button onClick={handleLogout} className="text-red-500 w-10 h-10 shrink-0 flex items-center justify-center rounded-full hover:bg-red-50 border border-red-100 shadow-sm transition-colors">
+                        <LogOut className="w-5 h-5" />
+                    </button>
                 </header>
 
                 {/* Page Content */}

@@ -15,7 +15,7 @@ export default function Perfil() {
         { icon: User, label: 'Meus Dados Pessoais', sub: 'Nome, CPF, Telefone', route: '/me/dados', color: 'var(--color-primary)', bg: 'rgba(37,99,235,0.08)' },
         { icon: Lock, label: 'Alterar Senha', sub: 'Segurança da conta', route: '/me/alterar-senha', color: 'var(--color-primary)', bg: 'rgba(37,99,235,0.08)' },
         { icon: FileText, label: 'Renovar Semestre', sub: 'Documentação necessária', route: '/me/renovar-semestre', color: '#D97706', bg: 'rgba(245,158,11,0.1)' },
-        { icon: Accessibility, label: 'Acessibilidade e Locomoção', sub: 'Laudos PCD, gestantes e idosos', route: '/me/baixa-mobilidade', color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
+        { icon: Accessibility, label: 'Acessibilidade e Locomoção', sub: 'Laudos PCD, gestantes e idosos', route: '/me/acessibilidade', color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
         { icon: Shield, label: 'Regras e Penalidades', sub: 'Advertências e condutas', route: '/me/regras', color: 'var(--color-secondary)', bg: 'rgba(124,58,237,0.08)' },
     ]
 
