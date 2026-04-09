@@ -1,10 +1,10 @@
 /* ── Enums alinhados ao backend ── */
 
 export type RoleUsuario = 'SUPER_ADMIN' | 'MANAGER' | 'DRIVER' | 'LEADER' | 'STUDENT' | 'RIDE_SHARE'
-export type StatusCadastro = 'PENDENTE' | 'APROVADO' | 'REJEITADO'
-export type DirecaoViagem = 'IDA' | 'VOLTA'
-export type StatusViagem = 'AGENDADA' | 'ABERTA_PARA_RESERVA' | 'EM_ANDAMENTO' | 'FINALIZADA' | 'CANCELADA'
-export type StatusReserva = 'CONFIRMADA' | 'PRESENTE' | 'FALTOU' | 'CANCELADA_SISTEMA' | 'EXCESSO'
+export type StatusCadastro = 'PENDING' | 'APPROVED' | 'REJECTED'
+export type DirecaoViagem = 'OUTBOUND' | 'INBOUND'
+export type StatusViagem = 'SCHEDULED' | 'OPEN_FOR_RESERVATION' | 'ONGOING' | 'FINISHED' | 'CANCELLED'
+export type StatusReserva = 'CONFIRMED' | 'PRESENT' | 'ABSENT' | 'CANCELLED_BY_SYSTEM' | 'EXCESS'
 
 /* ── User (como armazenado no store, baseado na resposta do login) ── */
 

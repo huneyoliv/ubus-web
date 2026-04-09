@@ -7,11 +7,11 @@ import { mapBackendReservation } from '@/types'
 import { useNavigate } from 'react-router-dom'
 
 const statusMap: Record<StatusReserva, { label: string; icon: typeof CheckCircle; bg: string; color: string }> = {
-    CONFIRMADA: { label: 'Confirmada', icon: CheckCircle, bg: 'rgba(16,185,129,0.08)', color: '#059669' },
-    PRESENTE: { label: 'Presente', icon: CheckCircle, bg: 'rgba(16,185,129,0.08)', color: '#059669' },
-    FALTOU: { label: 'Faltou', icon: XCircle, bg: 'rgba(239,68,68,0.08)', color: '#DC2626' },
-    CANCELADA_SISTEMA: { label: 'Cancelada', icon: Clock, bg: 'rgba(148,163,184,0.15)', color: '#64748B' },
-    EXCESSO: { label: 'Excesso', icon: Clock, bg: 'rgba(245,158,11,0.08)', color: '#D97706' },
+    CONFIRMED: { label: 'Confirmada', icon: CheckCircle, bg: 'rgba(16,185,129,0.08)', color: '#059669' },
+    PRESENT: { label: 'Presente', icon: CheckCircle, bg: 'rgba(16,185,129,0.08)', color: '#059669' },
+    ABSENT: { label: 'Faltou', icon: XCircle, bg: 'rgba(239,68,68,0.08)', color: '#DC2626' },
+    CANCELLED_BY_SYSTEM: { label: 'Cancelada', icon: Clock, bg: 'rgba(148,163,184,0.15)', color: '#64748B' },
+    EXCESS: { label: 'Excesso', icon: Clock, bg: 'rgba(245,158,11,0.08)', color: '#D97706' },
 }
 
 export default function Historico() {
@@ -60,9 +60,9 @@ export default function Historico() {
                 ) : (
                     <div className="flex flex-col gap-3">
                         {reservations.map((res, idx) => {
-                            const s = statusMap[res.status] ?? statusMap.CONFIRMADA
+                            const s = statusMap[res.status] ?? statusMap.CONFIRMED
                             const Icon = s.icon
-                            const isIda = res.viagem?.direcao === 'IDA'
+                            const isIda = res.viagem?.direcao === 'OUTBOUND'
 
                             return (
                                 <motion.div

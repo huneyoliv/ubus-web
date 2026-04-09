@@ -40,8 +40,8 @@ export default function Lider() {
     useEffect(() => { fetchPassageiros() }, [fetchPassageiros])
 
     const totalReservados = passageiros.length
-    const presentes = passageiros.filter(p => p.status === 'PRESENTE' || p.status === 'CONFIRMADA').length
-    const faltaram = passageiros.filter(p => p.status === 'FALTOU').length
+    const presentes = passageiros.filter(p => p.status === 'PRESENT' || p.status === 'CONFIRMED').length
+    const faltaram = passageiros.filter(p => p.status === 'ABSENT').length
 
     const handleEnviarAlerta = async () => {
         if (!tripId) return
@@ -154,7 +154,7 @@ export default function Lider() {
 
                             <div className="flex flex-col gap-2">
                                 {passageiros.map((p, idx) => {
-                                    const isFalta = p.status === 'FALTOU'
+                                    const isFalta = p.status === 'ABSENT'
                                     return (
                                         <motion.div
                                             key={p.id}
@@ -243,7 +243,7 @@ export default function Lider() {
                             </p>
                             <div className="flex flex-col gap-2">
                                 {passageiros.map((p, idx) => {
-                                    const confirmed = p.status === 'CONFIRMADA' || p.status === 'PRESENTE'
+                                    const confirmed = p.status === 'CONFIRMED' || p.status === 'PRESENT'
                                     return (
                                         <motion.div
                                             key={p.id}

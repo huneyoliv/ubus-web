@@ -16,7 +16,7 @@ export default function Bilhete() {
     const stateData = location.state as { reservationId?: string; reservation?: Reservation; tripId?: string; seatNumber?: number; trip?: unknown } | undefined
     const [reservation, setReservation] = useState<Reservation | null>(stateData?.reservation ?? null)
     const [loading, setLoading] = useState(!stateData?.reservation)
-    const isRelocated = reservation?.status === 'EXCESSO'
+    const isRelocated = reservation?.status === 'EXCESS'
 
     useEffect(() => {
         const timer = setInterval(() => setTime(new Date()), 1000)
@@ -56,7 +56,7 @@ export default function Bilhete() {
     const linhaDisplay = viagem?.linha?.nome ?? viagem?.idViagem ?? reservation?.idViagem ?? '—'
     const turnoDisplay = viagem?.turno ?? ''
     const dataDisplay = viagem?.dataViagem ?? ''
-    const isIda = dirDisplay === 'IDA'
+    const isIda = dirDisplay === 'OUTBOUND'
 
     const gradient = isRelocated
         ? 'linear-gradient(160deg, #92400E 0%, #B45309 40%, #78350F 100%)'

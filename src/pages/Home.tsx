@@ -125,7 +125,7 @@ export default function Home() {
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p className="font-bold text-sm" style={{ color: 'var(--color-text)' }}>
-                                            {trip.direcao === 'IDA' ? '→ Ida' : '← Volta'} — {trip.turno}
+                                            {trip.direcao === 'OUTBOUND' ? '→ Ida' : '← Volta'} — {trip.turno}
                                         </p>
                                         <p className="text-xs mt-0.5 flex items-center gap-1" style={{ color: 'var(--color-text-3)' }}>
                                             <MapPin size={10} />
@@ -152,7 +152,7 @@ export default function Home() {
                         </div>
 
                         {myReservations.map((reservation, idx) => {
-                            const isIda = reservation.viagem?.direcao === 'IDA'
+                            const isIda = reservation.viagem?.direcao === 'OUTBOUND'
                             return (
                                 <motion.div
                                     key={reservation.id}
