@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Globe, Clock, ShieldCheck, CheckSquare, ArrowRight } from 'lucide-react'
+import { Globe, ArrowRight } from 'lucide-react'
 
 export default function Splash() {
     console.log("[DEBUG] Renderizando Splash screen - Layout Original")
