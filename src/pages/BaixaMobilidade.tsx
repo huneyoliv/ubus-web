@@ -111,7 +111,7 @@ export default function BaixaMobilidade() {
 
     if (success) {
         return (
-            <div className="flex flex-col min-h-dvh items-center justify-center p-6 text-center" style={{ background: 'var(--color-bg)' }}>
+            <div className="flex flex-col min-h-dvh md:min-h-full items-center justify-center p-6 text-center" style={{ background: 'var(--color-bg)' }}>
                 <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
                     <Check size={40} className="text-emerald-600" />
                 </div>
@@ -137,7 +137,7 @@ export default function BaixaMobilidade() {
     }
 
     return (
-        <div className="flex flex-col min-h-dvh" style={{ background: 'var(--color-bg)' }}>
+        <div className="flex flex-col min-h-dvh md:min-h-full" style={{ background: 'var(--color-bg)' }}>
             <div className="sticky top-0 z-20 flex items-center gap-3 px-5 py-4"
                 style={{ background: 'rgba(240,244,255,0.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--color-border)' }}>
                 <button onClick={prevStep}

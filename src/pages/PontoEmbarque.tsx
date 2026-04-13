@@ -83,7 +83,7 @@ export default function SelecionarPontoEmbarque() {
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col px-5 py-6 gap-6 pb-40 overflow-y-auto">
+            <div className="flex-1 flex flex-col px-5 py-6 gap-6 overflow-y-auto">
                 <div>
                     <p className="text-xs font-semibold uppercase tracking-wider mb-3 px-1 flex items-center gap-1.5"
                         style={{ color: 'var(--color-text-3)' }}>
@@ -208,9 +208,9 @@ export default function SelecionarPontoEmbarque() {
                 )}
             </div>
 
-            <div className="fixed bottom-0 left-0 right-0 z-30 px-5 py-4"
+            <div className="sticky bottom-0 z-30 px-5 py-4"
                 style={{ background: 'rgba(240,244,255,0.95)', backdropFilter: 'blur(20px)', borderTop: '1px solid var(--color-border)' }}>
-                <div className="max-w-2xl mx-auto">
+                <div>
                     {selectedPontoData && (
                         <div className="flex items-center gap-3 mb-3 p-3 rounded-xl"
                             style={{ background: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.15)' }}>

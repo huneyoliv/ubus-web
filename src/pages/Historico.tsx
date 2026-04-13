@@ -37,7 +37,7 @@ export default function Historico() {
 
             <div className="flex-1 px-5 pb-6">
                 {loading ? (
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
                         {[1, 2, 3, 4].map((i) => <div key={i} className="h-20 rounded-2xl skeleton" />)}
                     </div>
                 ) : reservations.length === 0 ? (
@@ -58,7 +58,7 @@ export default function Historico() {
                         </p>
                     </motion.div>
                 ) : (
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
                         {reservations.map((res, idx) => {
                             const s = statusMap[res.status] ?? statusMap.CONFIRMED
                             const Icon = s.icon

@@ -42,8 +42,9 @@ export default function Perfil() {
                 <p className="text-sm" style={{ color: 'var(--color-text-2)' }}>Gerencie sua conta</p>
             </div>
 
-            <div className="px-5 mb-5">
-                <motion.div
+            <div className="px-5 flex-1 pb-6 flex flex-col md:grid md:grid-cols-[5fr_7fr] md:gap-6 md:items-start">
+                <div className="mb-5 md:mb-0 md:sticky md:top-6">
+                    <motion.div
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="relative overflow-hidden rounded-2xl p-5"
@@ -83,9 +84,9 @@ export default function Perfil() {
                         </div>
                     </div>
                 </motion.div>
-            </div>
+                </div>
 
-            <div className="px-5 flex-1 pb-6">
+                <div className="flex flex-col">
                 <p className="text-xs font-semibold uppercase tracking-wider mb-3 px-1" style={{ color: 'var(--color-text-3)' }}>
                     <Settings size={11} className="inline mr-1.5" />Configurações
                 </p>
@@ -123,7 +124,8 @@ export default function Perfil() {
                     Sair da conta
                 </button>
 
-                <p className="text-center text-xs mt-6" style={{ color: 'var(--color-text-3)' }}>v1.0.0 · ubus.me</p>
+                <p className="text-center text-xs mt-6 md:hidden" style={{ color: 'var(--color-text-3)' }}>v1.0.0 · ubus.me</p>
+                </div>
             </div>
         </div>
     )

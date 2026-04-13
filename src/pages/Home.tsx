@@ -63,7 +63,7 @@ export default function Home() {
 
             <div className="px-5 pb-6 flex flex-col gap-4">
                 {loading && (
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
                         {[1, 2].map((i) => (
                             <div key={i} className="h-24 rounded-2xl skeleton" />
                         ))}
@@ -107,7 +107,8 @@ export default function Home() {
 
                         <h3 className="font-bold text-sm uppercase tracking-wide px-1" style={{ color: 'var(--color-text-3)' }}>Reserve agora</h3>
 
-                        {openTrips.map((trip, idx) => (
+                        <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
+                            {openTrips.map((trip, idx) => (
                             <motion.button
                                 key={trip.idViagem}
                                 initial={{ opacity: 0, y: 8 }}
@@ -137,6 +138,7 @@ export default function Home() {
                                 </div>
                             </motion.button>
                         ))}
+                        </div>
                     </motion.div>
                 )}
 
@@ -149,6 +151,7 @@ export default function Home() {
                             </span>
                         </div>
 
+                        <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
                         {myReservations.map((reservation, idx) => {
                             const isIda = reservation.viagem?.direcao === 'OUTBOUND'
                             return (
@@ -214,6 +217,7 @@ export default function Home() {
                                 </motion.div>
                             )
                         })}
+                        </div>
                     </motion.div>
                 )}
             </div>

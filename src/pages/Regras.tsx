@@ -92,7 +92,7 @@ export default function Regras() {
                     Regras do Sistema
                 </p>
 
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 md:grid md:grid-cols-2">
                     {regras.map((regra, i) => {
                         const Icon = regra.icon
                         const cfg = severityConfig[regra.severity]

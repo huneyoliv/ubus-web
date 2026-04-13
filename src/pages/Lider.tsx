@@ -126,7 +126,7 @@ export default function Lider() {
                     </div>
                 )}
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-3 md:gap-4">
                     {[
                         { value: totalReservados, label: 'Reservas', icon: Users, color: 'var(--color-primary)', bg: 'rgba(37,99,235,0.08)' },
                         { value: presentes, label: 'Presentes', icon: CheckCircle, color: 'var(--color-success)', bg: 'rgba(16,185,129,0.08)' },
@@ -152,7 +152,7 @@ export default function Lider() {
                                 <span className="px-2 py-0.5 rounded-full" style={{ background: 'var(--color-bg)' }}>{totalReservados}</span>
                             </p>
 
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-2 md:grid md:grid-cols-2">
                                 {passageiros.map((p, idx) => {
                                     const isFalta = p.status === 'ABSENT'
                                     return (
@@ -241,7 +241,7 @@ export default function Lider() {
                                 style={{ color: 'var(--color-text-3)' }}>
                                 Status de Confirmações
                             </p>
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-2 md:grid md:grid-cols-2">
                                 {passageiros.map((p, idx) => {
                                     const confirmed = p.status === 'CONFIRMED' || p.status === 'PRESENT'
                                     return (

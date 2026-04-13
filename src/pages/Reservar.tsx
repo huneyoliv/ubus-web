@@ -133,7 +133,7 @@ export default function Reservar() {
                 </div>
             </div>
 
-            <div className="flex-1 px-5 py-5 pb-36">
+            <div className="flex-1 px-5 py-5">
                 <div className="flex gap-3 mb-6">
                     <div className="flex-1 p-3 rounded-xl flex items-center gap-2.5" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                         <Users size={16} style={{ color: 'var(--color-primary)' }} />
@@ -246,9 +246,9 @@ export default function Reservar() {
                 )}
             </div>
 
-            <div className="fixed bottom-0 left-0 right-0 z-30 px-5 py-4"
+            <div className="sticky bottom-0 z-30 px-5 py-4"
                 style={{ background: 'rgba(240,244,255,0.95)', backdropFilter: 'blur(20px)', borderTop: '1px solid var(--color-border)' }}>
-                <div className="max-w-2xl mx-auto">
+                <div>
                     <button
                         onClick={handleReserve}
                         disabled={selectedSeat === null || submitting}

@@ -74,7 +74,7 @@ export default function RedefinirSenha() {
     }
 
     return (
-        <div className="flex flex-col min-h-dvh" style={{ background: 'var(--color-bg)' }}>
+        <div className="flex flex-col min-h-dvh md:min-h-full" style={{ background: 'var(--color-bg)' }}>
             <div className="sticky top-0 z-20 flex items-center gap-3 px-5 py-4"
                 style={{ background: 'rgba(240,244,255,0.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid var(--color-border)' }}>
                 <button onClick={() => navigate('/login')}
@@ -88,7 +88,7 @@ export default function RedefinirSenha() {
                 </div>
             </div>
 
-            <div className="flex-1 px-5 py-6 flex flex-col gap-5">
+            <div className="flex-1 px-5 py-6 flex flex-col gap-5 md:max-w-lg md:mx-auto md:w-full">
                 <AnimatePresence mode="wait">
                     {success ? (
                         <motion.div

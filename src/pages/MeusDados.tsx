@@ -31,8 +31,8 @@ export default function MeusDados() {
                 <h1 className="font-bold text-base" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>Meus Dados</h1>
             </div>
 
-            <div className="flex-1 px-5 py-6">
-                <div className="flex flex-col items-center mb-6">
+            <div className="flex-1 px-5 py-6 md:flex md:gap-6 md:items-start">
+                <div className="flex flex-col items-center mb-6 md:mb-0 md:sticky md:top-6 md:min-w-[200px]">
                     <div className="w-20 h-20 rounded-2xl flex items-center justify-center font-black text-2xl mb-3"
                         style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))', color: 'white', fontFamily: 'var(--font-display)' }}>
                         {initials}
@@ -42,7 +42,7 @@ export default function MeusDados() {
                     </p>
                 </div>
 
-                <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+                <div className="rounded-2xl overflow-hidden md:flex-1" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                     {dados.map((item, i) => (
                         <div key={i}>
                             <div className="flex items-center gap-4 px-5 py-4">
