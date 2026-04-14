@@ -77,11 +77,11 @@ jobs:
             sudo docker pull $IMAGE_URI
             
             # Destroi container existente se houver
-            sudo docker rm -f ubus-frontend || true
+            sudo docker rm -f ubus-web || true
             
             # Cria o novo container rodando na porta 80 (Você pode alterar 80:80 para outra 8080:80 etc)
             sudo docker run -d \
-              --name ubus-frontend \
+              --name ubus-web \
               -p 80:80 \
               --restart unless-stopped \
               $IMAGE_URI

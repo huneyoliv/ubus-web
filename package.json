@@ -1,5 +1,5 @@
 {
-    "name": "ubus-frontend",
+    "name": "ubus-web",
     "private": true,
     "version": "1.0.0",
     "type": "module",
