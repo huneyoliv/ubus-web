@@ -68,7 +68,7 @@ jobs:
             # Obter a imagem atualizada (O username minúsculo é obrigatório no comando docker login ou URL registry)
             GH_USER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
             REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
-            IMAGE_URI="ghcr.io/$GH_USER/$REPO_NAME-frontend:latest"
+            IMAGE_URI="ghcr.io/$GH_USER/$REPO_NAME:latest"
             
             # Utiliza o token efêmero e automático do próprio GitHub Actions para o servidor logar no registry
             echo "${{ secrets.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u $GH_USER --password-stdin
