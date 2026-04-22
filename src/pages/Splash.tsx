@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Globe, ArrowRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 export default function Splash() {
-    console.log("[DEBUG] Renderizando Splash screen - Layout Original")
+    console.log("[DEBUG] Renderizando Splash screen - Foco Gestão")
     const navigate = useNavigate()
 
     return (
@@ -19,15 +19,13 @@ export default function Splash() {
 
             <header className="relative z-10 flex items-center justify-between px-8 py-6 max-w-7xl w-full mx-auto">
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full border border-white/20 bg-white/5">
-                        <Globe size={16} className="text-white" />
-                    </div>
-                    <span className="text-base font-semibold tracking-wide">Ubus</span>
+                    <img src="/logo.png" alt="Ubus Logo" className="h-10 w-auto" />
                 </div>
 
                 <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/80">
+
                     <button className="hover:text-white transition-colors">Início</button>
-                    <button onClick={() => { console.log("[DEBUG] Navegando para /login a partir da nav"); navigate('/login'); }} className="hover:text-white transition-colors">Entrar</button>
+                    <button onClick={() => { console.log("[DEBUG] Navegando para /login"); navigate('/login'); }} className="hover:text-white transition-colors">Entrar</button>
                 </nav>
             </header>
 
@@ -38,7 +36,7 @@ export default function Splash() {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-5xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight mb-12 text-[#F3F4F6]"
                     >
-                        Seu aplicativo<br />de mobilidade
+                        Plataforma de<br />Gestão Ubus
                     </motion.h1>
 
                     <motion.div
@@ -48,13 +46,13 @@ export default function Splash() {
                         className="flex flex-col items-start gap-4"
                     >
                         <button
-                            onClick={() => { console.log("[DEBUG] Navegando para /cadastro"); navigate('/cadastro'); }}
+                            onClick={() => { console.log("[DEBUG] Navegando para /login"); navigate('/login'); }}
                             className="bg-white text-black font-bold text-base px-8 py-4 rounded-full flex items-center gap-2 hover:bg-white/90 transition-all active:scale-95"
                         >
-                            Começar agora <ArrowRight size={18} />
+                            Acessar Painel <ArrowRight size={18} />
                         </button>
                         <span className="text-sm text-white/60 pl-4">
-                            Já tem conta? <button onClick={() => { console.log("[DEBUG] Navegando para /login do texto no final"); navigate('/login'); }} className="text-white underline hover:text-white/80 font-medium">Entrar</button>
+                            Exclusivo para gestores municipais e administradores.
                         </span>
                     </motion.div>
                 </div>
@@ -67,7 +65,7 @@ export default function Splash() {
                 >
                     <img
                         src="/celular.png"
-                        alt="Ubus Digital Ticket no Celular"
+                        alt="Ubus Gestão"
                         className="max-w-[340px] md:max-w-[400px] w-full object-contain filter drop-shadow-2xl"
                     />
                 </motion.div>
@@ -83,3 +81,4 @@ export default function Splash() {
         </div>
     )
 }
+

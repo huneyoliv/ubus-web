@@ -12,20 +12,20 @@ vi.mock('react-router-dom', async () => {
 })
 
 describe('Splash Component', () => {
-    it('deve renderizar os principais elementos da landing page', () => {
-        console.log("[DEBUG] Iniciando teste de renderizacao da Splash");
+    it('deve renderizar os principais elementos da landing page de gestão', () => {
+        console.log("[DEBUG] Teste: renderizacao da Splash Gestao");
         render(
             <MemoryRouter>
                 <Splash />
             </MemoryRouter>
         )
 
-        expect(screen.getByText(/Seu aplicativo/i)).toBeInTheDocument()
-        expect(screen.getByText(/de mobilidade/i)).toBeInTheDocument()
+        expect(screen.getByText(/Plataforma de/i)).toBeInTheDocument()
+        expect(screen.getByText(/Gestão Ubus/i)).toBeInTheDocument()
     })
 
-    it('deve chamar navigate para /cadastro ao clicar no botao comecar', () => {
-        console.log("[DEBUG] Iniciando teste de navegacao para /cadastro");
+    it('deve chamar navigate para /login ao clicar no botao acessar painel', () => {
+        console.log("[DEBUG] Teste: navegacao para /login via botao principal");
         const mockNavigate = vi.fn()
         vi.mocked(useNavigate).mockReturnValue(mockNavigate)
 
@@ -35,14 +35,14 @@ describe('Splash Component', () => {
             </MemoryRouter>
         )
 
-        const startButton = screen.getByText(/Começar agora/i)
+        const startButton = screen.getByText(/Acessar Painel/i)
         fireEvent.click(startButton)
 
-        expect(mockNavigate).toHaveBeenCalledWith('/cadastro')
+        expect(mockNavigate).toHaveBeenCalledWith('/login')
     })
     
-    it('deve chamar navigate para /login ao clicar no botao Entrar', () => {
-        console.log("[DEBUG] Iniciando teste de navegacao para /login");
+    it('deve chamar navigate para /login ao clicar no link Entrar', () => {
+        console.log("[DEBUG] Teste: navegacao para /login via nav");
         const mockNavigate = vi.fn()
         vi.mocked(useNavigate).mockReturnValue(mockNavigate)
 
@@ -52,9 +52,10 @@ describe('Splash Component', () => {
             </MemoryRouter>
         )
 
-        const loginButtons = screen.getAllByText(/Entrar/i)
-        fireEvent.click(loginButtons[0])
+        const loginButton = screen.getByRole('button', { name: /Entrar/i })
+        fireEvent.click(loginButton)
 
         expect(mockNavigate).toHaveBeenCalledWith('/login')
     })
 })
+

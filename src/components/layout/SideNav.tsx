@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
     Home, Clock, CreditCard, Wallet, User as UserIcon,
-    ShieldCheck, Bus, MapPin, LogOut
+    ShieldCheck, MapPin, LogOut
 } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 
@@ -33,13 +33,7 @@ export default function SideNav() {
         <aside className="hidden md:flex flex-col w-64 min-h-screen shrink-0"
             style={{ background: 'var(--color-sidebar-bg)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
             <div className="px-6 py-7 flex items-center gap-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-                <div className="flex items-center justify-center w-9 h-9 rounded-xl"
-                    style={{ background: 'var(--color-primary)', boxShadow: '0 4px 12px rgba(37,99,235,0.5)' }}>
-                    <Bus size={18} className="text-white" strokeWidth={2} />
-                </div>
-                <span className="font-display font-800 text-white text-lg tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 800 }}>
-                    Ubus
-                </span>
+                <img src="/logo.png" alt="Ubus Logo" className="h-10 w-auto" />
             </div>
 
             <nav className="flex-1 px-3 py-5 flex flex-col gap-1 overflow-y-auto">

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Eye, EyeOff, Bus, ArrowLeft, Mail, Lock } from 'lucide-react'
+import { Eye, EyeOff, ArrowLeft, Mail, Lock } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { api, ApiError } from '@/lib/api'
 import type { LoginResponse } from '@/types'
@@ -22,27 +22,25 @@ export default function Login() {
         setLoading(true)
 
         try {
-            console.log('[Login] Tentando login com:', { email })
+            console.log('[DEBUG] Tentando login com:', { email })
             const data = await api.post<LoginResponse>('/auth/login', { email, password })
-            console.log('[Login] Resposta da API:', JSON.stringify(data, null, 2))
-            console.log('[Login] Role do usuário:', data.user?.role)
-            console.log('[Login] User completo:', data.user)
-            setAuth(data.accessToken, data.user)
+            console.log('[DEBUG] Resposta da API:', JSON.stringify(data, null, 2))
             
-            if (data.user.role === 'DRIVER') {
-                console.log('[Login] Navegando para /motorista')
-                navigate('/motorista')
-            } else if (data.user.role === 'MANAGER' || data.user.role === 'SUPER_ADMIN') {
-                console.log('[Login] Navegando para /dashboard (gestor/admin)')
+            const role = data.user?.role
+            console.log('[DEBUG] Role do usuário:', role)
+
+            if (role === 'MANAGER' || role === 'SUPER_ADMIN') {
+                console.log('[DEBUG] Acesso permitido para:', role)
+                setAuth(data.accessToken, data.user)
                 navigate('/dashboard')
             } else {
-                console.log('[Login] Navegando para /dashboard (aluno/outro)')
-                navigate('/dashboard')
+                console.log('[DEBUG] Acesso negado para role:', role)
+                setError('Acesso restrito apenas para administradores e gestores.')
             }
         } catch (err) {
-            console.error('[Login] Erro no login:', err)
+            console.error('[DEBUG] Erro no login:', err)
             if (err instanceof ApiError) {
-                console.error('[Login] ApiError status:', err.status, 'body:', err.body)
+                console.error('[DEBUG] ApiError status:', err.status, 'body:', err.body)
             }
             if (err instanceof ApiError && err.status === 401) {
                 setError('Email ou senha incorretos.')
@@ -65,20 +63,16 @@ export default function Login() {
                         style={{ background: 'radial-gradient(circle, #7C3AED, transparent)' }} />
                 </div>
                 <div className="relative flex items-center gap-2.5">
-                    <div className="flex items-center justify-center w-9 h-9 rounded-xl"
-                        style={{ background: 'rgba(59,130,246,0.25)', border: '1px solid rgba(59,130,246,0.3)' }}>
-                        <Bus size={18} className="text-blue-400" />
-                    </div>
-                    <span className="text-white font-bold text-lg" style={{ fontFamily: 'var(--font-display)' }}>Ubus</span>
+                    <img src="/logo.png" alt="Ubus Logo" className="h-10 w-auto" />
                 </div>
 
                 <div className="relative">
-                    <p className="text-blue-400 text-sm font-semibold tracking-widest uppercase mb-4">Bem-vindo de volta</p>
+                    <p className="text-blue-400 text-sm font-semibold tracking-widest uppercase mb-4">Painel Administrativo</p>
                     <h1 className="text-white text-5xl font-black leading-[1.1] mb-5" style={{ fontFamily: 'var(--font-display)' }}>
-                        Mobilidade<br />universitária<br />inteligente.
+                        Gestão de<br />mobilidade<br />urbana.
                     </h1>
                     <p className="text-slate-400 text-base leading-relaxed max-w-xs">
-                        Sua plataforma de transporte estudantil. Reserve, acompanhe e viaje com segurança.
+                        Plataforma exclusiva para gestão e monitoramento do transporte universitário.
                     </p>
                 </div>
 
@@ -101,17 +95,13 @@ export default function Login() {
                 <div className="flex-1 flex flex-col justify-center px-6 py-8 md:px-16 max-w-md md:max-w-none w-full mx-auto md:mx-0">
                     <div className="mb-8">
                         <div className="hidden md:flex items-center gap-2.5 mb-10">
-                            <div className="flex items-center justify-center w-8 h-8 rounded-lg"
-                                style={{ background: 'rgba(37,99,235,0.1)' }}>
-                                <Bus size={16} style={{ color: 'var(--color-primary)' }} />
-                            </div>
-                            <span className="font-bold text-base" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-primary)' }}>Ubus</span>
+                            <img src="/logo.png" alt="Ubus Logo" className="h-10 w-auto" />
                         </div>
                         <h2 className="text-3xl md:text-4xl font-black mb-2" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text)' }}>
-                            Entrar
+                            Acesso Gestor
                         </h2>
                         <p style={{ color: 'var(--color-text-2)' }} className="text-base">
-                            Informe suas credenciais para acessar.
+                            Informe suas credenciais administrativas.
                         </p>
                     </div>
 
@@ -203,15 +193,9 @@ export default function Login() {
                         </div>
                     </form>
                     </motion.div>
-
-                    <p className="text-center text-sm mt-8" style={{ color: 'var(--color-text-2)' }}>
-                        Ainda não tem conta?{' '}
-                        <button onClick={() => navigate('/cadastro')} className="font-bold transition-colors hover:opacity-80" style={{ color: 'var(--color-primary)' }}>
-                            Cadastre-se
-                        </button>
-                    </p>
                 </div>
             </div>
         </div>
     )
 }
+

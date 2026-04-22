@@ -8,7 +8,6 @@ import {
     BarChart3,
     Settings,
     Menu,
-    Landmark,
     ShieldCheck,
     LogOut
 } from 'lucide-react'
@@ -45,7 +44,7 @@ export default function ManagerLayout({ children }: { children?: React.ReactNode
             {/* Desktop Sidebar */}
             <aside className="hidden md:flex w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col shrink-0 z-20">
                 <div className="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800">
-                    <Landmark className="text-blue-600 w-6 h-6 mr-3" />
+                    <img src="/logo.png" alt="Ubus Logo" className="h-8 w-auto mr-3" />
                     <h2 className="text-lg font-bold leading-tight tracking-tight">
                         {user?.role === 'SUPER_ADMIN' ? 'Gestão de Sistema' : 'Gestão Municipal'}
                     </h2>
