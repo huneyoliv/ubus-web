@@ -66,7 +66,7 @@ export function AppShell({ children }: AppShellProps) {
     <div className="flex h-screen bg-[#F0F4FF] overflow-hidden">
       <aside className="hidden md:flex flex-col w-[280px] bg-[#0F172A] text-white flex-shrink-0">
         <div className="p-6 border-b border-slate-800 flex items-center gap-3">
-          <img src="/logo.png" alt="Ubus Gestor" className="h-10 w-auto" />
+          <img src="/logo.png?v=2" alt="Ubus Gestor" className="h-10 w-auto" />
           <span className="text-xl font-black tracking-wider text-white font-outfit uppercase">Gestor</span>
         </div>
         <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
@@ -111,7 +111,7 @@ export function AppShell({ children }: AppShellProps) {
 
       <div className="flex flex-col flex-1 overflow-hidden">
         <header className="flex md:hidden items-center justify-between px-6 py-4 bg-white border-b border-[#C3C6D7]/30 flex-shrink-0">
-          <img src="/logo.png" alt="Ubus Logo" className="h-8 w-auto" />
+          <img src="/logo.png?v=2" alt="Ubus Logo" className="h-8 w-auto" />
           <div className="flex items-center gap-3">
             <span className="text-sm font-semibold text-[#131B2E]">{user?.name.split(' ')[0]}</span>
             <div className="h-8 w-8 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-sm">
