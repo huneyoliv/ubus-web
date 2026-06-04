@@ -63,16 +63,38 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
+            set -x
+            echo "==== DIAGNÓSTICO DO SERVIDOR ===="
+            echo "1. Listando containers ativos e inativos:"
+            sudo docker ps -a
+            
+            echo "2. Processos escutando na porta 80 e 443:"
+            sudo ss -tulpn | grep -E ':80|:443' || true
+            
+            echo "3. Fazendo requisição HTTP local (cabeçalhos) na porta 80:"
+            curl -I http://localhost || true
+            
+            echo "4. Informações de rede do docker:"
+            sudo docker network ls
+            echo "==== FIM DO DIAGNÓSTICO ===="
+            
             GH_USER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
             IMAGE_URI="ghcr.io/$GH_USER/ubus-web-landing:latest"
             
             echo "${{ secrets.GITHUB_TOKEN }}" | sudo docker login ghcr.io -u $GH_USER --password-stdin
             sudo docker pull $IMAGE_URI
             sudo docker rm -f ubus-landing || true
+            
+            echo "Tentando subir o container ubus-landing..."
             sudo docker run -d \
               --name ubus-landing \
               -p 80:80 \
               --restart unless-stopped \
-              $IMAGE_URI
+              $IMAGE_URI || {
+                echo "ERRO: O container falhou ao iniciar!"
+                echo "Logs do container:"
+                sudo docker logs ubus-landing || true
+                exit 1
+              }
             
             sudo docker image prune -f
