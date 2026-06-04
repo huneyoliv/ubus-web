@@ -30,14 +30,11 @@ export default function SuperAdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
-    console.log('[SuperAdminDashboard] Carregando prefeituras...')
     api.get<Municipality[]>('/management')
       .then((data) => {
-        console.log('[SuperAdminDashboard] Prefeituras carregadas:', data)
         setMunicipalities(data)
       })
-      .catch((err) => {
-        console.error('[SuperAdminDashboard] Erro ao carregar prefeituras:', err)
+      .catch(() => {
         setMunicipalities([])
       })
       .finally(() => setLoading(false))
@@ -136,11 +133,11 @@ export default function SuperAdminDashboard() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
           <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
             <h4 className="text-sm font-bold w-full sm:w-auto mb-2 sm:mb-0" style={{ color: 'var(--color-text)' }}>Ações Rápidas:</h4>
-            <button onClick={() => { console.log('[SuperAdminDashboard] Clicou em Nova Prefeitura'); navigate('/admin-management') }} className="btn-primary px-4 h-10 flex items-center gap-2 flex-1 sm:flex-none justify-center">
+            <button onClick={() => navigate('/admin-management')} className="btn-primary px-4 h-10 flex items-center gap-2 flex-1 sm:flex-none justify-center">
               <PlusCircle size={16} />
               <span>Nova Prefeitura</span>
             </button>
-            <button onClick={() => { console.log('[SuperAdminDashboard] Clicou em Novo Gestor'); navigate('/admin-management') }} className="px-4 h-10 rounded-xl flex items-center justify-center gap-2 text-sm font-bold transition-all hover:bg-slate-50 flex-1 sm:flex-none"
+            <button onClick={() => navigate('/admin-management')} className="px-4 h-10 rounded-xl flex items-center justify-center gap-2 text-sm font-bold transition-all hover:bg-slate-50 flex-1 sm:flex-none"
               style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}>
               <UserPlus size={16} />
               <span>Novo Gestor</span>

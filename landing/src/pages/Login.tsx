@@ -22,26 +22,16 @@ export default function Login() {
         setLoading(true)
 
         try {
-            console.log('[DEBUG] Tentando login com:', { email })
             const data = await api.post<LoginResponse>('/auth/login', { email, password })
-            console.log('[DEBUG] Resposta da API:', JSON.stringify(data, null, 2))
-            
             const role = data.user?.role
-            console.log('[DEBUG] Role do usuário:', role)
 
             if (role === 'MANAGER' || role === 'SUPER_ADMIN') {
-                console.log('[DEBUG] Acesso permitido para:', role)
                 setAuth(data.accessToken, data.user)
                 navigate('/dashboard')
             } else {
-                console.log('[DEBUG] Acesso negado para role:', role)
                 setError('Acesso restrito apenas para administradores e gestores.')
             }
         } catch (err) {
-            console.error('[DEBUG] Erro no login:', err)
-            if (err instanceof ApiError) {
-                console.error('[DEBUG] ApiError status:', err.status, 'body:', err.body)
-            }
             if (err instanceof ApiError && err.status === 401) {
                 setError('Email ou senha incorretos.')
             } else {

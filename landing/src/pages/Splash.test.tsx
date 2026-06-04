@@ -1,61 +1,30 @@
-import { render, screen, fireEvent } from '@testing-library/react'
-import { MemoryRouter, useNavigate } from 'react-router-dom'
-import { describe, it, expect, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
+import { describe, it, expect } from 'vitest'
 import Splash from './Splash'
 
-vi.mock('react-router-dom', async () => {
-    const actual = await vi.importActual('react-router-dom')
-    return {
-        ...actual,
-        useNavigate: vi.fn(),
-    }
-})
-
 describe('Splash Component', () => {
-    it('deve renderizar os principais elementos da landing page de gestão', () => {
-        console.log("[DEBUG] Teste: renderizacao da Splash Gestao");
+    it('deve renderizar os principais elementos da landing page institucional', () => {
         render(
             <MemoryRouter>
                 <Splash />
             </MemoryRouter>
         )
 
-        expect(screen.getByText(/Plataforma de/i)).toBeInTheDocument()
-        expect(screen.getByText(/Gestão Ubus/i)).toBeInTheDocument()
+        expect(screen.getByText(/Revolucione a Gestão/i)).toBeInTheDocument()
+        expect(screen.getByText(/Mobilidade Inteligente & Sustentável/i)).toBeInTheDocument()
+        expect(screen.getByText(/Solicitar Demonstração/i)).toBeInTheDocument()
     })
 
-    it('deve chamar navigate para /login ao clicar no botao acessar painel', () => {
-        console.log("[DEBUG] Teste: navegacao para /login via botao principal");
-        const mockNavigate = vi.fn()
-        vi.mocked(useNavigate).mockReturnValue(mockNavigate)
-
+    it('deve renderizar as seções de público-alvo', () => {
         render(
             <MemoryRouter>
                 <Splash />
             </MemoryRouter>
         )
 
-        const startButton = screen.getByText(/Acessar Painel/i)
-        fireEvent.click(startButton)
-
-        expect(mockNavigate).toHaveBeenCalledWith('/login')
-    })
-    
-    it('deve chamar navigate para /login ao clicar no link Entrar', () => {
-        console.log("[DEBUG] Teste: navegacao para /login via nav");
-        const mockNavigate = vi.fn()
-        vi.mocked(useNavigate).mockReturnValue(mockNavigate)
-
-        render(
-            <MemoryRouter>
-                <Splash />
-            </MemoryRouter>
-        )
-
-        const loginButton = screen.getByRole('button', { name: /Entrar/i })
-        fireEvent.click(loginButton)
-
-        expect(mockNavigate).toHaveBeenCalledWith('/login')
+        expect(screen.getByText(/Para Passageiros/i)).toBeInTheDocument()
+        expect(screen.getByText(/Para Motoristas/i)).toBeInTheDocument()
+        expect(screen.getByText(/Para Gestores/i)).toBeInTheDocument()
     })
 })
-

@@ -1,108 +1,86 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import Login from '../pages/Login'
 import Dashboard from '../pages/Dashboard'
-import { useAuthStore } from '../store/useAuthStore'
-import { api } from '../lib/api'
-
-vi.mock('../store/useAuthStore', () => ({
-    useAuthStore: vi.fn((selector) => {
-        const state = {
-            token: null,
-            user: null,
-            isAuthenticated: false,
-            setAuth: vi.fn(),
-            logout: vi.fn(),
-        }
-        return selector ? selector(state) : state
-    }),
-}))
-
-vi.mock('../lib/api', () => ({
-    api: {
-        post: vi.fn(),
-    },
-}))
+import { useAuthStore } from '@/store/useAuthStore'
 
 describe('Restrição de Autenticação e Acesso', () => {
-    let mockSetAuth: any
-
     beforeEach(() => {
-        vi.clearAllMocks()
-        mockSetAuth = vi.fn()
-        vi.mocked(useAuthStore).mockImplementation((selector: any) => {
-            const state = {
-                isAuthenticated: true,
-                user: { role: 'MANAGER' },
-                setAuth: mockSetAuth,
-                logout: vi.fn()
-            }
-            return selector ? selector(state) : state
+        useAuthStore.setState({
+            token: null,
+            user: null,
+            isAuthenticated: false
         })
+        vi.restoreAllMocks()
+        vi.unstubAllGlobals()
+    })
+
+    afterEach(() => {
+        vi.restoreAllMocks()
+        vi.unstubAllGlobals()
     })
 
     it('deve impedir login de estudante e exibir mensagem de erro', async () => {
-        console.log('[DEBUG] Teste: impedindo login de role STUDENT')
-        
-        vi.mocked(useAuthStore).mockImplementation((selector: any) => {
-            const state = {
-                setAuth: mockSetAuth
-            }
-            return selector ? selector(state) : state
+        const mockFetch = vi.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            text: () => Promise.resolve(JSON.stringify({
+                accessToken: 'token-fake',
+                user: { role: 'STUDENT', name: 'Estudante Teste' }
+            }))
         })
+        vi.stubGlobal('fetch', mockFetch)
 
-        vi.mocked(api.post).mockResolvedValue({
-            accessToken: 'token-fake',
-            user: { role: 'STUDENT', name: 'Estudante Teste' }
-        })
-
-        render(
+        const { container } = render(
             <MemoryRouter>
                 <Login />
             </MemoryRouter>
         )
 
-        const submitButton = screen.getByRole('button', { name: /Acessar plataforma/i })
-        fireEvent.click(submitButton)
+        const form = container.querySelector('form')
+        fireEvent.submit(form!)
 
         await waitFor(() => {
             expect(screen.getByText(/Acesso restrito apenas para administradores e gestores/i)).toBeInTheDocument()
         })
-        expect(mockSetAuth).not.toHaveBeenCalled()
+
+        expect(mockFetch).toHaveBeenCalled()
+        expect(useAuthStore.getState().isAuthenticated).toBe(false)
     })
 
     it('deve permitir login de gestor e redirecionar', async () => {
-        console.log('[DEBUG] Teste: permitindo login de role MANAGER')
-        
-        vi.mocked(api.post).mockResolvedValue({
-            accessToken: 'token-fake',
-            user: { role: 'MANAGER', name: 'Gestor Teste' }
+        const mockFetch = vi.fn().mockResolvedValue({
+            ok: true,
+            status: 200,
+            text: () => Promise.resolve(JSON.stringify({
+                accessToken: 'token-fake',
+                user: { role: 'MANAGER', name: 'Gestor Teste' }
+            }))
         })
+        vi.stubGlobal('fetch', mockFetch)
 
-        render(
+        const { container } = render(
             <MemoryRouter>
                 <Login />
             </MemoryRouter>
         )
 
-        const submitButton = screen.getByRole('button', { name: /Acessar plataforma/i })
-        fireEvent.click(submitButton)
+        const form = container.querySelector('form')
+        fireEvent.submit(form!)
 
         await waitFor(() => {
-            expect(mockSetAuth).toHaveBeenCalledWith('token-fake', expect.objectContaining({ role: 'MANAGER' }))
+            expect(useAuthStore.getState().token).toBe('token-fake')
+            expect(useAuthStore.getState().user?.role).toBe('MANAGER')
         })
+
+        expect(mockFetch).toHaveBeenCalled()
     })
 
     it('deve redirecionar role STUDENT para login ao tentar acessar Dashboard', () => {
-        console.log('[DEBUG] Teste: redirecionando STUDENT do Dashboard')
-        
-        vi.mocked(useAuthStore).mockImplementation((selector: any) => {
-            const state = {
-                isAuthenticated: true,
-                user: { role: 'STUDENT' }
-            }
-            return selector ? selector(state) : state
+        useAuthStore.setState({
+            isAuthenticated: true,
+            user: { role: 'STUDENT', name: 'Estudante Teste' } as any
         })
 
         render(
@@ -117,5 +95,3 @@ describe('Restrição de Autenticação e Acesso', () => {
         expect(screen.getByText(/Página de Login/i)).toBeInTheDocument()
     })
 })
-
-
