@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { ArrowRight, Shield, Leaf, TrendingUp, Users, Smartphone, Activity } from 'lucide-react'
 
-export default function Splash() {
+export default function LandingPage() {
     return (
         <div className="w-full min-h-screen bg-[#030d0a] relative overflow-hidden flex flex-col font-sans text-white">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">

@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, it, expect } from 'vitest'
-import Splash from './Splash'
+import LandingPage from './LandingPage'
 
-describe('Splash Component', () => {
+describe('LandingPage Component', () => {
     it('deve renderizar os principais elementos da landing page institucional', () => {
         render(
             <MemoryRouter>
-                <Splash />
+                <LandingPage />
             </MemoryRouter>
         )
 
@@ -19,7 +19,7 @@ describe('Splash Component', () => {
     it('deve renderizar as seções de público-alvo', () => {
         render(
             <MemoryRouter>
-                <Splash />
+                <LandingPage />
             </MemoryRouter>
         )
 
