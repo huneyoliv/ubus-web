@@ -1,0 +1,1 @@
+import{j as p}from"./index-DUBCww9z.js";function x({children:r,className:o="",...e}){return p.jsx("div",{className:`bg-white rounded-[18px] p-6 shadow-[0px_4px_20px_rgba(15,23,42,0.05)] border border-[#C3C6D7]/30 ${o}`,...e,children:r})}export{x as C};

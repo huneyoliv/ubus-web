@@ -1,0 +1,1 @@
+import{o as s}from"./index-DUBCww9z.js";async function n(a){return(await s.get("/users",{params:a})).data}async function c(a,t){return(await s.patch(`/users/${a}/status`,{status:t})).data}async function i(a,t){return(await s.patch(`/users/${a}/accessibility-review`,t)).data}async function u(a){return(await s.patch("/users/me",a)).data}export{u as a,n as l,i as r,c as u};
