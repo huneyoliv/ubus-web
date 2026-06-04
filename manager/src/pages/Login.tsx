@@ -50,9 +50,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-[#F0F4FF] px-4">
       <Card className="w-full max-w-md p-8 shadow-xl">
         <div className="flex flex-col items-center mb-8">
-          <h1 className="text-3xl font-black text-[#2563EB] tracking-wider font-outfit uppercase">
-            UBUS GESTOR
-          </h1>
+          <img src="/logo.png" alt="Ubus Gestor" className="h-16 w-auto mb-2" />
           <p className="text-sm font-semibold text-[#434655] mt-2">
             Faça login para gerenciar o transporte escolar
           </p>
