@@ -1,1 +1,0 @@
-import{o as r}from"./index-DUBCww9z.js";async function s(t,a){return(await r.post("/auth/login",{email:t,password:a})).data}async function i(t){return(await r.post("/auth/register",t)).data}export{s as l,i as r};
