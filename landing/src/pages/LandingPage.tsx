@@ -11,7 +11,7 @@ export default function LandingPage() {
 
             <header className="relative z-10 flex items-center justify-between px-8 py-6 max-w-7xl w-full mx-auto">
                 <div className="flex items-center gap-2">
-                    <img src="/logo.png?v=2" alt="Ubus Logo" className="h-10 w-auto" />
+                    <img src="/logo.png" alt="Ubus Logo" className="h-10 w-auto" />
                 </div>
 
                 <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/80">

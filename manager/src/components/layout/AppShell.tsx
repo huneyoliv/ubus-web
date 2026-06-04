@@ -66,7 +66,7 @@ export function AppShell({ children }: AppShellProps) {
     <div className="flex h-screen bg-[#F0F4FF] overflow-hidden">
       <aside className="hidden md:flex flex-col w-[280px] bg-[#0F172A] text-white flex-shrink-0">
         <div className="p-6 border-b border-slate-800 flex items-center gap-3">
-          <img src="/logo.png?v=2" alt="Ubus Gestor" className="h-10 w-auto" />
+          <img src="/logo.png" alt="Ubus Gestor" className="h-10 w-auto" />
           <span className="text-xl font-black tracking-wider text-white font-outfit uppercase">Gestor</span>
         </div>
         <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
@@ -77,20 +77,18 @@ export function AppShell({ children }: AppShellProps) {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center justify-between px-4 py-3.5 rounded-[12px] font-semibold text-sm transition-all duration-200 ${
-                  active
-                    ? 'bg-[#2563EB] text-white shadow-lg shadow-[#2563EB]/25 scale-[1.02]'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-                }`}
+                className={`flex items-center justify-between px-4 py-3.5 rounded-[12px] font-semibold text-sm transition-all duration-200 ${active
+                  ? 'bg-[#2563EB] text-white shadow-lg shadow-[#2563EB]/25 scale-[1.02]'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <Icon className="h-5 w-5" />
                   <span>{item.label}</span>
                 </div>
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className={`inline-flex items-center justify-center h-5 px-2 rounded-full text-xs font-bold ${
-                    active ? 'bg-white text-[#2563EB]' : 'bg-[#BA1A1A] text-white'
-                  }`}>
+                  <span className={`inline-flex items-center justify-center h-5 px-2 rounded-full text-xs font-bold ${active ? 'bg-white text-[#2563EB]' : 'bg-[#BA1A1A] text-white'
+                    }`}>
                     {item.badge}
                   </span>
                 )}
@@ -111,7 +109,7 @@ export function AppShell({ children }: AppShellProps) {
 
       <div className="flex flex-col flex-1 overflow-hidden">
         <header className="flex md:hidden items-center justify-between px-6 py-4 bg-white border-b border-[#C3C6D7]/30 flex-shrink-0">
-          <img src="/logo.png?v=2" alt="Ubus Logo" className="h-8 w-auto" />
+          <img src="/logo.png" alt="Ubus Logo" className="h-8 w-auto" />
           <div className="flex items-center gap-3">
             <span className="text-sm font-semibold text-[#131B2E]">{user?.name.split(' ')[0]}</span>
             <div className="h-8 w-8 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-sm">
@@ -129,18 +127,16 @@ export function AppShell({ children }: AppShellProps) {
         <nav className="flex md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-[#C3C6D7]/40 justify-around items-center z-50 px-4">
           <Link
             to="/dashboard"
-            className={`flex flex-col items-center justify-center flex-1 py-1 ${
-              isActive('/dashboard') ? 'text-[#2563EB]' : 'text-slate-400'
-            }`}
+            className={`flex flex-col items-center justify-center flex-1 py-1 ${isActive('/dashboard') ? 'text-[#2563EB]' : 'text-slate-400'
+              }`}
           >
             <LayoutDashboard className="h-5 w-5" />
             <span className="text-[10px] font-bold mt-1">Painel</span>
           </Link>
           <Link
             to="/validacoes"
-            className={`flex flex-col items-center justify-center flex-1 py-1 relative ${
-              isActive('/validacoes') ? 'text-[#2563EB]' : 'text-slate-400'
-            }`}
+            className={`flex flex-col items-center justify-center flex-1 py-1 relative ${isActive('/validacoes') ? 'text-[#2563EB]' : 'text-slate-400'
+              }`}
           >
             <ClipboardCheck className="h-5 w-5" />
             {pendingCount > 0 && (
@@ -152,9 +148,8 @@ export function AppShell({ children }: AppShellProps) {
           </Link>
           <Link
             to="/rotas"
-            className={`flex flex-col items-center justify-center flex-1 py-1 ${
-              isActive('/rotas') ? 'text-[#2563EB]' : 'text-slate-400'
-            }`}
+            className={`flex flex-col items-center justify-center flex-1 py-1 ${isActive('/rotas') ? 'text-[#2563EB]' : 'text-slate-400'
+              }`}
           >
             <Route className="h-5 w-5" />
             <span className="text-[10px] font-bold mt-1">Rotas</span>
@@ -168,9 +163,8 @@ export function AppShell({ children }: AppShellProps) {
           </button>
           <Link
             to="/configuracoes"
-            className={`flex flex-col items-center justify-center flex-1 py-1 ${
-              isActive('/configuracoes') ? 'text-[#2563EB]' : 'text-slate-400'
-            }`}
+            className={`flex flex-col items-center justify-center flex-1 py-1 ${isActive('/configuracoes') ? 'text-[#2563EB]' : 'text-slate-400'
+              }`}
           >
             <UserIcon className="h-5 w-5" />
             <span className="text-[10px] font-bold mt-1">Perfil</span>
