@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Inter:wght@400;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --bg: #F0F4FF;
+  --surface: #FFFFFF;
+  --on-surface: #131B2E;
+  --on-surface-2: #434655;
+  --border: #C3C6D7;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #BA1A1A;
+
+  --shadow-1: 0px 4px 20px rgba(15, 23, 42, 0.05);
+  --shadow-2: 0px 10px 32px rgba(15, 23, 42, 0.1);
+  --shadow-3: 0px 20px 48px rgba(15, 23, 42, 0.15);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--on-surface);
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+}
