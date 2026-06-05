@@ -322,7 +322,7 @@ export default function RotaDetailPage() {
                   <div key={pt.id} className="flex items-center justify-between p-4 bg-slate-50 border border-[#C3C6D7]/20 rounded-[12px]">
                     <div>
                       <h4 className="text-sm font-bold text-[#131B2E]">{pt.name}</h4>
-                      <span className="text-[10px] font-semibold text-[#434655]">Lat: {pt.lat.toFixed(6)} | Lng: {pt.lng.toFixed(6)}</span>
+                      <span className="text-[10px] font-semibold text-[#434655]">Lat: {pt.lat != null ? pt.lat.toFixed(6) : '0.000000'} | Lng: {pt.lng != null ? pt.lng.toFixed(6) : '0.000000'}</span>
                     </div>
                     <div className="flex gap-2">
                       <button

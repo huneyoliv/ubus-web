@@ -95,7 +95,9 @@ export async function getRouteCalendar(routeId: string, month: string): Promise<
   const [year, monthStr] = month.split('-');
   const monthNum = parseInt(monthStr, 10).toString();
   const r = await api.get(`/trips/route/${routeId}/calendar`, { params: { year, month: monthNum } });
-  return r.data;
+  const trips = Array.isArray(r.data) ? r.data : [];
+  const scheduledDates = Array.from(new Set(trips.map((t: any) => t.tripDate)));
+  return { scheduledDates };
 }
 
 export async function scheduleTrips(payload: {
