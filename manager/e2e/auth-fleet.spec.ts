@@ -2,6 +2,15 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Fluxos de Autenticação e Gestão de Frota no Gestor', () => {
   test('Deve logar, persistir no refresh, carregar calendário e gerenciar pontos de embarque', async ({ page }) => {
+    page.on('request', request => console.log('>>', request.method(), request.url()));
+    page.on('response', response => {
+      console.log('<<', response.status(), response.url());
+      if (response.status() >= 400) {
+        response.text().then(text => console.log('ERROR BODY:', text)).catch(() => {});
+      }
+    });
+    page.on('console', msg => console.log('CONSOLE:', msg.text()));
+
     // 1. Login
     await page.goto('/login');
     await page.fill('#email', 'manager@municipality.gov.br');
