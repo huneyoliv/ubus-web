@@ -32,8 +32,11 @@ export default function Login() {
 
       api.defaults.headers.Authorization = `Bearer ${token}`;
 
-      const { getMe } = await import('../api/users');
-      const user = await getMe();
+      let user = (response as any).user;
+      if (!user) {
+        const { getMe } = await import('../api/users');
+        user = await getMe();
+      }
 
       if (user.role !== 'MANAGER' && user.role !== 'SUPER_ADMIN') {
         setError('Acesso negado. Apenas gestores podem acessar este painel.');
