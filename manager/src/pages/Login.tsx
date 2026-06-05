@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/auth.store';
 import { login } from '../api/auth';
+import { api } from '../api/client';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
@@ -27,7 +28,12 @@ export default function Login() {
 
     try {
       const response = await login(email, password);
-      const { token, user } = response;
+      const token = (response as any).accessToken || (response as any).token;
+
+      api.defaults.headers.Authorization = `Bearer ${token}`;
+
+      const { getMe } = await import('../api/users');
+      const user = await getMe();
 
       if (user.role !== 'MANAGER' && user.role !== 'SUPER_ADMIN') {
         setError('Acesso negado. Apenas gestores podem acessar este painel.');
