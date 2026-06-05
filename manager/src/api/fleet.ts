@@ -83,16 +83,18 @@ export async function createPickupPoint(routeId: string, payload: { name: string
 }
 
 export async function updatePickupPoint(routeId: string, pointId: string, payload: { name?: string; lat?: number; lng?: number }): Promise<PickupPoint> {
-  const r = await api.patch(`/fleet/routes/${routeId}/points/${pointId}`, payload);
+  const r = await api.patch(`/fleet/points/${pointId}`, payload);
   return r.data;
 }
 
 export async function deletePickupPoint(routeId: string, pointId: string): Promise<void> {
-  await api.delete(`/fleet/routes/${routeId}/points/${pointId}`);
+  await api.delete(`/fleet/points/${pointId}`);
 }
 
 export async function getRouteCalendar(routeId: string, month: string): Promise<{ scheduledDates: string[] }> {
-  const r = await api.get(`/trips/route/${routeId}/calendar`, { params: { month } });
+  const [year, monthStr] = month.split('-');
+  const monthNum = parseInt(monthStr, 10).toString();
+  const r = await api.get(`/trips/route/${routeId}/calendar`, { params: { year, month: monthNum } });
   return r.data;
 }
 

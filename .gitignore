@@ -10,6 +10,9 @@ node_modules/
 !.yarn/releases
 !.yarn/versions
 dist/
+test-results/
+playwright-report/
+blob-report/
 
 # testing
 /coverage

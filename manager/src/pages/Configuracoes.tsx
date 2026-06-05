@@ -60,10 +60,10 @@ export default function Configuracoes() {
           <Card className="flex items-center justify-between p-6">
             <div className="flex items-center gap-5">
               <div className="h-16 w-16 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-2xl font-outfit">
-                {user?.name.substring(0, 2).toUpperCase()}
+                {user?.name?.substring(0, 2)?.toUpperCase() || ''}
               </div>
               <div className="flex flex-col gap-1">
-                <h2 className="text-xl font-bold text-[#131B2E]">{user?.name}</h2>
+                <h2 className="text-xl font-bold text-[#131B2E]">{user?.name || ''}</h2>
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-[#434655]">{user?.email}</span>
                   <span className="bg-[#F0F4FF] text-[#2563EB] text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">

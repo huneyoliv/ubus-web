@@ -111,9 +111,9 @@ export function AppShell({ children }: AppShellProps) {
         <header className="flex md:hidden items-center justify-between px-6 py-4 bg-white border-b border-[#C3C6D7]/30 flex-shrink-0">
           <img src="/logo-v2.png" alt="Ubus Logo" className="h-8 w-auto" />
           <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-[#131B2E]">{user?.name.split(' ')[0]}</span>
+            <span className="text-sm font-semibold text-[#131B2E]">{user?.name?.split(' ')[0] || ''}</span>
             <div className="h-8 w-8 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-sm">
-              {user?.name.substring(0, 2).toUpperCase()}
+              {user?.name?.substring(0, 2)?.toUpperCase() || ''}
             </div>
           </div>
         </header>
