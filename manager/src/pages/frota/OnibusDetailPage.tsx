@@ -17,6 +17,7 @@ export default function OnibusDetailPage() {
   const [error, setError] = useState('');
 
   const [plate, setPlate] = useState('');
+  const [identificationNumber, setIdentificationNumber] = useState('');
   const [capacity, setCapacity] = useState(40);
   const [hasBathroom, setHasBathroom] = useState(false);
   const [hasAirConditioning, setHasAirConditioning] = useState(false);
@@ -34,6 +35,7 @@ export default function OnibusDetailPage() {
         if (found) {
           setBus(found);
           setPlate(found.plate);
+          setIdentificationNumber(found.identificationNumber || '');
           setCapacity(found.capacity);
           setHasBathroom(found.hasBathroom);
           setHasAirConditioning(found.hasAirConditioning);
@@ -43,8 +45,8 @@ export default function OnibusDetailPage() {
         } else {
           setError('Veículo não encontrado.');
         }
-      } catch (err) {
-        setError('Erro ao carregar o veículo.');
+      } catch (err: any) {
+        setError(err.response?.data?.message || err.message || 'Erro ao carregar o veículo.');
       } finally {
         setLoading(false);
       }
@@ -60,6 +62,7 @@ export default function OnibusDetailPage() {
     try {
       const updated = await updateBus(id, {
         plate,
+        identificationNumber,
         capacity,
         hasBathroom,
         hasAirConditioning,
@@ -88,8 +91,8 @@ export default function OnibusDetailPage() {
       // Simula ou chama o PATCH /fleet/buses/{id} salvando o array no metadado preferentialSeats
       await updateBus(id, { preferentialSeats });
       alert('Layout de assentos preferenciais salvo com sucesso!');
-    } catch (err) {
-      alert('Erro ao salvar layout de assentos.');
+    } catch (err: any) {
+      alert(err.response?.data?.message || err.message || 'Erro ao salvar layout de assentos.');
     } finally {
       setLayoutLoading(false);
     }
@@ -117,7 +120,8 @@ export default function OnibusDetailPage() {
   }
 
   // Gera o grid de assentos (4 assentos por fileira, com corredor central)
-  const totalRows = Math.ceil(capacity / 4);
+  const validCapacity = typeof capacity === 'number' && !isNaN(capacity) && capacity > 0 ? capacity : 40;
+  const totalRows = Math.ceil(validCapacity / 4);
 
   return (
     <div className="flex flex-col gap-8">
@@ -139,6 +143,7 @@ export default function OnibusDetailPage() {
               {error && <div className="text-xs font-bold text-[#BA1A1A]">{error}</div>}
 
               <Input id="plate" label="Placa" value={plate} onChange={(e) => setPlate(e.target.value.toUpperCase())} />
+              <Input id="identificationNumber" label="Prefixo / Identificação" value={identificationNumber} onChange={(e) => setIdentificationNumber(e.target.value)} />
               <Input id="capacity" type="number" label="Capacidade" value={capacity} onChange={(e) => setCapacity(parseInt(e.target.value) || 0)} />
 
               <div className="flex flex-col gap-3 pt-3 border-t border-slate-100">
@@ -203,7 +208,7 @@ export default function OnibusDetailPage() {
                       <div className="flex gap-2">
                         {[1, 2].map((colIndex) => {
                           const seatNumber = rowIndex * 4 + colIndex;
-                          if (seatNumber > capacity) return <div key={colIndex} className="w-10 h-10" />;
+                          if (seatNumber > validCapacity) return <div key={colIndex} className="w-10 h-10" />;
                           const isPref = preferentialSeats.includes(seatNumber);
                           return (
                             <button
@@ -230,7 +235,7 @@ export default function OnibusDetailPage() {
                       <div className="flex gap-2">
                         {[3, 4].map((colIndex) => {
                           const seatNumber = rowIndex * 4 + colIndex;
-                          if (seatNumber > capacity) return <div key={colIndex} className="w-10 h-10" />;
+                          if (seatNumber > validCapacity) return <div key={colIndex} className="w-10 h-10" />;
                           const isPref = preferentialSeats.includes(seatNumber);
                           return (
                             <button

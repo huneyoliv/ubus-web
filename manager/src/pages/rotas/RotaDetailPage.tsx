@@ -21,15 +21,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { PickupPointModal } from './PickupPointModal';
 
-const WEEK_DAYS = [
-  { value: 'SEG', label: 'Segunda-feira' },
-  { value: 'TER', label: 'Terça-feira' },
-  { value: 'QUA', label: 'Quarta-feira' },
-  { value: 'QUI', label: 'Quinta-feira' },
-  { value: 'SEX', label: 'Sexta-feira' },
-  { value: 'SAB', label: 'Sábado' },
-  { value: 'DOM', label: 'Domingo' },
-];
+
 
 export default function RotaDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -45,9 +37,8 @@ export default function RotaDetailPage() {
 
   const [routeName, setRouteName] = useState('');
   const [routeDesc, setRouteDesc] = useState('');
-  const [routeWeekDays, setRouteWeekDays] = useState<string[]>([]);
-  const [votingOpen, setVotingOpen] = useState('06:00');
-  const [votingClose, setVotingClose] = useState('22:00');
+  const [departureTimeOutbound, setDepartureTimeOutbound] = useState('07:00');
+  const [departureTimeInbound, setDepartureTimeInbound] = useState('12:00');
   const [routeActive, setRouteActive] = useState(true);
   const [requiresElevator, setRequiresElevator] = useState(false);
 
@@ -80,9 +71,8 @@ export default function RotaDetailPage() {
         setRoute(foundRoute);
         setRouteName(foundRoute.name);
         setRouteDesc(foundRoute.description || '');
-        setRouteWeekDays(foundRoute.weekDays);
-        setVotingOpen(foundRoute.votingOpen);
-        setVotingClose(foundRoute.votingClose);
+        setDepartureTimeOutbound(foundRoute.departureTimeOutbound || '07:00');
+        setDepartureTimeInbound(foundRoute.departureTimeInbound || '12:00');
         setRouteActive(foundRoute.active);
         setRequiresElevator(foundRoute.requiresElevator || false);
       }
@@ -92,8 +82,8 @@ export default function RotaDetailPage() {
       setDrivers(driversList);
       setBuses(busesList.filter((b) => b.routeId === id));
       setScheduledDates(calendarData.scheduledDates || []);
-    } catch (err) {
-      // Silenciado
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message || 'Erro ao carregar dados da rota.');
     } finally {
       setLoading(false);
     }
@@ -102,12 +92,6 @@ export default function RotaDetailPage() {
   useEffect(() => {
     loadData();
   }, [id, calendarMonth]);
-
-  const handleWeekDayToggle = (day: string) => {
-    setRouteWeekDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
-  };
 
   const handleUpdateGeneral = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,15 +102,14 @@ export default function RotaDetailPage() {
       const updated = await updateRoute(id, {
         name: routeName,
         description: routeDesc,
-        weekDays: routeWeekDays,
-        votingOpen,
-        votingClose,
+        departureTimeOutbound,
+        departureTimeInbound,
         active: routeActive,
         requiresElevator,
       });
       setRoute(updated);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao atualizar dados gerais.');
+      setError(err.response?.data?.message || err.message || 'Erro ao atualizar dados gerais.');
     } finally {
       setGeneralLoading(false);
     }
@@ -153,7 +136,7 @@ export default function RotaDetailPage() {
       await updateBus(busId, { routeId: null });
       loadData();
     } catch (err: any) {
-      setError('Erro ao desvincular ônibus.');
+      setError(err.response?.data?.message || err.message || 'Erro ao desvincular ônibus.');
     }
   };
 
@@ -163,7 +146,7 @@ export default function RotaDetailPage() {
       await deletePickupPoint(id, pointId);
       loadData();
     } catch (err: any) {
-      setError('Erro ao excluir ponto.');
+      setError(err.response?.data?.message || err.message || 'Erro ao excluir ponto.');
     }
   };
 
@@ -257,8 +240,8 @@ export default function RotaDetailPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <Input id="votingOpen" type="time" label="Abertura Votação" value={votingOpen} onChange={(e) => setVotingOpen(e.target.value)} />
-                <Input id="votingClose" type="time" label="Fechamento Votação" value={votingClose} onChange={(e) => setVotingClose(e.target.value)} />
+                <Input id="departureTimeOutbound" type="time" label="Partida (Ida)" value={departureTimeOutbound} onChange={(e) => setDepartureTimeOutbound(e.target.value)} />
+                <Input id="departureTimeInbound" type="time" label="Partida (Volta)" value={departureTimeInbound} onChange={(e) => setDepartureTimeInbound(e.target.value)} />
               </div>
 
               <div className="flex flex-wrap gap-4 border-t border-b border-slate-100 py-4">
@@ -270,27 +253,6 @@ export default function RotaDetailPage() {
                   <input type="checkbox" checked={requiresElevator} onChange={(e) => setRequiresElevator(e.target.checked)} className="rounded" />
                   Exige Ônibus com Elevador
                 </label>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-[#434655]">Dias da Semana</label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {WEEK_DAYS.map((day) => {
-                    const selected = routeWeekDays.includes(day.value);
-                    return (
-                      <button
-                        key={day.value}
-                        type="button"
-                        onClick={() => handleWeekDayToggle(day.value)}
-                        className={`px-3 py-2 text-xs font-bold rounded-[8px] border transition-all duration-200 ${
-                          selected ? 'bg-[#2563EB] border-[#2563EB] text-white' : 'border-[#C3C6D7] text-[#434655]'
-                        }`}
-                      >
-                        {day.label}
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
 
               <Button type="submit" loading={generalLoading} className="self-start py-2.5">

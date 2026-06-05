@@ -4,16 +4,16 @@ export interface Route {
   id: string;
   name: string;
   description?: string;
-  weekDays: string[];
-  votingOpen: string;
-  votingClose: string;
   active: boolean;
   requiresElevator?: boolean;
+  departureTimeOutbound?: string;
+  departureTimeInbound?: string;
 }
 
 export interface Bus {
   id: string;
   plate: string;
+  identificationNumber: string;
   capacity: number;
   hasBathroom: boolean;
   hasAirConditioning: boolean;
@@ -59,17 +59,36 @@ export async function updateRoute(id: string, payload: Partial<Route>): Promise<
 
 export async function listBuses(): Promise<Bus[]> {
   const r = await api.get('/fleet/buses');
-  return r.data;
+  return r.data.map((bus: any) => ({
+    ...bus,
+    capacity: bus.standardCapacity ?? bus.capacity,
+  }));
 }
 
 export async function createBus(payload: Omit<Bus, 'id'>): Promise<Bus> {
-  const r = await api.post('/fleet/buses', payload);
-  return r.data;
+  const { capacity, ...rest } = payload;
+  const backendPayload = {
+    ...rest,
+    standardCapacity: capacity,
+  };
+  const r = await api.post('/fleet/buses', backendPayload);
+  return {
+    ...r.data,
+    capacity: r.data.standardCapacity ?? r.data.capacity,
+  };
 }
 
 export async function updateBus(id: string, payload: Partial<Bus>): Promise<Bus> {
-  const r = await api.patch(`/fleet/buses/${id}`, payload);
-  return r.data;
+  const { capacity, ...rest } = payload;
+  const backendPayload = {
+    ...rest,
+    ...(capacity !== undefined ? { standardCapacity: capacity } : {}),
+  };
+  const r = await api.patch(`/fleet/buses/${id}`, backendPayload);
+  return {
+    ...r.data,
+    capacity: r.data.standardCapacity ?? r.data.capacity,
+  };
 }
 
 export async function listPickupPoints(routeId: string): Promise<PickupPoint[]> {

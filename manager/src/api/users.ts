@@ -33,3 +33,22 @@ export async function updateMe(payload: { phone?: string; email?: string }): Pro
   const r = await api.patch('/users/me', payload);
   return r.data;
 }
+
+export async function requestVerificationCode(payload: {
+  type: 'EMAIL' | 'PHONE' | 'PASSWORD';
+  channel: 'EMAIL' | 'WHATSAPP';
+  value?: string;
+}): Promise<{ message: string; expiresIn: number }> {
+  const r = await api.post('/users/me/verification-code', payload);
+  return r.data;
+}
+
+export async function updateWithVerificationCode(payload: {
+  type: 'EMAIL' | 'PHONE' | 'PASSWORD';
+  code: string;
+  newValue: string;
+  currentPassword?: string;
+}): Promise<User> {
+  const r = await api.put('/users/me/update-with-code', payload);
+  return r.data;
+}

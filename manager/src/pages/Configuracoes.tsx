@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User as UserIcon, Settings, Lock, Edit2, LogOut, Check } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { updateMe } from '../api/users';
+import { requestVerificationCode, updateWithVerificationCode } from '../api/users';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -12,33 +12,26 @@ export default function Configuracoes() {
   const { user, logout, login, token } = useAuth();
   
   const [showEditModal, setShowEditModal] = useState(false);
-  const [name, setName] = useState(user?.name || '');
-  const [phone, setPhone] = useState(user?.phone || '');
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [changeType, setChangeType] = useState<'EMAIL' | 'PHONE' | 'PASSWORD' | null>(null);
+  const [newValue, setNewValue] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [channel, setChannel] = useState<'EMAIL' | 'WHATSAPP' | null>(null);
+  const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) {
-      setError('O nome é obrigatório.');
-      return;
-    }
-
-    setLoading(true);
+  const resetForm = () => {
+    setShowEditModal(false);
+    setStep(1);
+    setChangeType(null);
+    setNewValue('');
+    setConfirmPassword('');
+    setCurrentPassword('');
+    setChannel(null);
+    setCode('');
     setError('');
-    try {
-      const updated = await updateMe({ phone });
-      // Se a API permitir atualizar o nome ou outros campos, chamamos aqui. Apenas atualiza o store:
-      if (user && token) {
-        login(token, { ...user, name, phone });
-      }
-      setShowEditModal(false);
-      alert('Dados profissionais atualizados!');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao atualizar os dados.');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleLogout = () => {
@@ -93,7 +86,10 @@ export default function Configuracoes() {
                   </div>
                 </div>
                 <Button
-                  onClick={() => alert('Um link para alteração de senha foi solicitado para administrador@ubus.me.')}
+                  onClick={() => {
+                    setChangeType('PASSWORD');
+                    setShowEditModal(true);
+                  }}
                   variant="outline"
                   className="py-1.5 px-3 text-xs"
                 >
@@ -123,45 +119,272 @@ export default function Configuracoes() {
       {showEditModal && (
         <div className="fixed inset-0 bg-[#0F172A]/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-[18px] w-full max-w-md p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-            <h3 className="text-lg font-bold text-[#131B2E] mb-6">Editar Dados Profissionais</h3>
-            
-            <form onSubmit={handleUpdate} className="flex flex-col gap-5">
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-[12px] text-xs font-semibold text-[#BA1A1A]">
-                  {error}
-                </div>
-              )}
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-bold text-[#131B2E]">Alteração Cadastral</h3>
+              <span className="text-xs font-bold text-[#2563EB] bg-[#F0F4FF] px-2.5 py-1 rounded-full font-outfit">
+                Passo {step} de 3
+              </span>
+            </div>
 
-              <Input
-                id="edit-name"
-                label="Nome Completo"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-
-              <Input
-                id="edit-phone"
-                label="Telefone Profissional"
-                placeholder="(00) 00000-0000"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-
-              <div className="flex gap-4 mt-6 border-t border-[#C3C6D7]/15 pt-6">
-                <Button type="submit" loading={loading} className="flex-1 py-3">
-                  <Check className="h-5 w-5 mr-2" />
-                  Salvar
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowEditModal(false)}
-                  className="flex-1 py-3"
-                >
-                  Cancelar
-                </Button>
+            {error && (
+              <div className="p-3 mb-5 bg-red-50 border border-red-200 rounded-[12px] text-xs font-semibold text-[#BA1A1A]">
+                {error}
               </div>
-            </form>
+            )}
+
+            {step === 1 && (
+              <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-[#434655] uppercase tracking-wider font-outfit">O que deseja alterar?</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: 'EMAIL', label: 'E-mail' },
+                      { id: 'PHONE', label: 'Telefone' },
+                      { id: 'PASSWORD', label: 'Senha' },
+                    ].map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => {
+                          setChangeType(t.id as any);
+                          setNewValue('');
+                          setConfirmPassword('');
+                        }}
+                        className={`py-2 px-3 text-xs font-bold rounded-[8px] border transition ${
+                          changeType === t.id
+                            ? 'bg-[#2563EB] border-[#2563EB] text-white'
+                            : 'border-[#C3C6D7]/40 text-[#434655] hover:bg-slate-50'
+                        }`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {changeType === 'EMAIL' && (
+                  <Input
+                    id="new-email"
+                    label="Novo E-mail"
+                    type="email"
+                    placeholder="novo@email.com"
+                    value={newValue}
+                    onChange={(e) => setNewValue(e.target.value)}
+                  />
+                )}
+
+                {changeType === 'PHONE' && (
+                  <Input
+                    id="new-phone"
+                    label="Novo Telefone"
+                    placeholder="(00) 00000-0000"
+                    value={newValue}
+                    onChange={(e) => setNewValue(e.target.value)}
+                  />
+                )}
+
+                {changeType === 'PASSWORD' && (
+                  <>
+                    <Input
+                      id="new-password"
+                      label="Nova Senha"
+                      type="password"
+                      placeholder="Mínimo 6 caracteres"
+                      value={newValue}
+                      onChange={(e) => setNewValue(e.target.value)}
+                    />
+                    <Input
+                      id="confirm-password"
+                      label="Confirmar Nova Senha"
+                      type="password"
+                      placeholder="Repita a nova senha"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                  </>
+                )}
+
+                <div className="flex gap-4 mt-6 border-t border-[#C3C6D7]/15 pt-6">
+                  <Button
+                    onClick={() => {
+                      if (!changeType) {
+                        setError('Selecione o tipo de alteração.');
+                        return;
+                      }
+                      if (!newValue.trim()) {
+                        setError('Preencha o novo valor.');
+                        return;
+                      }
+                      if (changeType === 'EMAIL' && !newValue.includes('@')) {
+                        setError('Digite um e-mail válido.');
+                        return;
+                      }
+                      if (changeType === 'PASSWORD') {
+                        if (newValue.length < 6) {
+                          setError('A senha deve ter pelo menos 6 caracteres.');
+                          return;
+                        }
+                        if (newValue !== confirmPassword) {
+                          setError('As senhas não coincidem.');
+                          return;
+                        }
+                      }
+                      setError('');
+                      setStep(2);
+                    }}
+                    className="flex-1 py-3"
+                  >
+                    Avançar
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => resetForm()}
+                    className="flex-1 py-3"
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold text-[#434655] uppercase tracking-wider font-outfit">Canal de Envio do Código</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { id: 'EMAIL', label: 'E-mail' },
+                      { id: 'WHATSAPP', label: 'WhatsApp' },
+                    ].map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => setChannel(c.id as any)}
+                        className={`py-3 px-4 text-xs font-bold rounded-[10px] border transition ${
+                          channel === c.id
+                            ? 'bg-[#2563EB] border-[#2563EB] text-white'
+                            : 'border-[#C3C6D7]/40 text-[#434655] hover:bg-slate-50'
+                        }`}
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-4 mt-6 border-t border-[#C3C6D7]/15 pt-6">
+                  <Button
+                    loading={loading}
+                    onClick={async () => {
+                      if (!channel) {
+                        setError('Escolha um canal de envio.');
+                        return;
+                      }
+                      setLoading(true);
+                      setError('');
+                      try {
+                        await requestVerificationCode({
+                          type: changeType!,
+                          channel,
+                          value: changeType === 'PASSWORD' ? undefined : newValue,
+                        });
+                        setStep(3);
+                      } catch (err: any) {
+                        setError(err.response?.data?.message || 'Erro ao enviar o código de verificação.');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    className="flex-1 py-3"
+                  >
+                    Solicitar Código
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setStep(1)}
+                    className="flex-1 py-3"
+                  >
+                    Voltar
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="flex flex-col gap-5">
+                <p className="text-xs text-[#434655] leading-relaxed">
+                  Digite o código de 6 dígitos enviado por nós via {channel === 'EMAIL' ? 'E-mail' : 'WhatsApp'}.
+                </p>
+
+                <Input
+                  id="verification-code"
+                  label="Código de Verificação (6 dígitos)"
+                  placeholder="000000"
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                />
+
+                {changeType === 'PASSWORD' && (
+                  <Input
+                    id="current-password"
+                    label="Senha Atual"
+                    type="password"
+                    placeholder="Digite sua senha atual"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                  />
+                )}
+
+                <div className="flex gap-4 mt-6 border-t border-[#C3C6D7]/15 pt-6">
+                  <Button
+                    loading={loading}
+                    onClick={async () => {
+                      if (code.length !== 6) {
+                        setError('O código deve conter 6 dígitos.');
+                        return;
+                      }
+                      if (changeType === 'PASSWORD' && !currentPassword) {
+                        setError('A senha atual é obrigatória para alteração de senha.');
+                        return;
+                      }
+                      setLoading(true);
+                      setError('');
+                      try {
+                        const updated = await updateWithVerificationCode({
+                          type: changeType!,
+                          code,
+                          newValue,
+                          currentPassword: changeType === 'PASSWORD' ? currentPassword : undefined,
+                        });
+                        if (user && token) {
+                          login(token, updated);
+                        }
+                        alert('Alteração realizada com sucesso!');
+                        resetForm();
+                      } catch (err: any) {
+                        setError(err.response?.data?.message || 'Erro ao validar o código e atualizar dados.');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    className="flex-1 py-3"
+                  >
+                    Confirmar e Concluir
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setStep(2)}
+                    className="flex-1 py-3"
+                  >
+                    Voltar
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

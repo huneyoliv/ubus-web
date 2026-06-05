@@ -6,37 +6,28 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 
-const WEEK_DAYS = [
-  { value: 'SEG', label: 'Seg' },
-  { value: 'TER', label: 'Ter' },
-  { value: 'QUA', label: 'Qua' },
-  { value: 'QUI', label: 'Qui' },
-  { value: 'SEX', label: 'Sex' },
-  { value: 'SAB', label: 'Sáb' },
-  { value: 'DOM', label: 'Dom' },
-];
-
 export default function RotasPage() {
   const navigate = useNavigate();
   const [routes, setRoutes] = useState<Route[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDrawer, setShowDrawer] = useState(false);
+  const [listError, setListError] = useState('');
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [weekDays, setWeekDays] = useState<string[]>(['SEG', 'TER', 'QUA', 'QUI', 'SEX']);
-  const [votingOpen, setVotingOpen] = useState('06:00');
-  const [votingClose, setVotingClose] = useState('22:00');
+  const [departureTimeOutbound, setDepartureTimeOutbound] = useState('07:00');
+  const [departureTimeInbound, setDepartureTimeInbound] = useState('12:00');
   const [error, setError] = useState('');
   const [submitLoading, setSubmitLoading] = useState(false);
 
   const loadRoutes = async () => {
     setLoading(true);
+    setListError('');
     try {
       const data = await listRoutes();
       setRoutes(data);
-    } catch (err) {
-      // Silenciado
+    } catch (err: any) {
+      setListError(err.response?.data?.message || err.message || 'Erro ao carregar as rotas.');
     } finally {
       setLoading(false);
     }
@@ -46,20 +37,10 @@ export default function RotasPage() {
     loadRoutes();
   }, []);
 
-  const handleDayToggle = (day: string) => {
-    setWeekDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setError('O nome da rota é obrigatório.');
-      return;
-    }
-    if (weekDays.length === 0) {
-      setError('Selecione pelo menos um dia de operação.');
       return;
     }
 
@@ -69,18 +50,18 @@ export default function RotasPage() {
       await createRoute({
         name,
         description,
-        weekDays,
-        votingOpen,
-        votingClose,
+        departureTimeOutbound,
+        departureTimeInbound,
         active: true,
       });
       setName('');
       setDescription('');
-      setWeekDays(['SEG', 'TER', 'QUA', 'QUI', 'SEX']);
+      setDepartureTimeOutbound('07:00');
+      setDepartureTimeInbound('12:00');
       setShowDrawer(false);
       loadRoutes();
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao criar a rota.');
+      setError(err.response?.data?.message || err.message || 'Erro ao criar a rota.');
     } finally {
       setSubmitLoading(false);
     }
@@ -100,6 +81,12 @@ export default function RotasPage() {
           <span>Criar Rota</span>
         </Button>
       </div>
+
+      {listError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-[18px] text-sm font-semibold text-[#BA1A1A]">
+          {listError}
+        </div>
+      )}
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-pulse">
@@ -125,7 +112,7 @@ export default function RotasPage() {
               <Card className="h-full flex flex-col justify-between p-6 hover:shadow-lg hover:border-[#2563EB]/30 transition-all duration-200">
                 <div className="flex flex-col gap-4">
                   <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-bold text-[#131B2E] group-hover:text-[#2563EB] transition-all">
+                    <h3 className="text-lg font-bold text-[#131B2E] group-hover:text-[#2563EB] transition-all font-outfit">
                       {route.name}
                     </h3>
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
@@ -139,15 +126,10 @@ export default function RotasPage() {
                   </p>
                 </div>
                 <div className="flex items-center justify-between border-t border-[#C3C6D7]/20 pt-4 mt-6">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#434655]">
-                    <Calendar className="h-4 w-4 text-[#2563EB]" />
-                    <span className="truncate">
-                      {route.weekDays.join(', ')}
-                    </span>
+                  <div className="flex flex-col gap-0.5 text-[10px] font-bold text-[#434655]">
+                    <span>Ida: {route.departureTimeOutbound || '--:--'}</span>
+                    <span>Volta: {route.departureTimeInbound || '--:--'}</span>
                   </div>
-                  <span className="text-[10px] font-bold text-[#434655] bg-slate-100 px-2 py-0.5 rounded-[6px]">
-                    Votação: {route.votingOpen} - {route.votingClose}
-                  </span>
                 </div>
               </Card>
             </div>
@@ -194,43 +176,20 @@ export default function RotasPage() {
                 />
               </div>
 
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-[#434655]">Dias de Operação</label>
-                <div className="flex flex-wrap gap-2">
-                  {WEEK_DAYS.map((day) => {
-                    const selected = weekDays.includes(day.value);
-                    return (
-                      <button
-                        key={day.value}
-                        type="button"
-                        onClick={() => handleDayToggle(day.value)}
-                        className={`px-3.5 py-2 text-xs font-bold rounded-[8px] border transition-all duration-200 ${
-                          selected
-                            ? 'bg-[#2563EB] border-[#2563EB] text-white'
-                            : 'border-[#C3C6D7] hover:border-[#131B2E] text-[#434655]'
-                        }`}
-                      >
-                        {day.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <Input
-                  id="votingOpen"
+                  id="departureTimeOutbound"
                   type="time"
-                  label="Abertura da Votação"
-                  value={votingOpen}
-                  onChange={(e) => setVotingOpen(e.target.value)}
+                  label="Partida (Ida)"
+                  value={departureTimeOutbound}
+                  onChange={(e) => setDepartureTimeOutbound(e.target.value)}
                 />
                 <Input
-                  id="votingClose"
+                  id="departureTimeInbound"
                   type="time"
-                  label="Fechamento da Votação"
-                  value={votingClose}
-                  onChange={(e) => setVotingClose(e.target.value)}
+                  label="Partida (Volta)"
+                  value={departureTimeInbound}
+                  onChange={(e) => setDepartureTimeInbound(e.target.value)}
                 />
               </div>
 

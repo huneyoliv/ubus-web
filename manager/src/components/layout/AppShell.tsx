@@ -67,7 +67,6 @@ export function AppShell({ children }: AppShellProps) {
       <aside className="hidden md:flex flex-col w-[280px] bg-[#0F172A] text-white flex-shrink-0">
         <div className="p-6 border-b border-slate-800 flex items-center gap-3">
           <img src="/logo-v2.png" alt="Ubus Gestor" className="h-10 w-auto" />
-          <span className="text-xl font-black tracking-wider text-white font-outfit uppercase">Gestor</span>
         </div>
         <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
           {navItems.map((item) => {

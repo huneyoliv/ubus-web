@@ -2,15 +2,6 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Fluxos de Autenticação e Gestão de Frota no Gestor', () => {
   test('Deve logar, persistir no refresh, carregar calendário e gerenciar pontos de embarque', async ({ page }) => {
-    page.on('request', request => console.log('>>', request.method(), request.url()));
-    page.on('response', response => {
-      console.log('<<', response.status(), response.url());
-      if (response.status() >= 400) {
-        response.text().then(text => console.log('ERROR BODY:', text)).catch(() => {});
-      }
-    });
-    page.on('console', msg => console.log('CONSOLE:', msg.text()));
-
     // 1. Login
     await page.goto('/login');
     await page.fill('#email', 'manager@municipality.gov.br');
@@ -82,5 +73,56 @@ test.describe('Fluxos de Autenticação e Gestão de Frota no Gestor', () => {
 
     // Verifica se sumiu da listagem
     await expect(updatedPointElement).not.toBeVisible();
+  });
+
+  test('Deve cadastrar um veículo no fluxo multi-step', async ({ page }) => {
+    await page.goto('/login');
+    await page.fill('#email', 'manager@municipality.gov.br');
+    await page.fill('#password', 'password123');
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL(/\/dashboard/);
+
+    await page.click('a[href="/frota"]');
+    await expect(page).toHaveURL(/\/frota/);
+
+    await page.click('text=Cadastrar Veículo');
+    await expect(page.locator('h2:has-text("Novo Veículo")')).toBeVisible();
+
+    const plate = `E2E${Math.floor(1000 + Math.random() * 9000)}`;
+    await page.fill('#plate', plate);
+    await page.fill('#identificationNumber', `Prefix-${plate}`);
+    await page.click('button:has-text("Avançar")');
+
+    await page.click('form label:has-text("Ar-Condicionado")');
+    await page.click('button:has-text("Avançar")');
+
+    await page.click('form button:has-text("Leito")');
+    await page.click('button:has-text("Salvar Ônibus")');
+
+    await expect(page.locator('h3', { hasText: plate })).toBeVisible();
+  });
+
+  test('Deve tentar realizar alteração cadastral e tratar erro se o endpoint não estiver implementado', async ({ page }) => {
+    await page.goto('/login');
+    await page.fill('#email', 'manager@municipality.gov.br');
+    await page.fill('#password', 'password123');
+    await page.click('button[type="submit"]');
+    await expect(page).toHaveURL(/\/dashboard/);
+
+    await page.click('a[href="/configuracoes"]');
+    await expect(page).toHaveURL(/\/configuracoes/);
+
+    await page.click('text=Editar Perfil');
+    await expect(page.locator('h3:has-text("Alteração Cadastral")')).toBeVisible();
+
+    await page.click('button:has-text("Telefone")');
+    await page.fill('#new-phone', '+5511999999999');
+    await page.click('button:has-text("Avançar")');
+
+    await page.click('button:has-text("WhatsApp")');
+    await page.click('button:has-text("Solicitar Código")');
+
+    const errorAlert = page.locator('.bg-red-50');
+    await expect(errorAlert).toBeVisible();
   });
 });
