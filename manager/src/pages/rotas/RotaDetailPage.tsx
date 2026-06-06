@@ -5,7 +5,6 @@ import {
   listRoutes,
   updateRoute,
   listBuses,
-  updateBus,
   listPickupPoints,
   deletePickupPoint,
   getRouteCalendar,
@@ -51,7 +50,6 @@ export default function RotaDetailPage() {
   const [pointToEdit, setPointToEdit] = useState<PickupPoint | null>(null);
 
   const [generalLoading, setGeneralLoading] = useState(false);
-  const [busLoading, setBusLoading] = useState(false);
   const [scheduleLoading, setScheduleLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -80,7 +78,7 @@ export default function RotaDetailPage() {
       setPoints(pointsList);
       setAllBuses(busesList);
       setDrivers(driversList);
-      setBuses(busesList.filter((b) => b.routeId === id));
+      setBuses(busesList);
       setScheduledDates(calendarData.scheduledDates || []);
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Erro ao carregar dados da rota.');
@@ -115,30 +113,6 @@ export default function RotaDetailPage() {
     }
   };
 
-  const handleAssignBus = async () => {
-    if (!id || !selectedBusId) return;
-    setBusLoading(true);
-    setError('');
-    try {
-      await updateBus(selectedBusId, { routeId: id });
-      setSelectedBusId('');
-      loadData();
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao vincular ônibus.');
-    } finally {
-      setBusLoading(false);
-    }
-  };
-
-  const handleRemoveBus = async (busId: string) => {
-    if (!confirm('Deseja desvincular este ônibus da rota?')) return;
-    try {
-      await updateBus(busId, { routeId: null });
-      loadData();
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Erro ao desvincular ônibus.');
-    }
-  };
 
   const handleDeletePoint = async (pointId: string) => {
     if (!id || !confirm('Excluir ponto de embarque?')) return;
@@ -162,9 +136,8 @@ export default function RotaDetailPage() {
       alert('Selecione pelo menos um dia no calendário.');
       return;
     }
-    const allocatedBus = buses[0];
-    if (!allocatedBus) {
-      alert('Por favor, vincule um ônibus à rota antes de agendar viagens.');
+    if (!selectedBusId) {
+      alert('Por favor, selecione um ônibus antes de agendar viagens.');
       return;
     }
 
@@ -172,10 +145,10 @@ export default function RotaDetailPage() {
     try {
       await scheduleTrips({
         routeId: id,
-        busId: allocatedBus.id,
+        busId: selectedBusId,
         driverId: selectedDriverId || undefined,
         dates: selectedDates,
-        shifts: ['MORNING', 'AFTERNOON'],
+        shifts: ['MORNING'],
         directions: ['OUTBOUND', 'INBOUND'],
       });
       setSelectedDates([]);
@@ -209,7 +182,7 @@ export default function RotaDetailPage() {
     );
   }
 
-  const availableBuses = allBuses.filter((b) => !b.routeId);
+  const availableBuses = allBuses;
 
   return (
     <div className="flex flex-col gap-8">
@@ -369,40 +342,23 @@ export default function RotaDetailPage() {
           <Card className="flex flex-col gap-5">
             <h3 className="text-base font-bold text-[#131B2E] flex items-center gap-2">
               <BusIcon className="h-5 w-5 text-[#2563EB]" />
-              Ônibus Vinculado
+              Selecionar Ônibus
             </h3>
-            {buses.length > 0 ? (
-              <div className="flex items-center justify-between p-4 bg-slate-50 border rounded-[12px]">
-                <div>
-                  <h4 className="text-sm font-bold text-[#131B2E]">{buses[0].plate}</h4>
-                  <span className="text-xs font-semibold text-[#434655]">Capacidade: {buses[0].capacity} alunos</span>
-                </div>
-                <button
-                  onClick={() => handleRemoveBus(buses[0].id)}
-                  className="p-1.5 text-red-500 hover:bg-red-50 rounded-[8px]"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                <select
-                  value={selectedBusId}
-                  onChange={(e) => setSelectedBusId(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-[#C3C6D7] rounded-[12px] text-sm text-[#131B2E] outline-none"
-                >
-                  <option value="">Selecione um ônibus disponível...</option>
-                  {availableBuses.map((b) => (
-                    <option key={b.id} value={b.id}>
-                      {b.plate} (Capacidade: {b.capacity})
-                    </option>
-                  ))}
-                </select>
-                <Button onClick={handleAssignBus} loading={busLoading} className="py-2">
-                  Atribuir Veículo
-                </Button>
-              </div>
-            )}
+            <select
+              value={selectedBusId}
+              onChange={(e) => setSelectedBusId(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-[#C3C6D7] rounded-[12px] text-sm text-[#131B2E] outline-none"
+            >
+              <option value="">Selecione um ônibus...</option>
+              {availableBuses.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.plate} (Capacidade: {b.capacity})
+                </option>
+              ))}
+            </select>
+            <p className="text-[10px] font-semibold text-[#434655]">
+              O ônibus selecionado será usado ao gerar a escala de viagens abaixo.
+            </p>
           </Card>
 
           <Card className="flex flex-col gap-5">
