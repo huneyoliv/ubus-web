@@ -11,10 +11,13 @@ import {
   scheduleTrips,
   Route,
   Bus,
-  PickupPoint
+  PickupPoint,
+  assignDefaultBus,
+  assignDefaultDriver
 } from '../../api/fleet';
 import { listUsers } from '../../api/users';
 import { User } from '../../stores/auth.store';
+import { api } from '../../api/client';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -41,8 +44,13 @@ export default function RotaDetailPage() {
   const [routeActive, setRouteActive] = useState(true);
   const [requiresElevator, setRequiresElevator] = useState(false);
 
-  const [selectedBusId, setSelectedBusId] = useState('');
-  const [selectedDriverId, setSelectedDriverId] = useState('');
+  const [selectedBusId, setSelectedBusId] = useState(() => {
+    return localStorage.getItem(`ubus-route-bus-${id}`) || '';
+  });
+  const [selectedDriverId, setSelectedDriverId] = useState(() => {
+    return localStorage.getItem(`ubus-route-driver-${id}`) || '';
+  });
+  const [trips, setTrips] = useState<any[]>([]);
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [calendarMonth, setCalendarMonth] = useState('2026-06');
 
@@ -80,6 +88,7 @@ export default function RotaDetailPage() {
       setDrivers(driversList);
       setBuses(busesList);
       setScheduledDates(calendarData.scheduledDates || []);
+      setTrips(calendarData.trips || []);
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Erro ao carregar dados da rota.');
     } finally {
@@ -126,6 +135,81 @@ export default function RotaDetailPage() {
 
   const handleDaySelect = (day: number) => {
     const formatted = `${calendarMonth}-${String(day).padStart(2, '0')}`;
+    setSelectedDates((prev) =>
+      prev.includes(formatted) ? prev.filter((d) => d !== formatted) : [...prev, formatted]
+    );
+  };
+
+  const handleBusChange = async (busId: string) => {
+    setSelectedBusId(busId);
+    if (id) {
+      try {
+        await assignDefaultBus(id, busId);
+      } catch (err) {
+        // Silently ignore
+      }
+    }
+  };
+
+  const handleDriverChange = async (driverId: string) => {
+    setSelectedDriverId(driverId);
+    if (id) {
+      try {
+        await assignDefaultDriver(id, driverId);
+      } catch (err) {
+        // Silently ignore
+      }
+    }
+  };
+
+  const handleSelectWorkdays = () => {
+    if (!calendarMonth) return;
+    const [yearStr, monthStr] = calendarMonth.split('-');
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10) - 1;
+
+    const date = new Date(year, month, 1);
+    const workdays: string[] = [];
+
+    while (date.getMonth() === month) {
+      const dayOfWeek = date.getDay();
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        const formattedDate = `${calendarMonth}-${String(date.getDate()).padStart(2, '0')}`;
+        workdays.push(formattedDate);
+      }
+      date.setDate(date.getDate() + 1);
+    }
+
+    setSelectedDates(workdays);
+  };
+
+  const getDaysInMonth = (monthString: string) => {
+    if (!monthString) return 30;
+    const [year, month] = monthString.split('-').map(Number);
+    return new Date(year, month, 0).getDate();
+  };
+
+  const handleDayClick = async (day: number) => {
+    const formatted = `${calendarMonth}-${String(day).padStart(2, '0')}`;
+    
+    if (scheduledDates.includes(formatted)) {
+      if (confirm(`Deseja desmarcar e cancelar as viagens agendadas para o dia ${day}?`)) {
+        setScheduleLoading(true);
+        try {
+          const tripsOnDay = trips.filter((t) => t.tripDate === formatted && t.status !== 'CANCELLED');
+          await Promise.all(
+            tripsOnDay.map((t) => api.patch(`/trips/${t.id}`, { status: 'CANCELLED' }))
+          );
+          loadData();
+        } catch (err: any) {
+          alert(err.response?.data?.message || 'Erro ao cancelar viagens do dia.');
+        } finally {
+          setScheduleLoading(false);
+        }
+      }
+      return;
+    }
+
     setSelectedDates((prev) =>
       prev.includes(formatted) ? prev.filter((d) => d !== formatted) : [...prev, formatted]
     );
@@ -284,14 +368,24 @@ export default function RotaDetailPage() {
           <Card className="flex flex-col gap-6">
             <h2 className="text-lg font-bold text-[#131B2E]">Calendário e Escala de Viagens</h2>
             <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-[#2563EB]" />
-                <input
-                  type="month"
-                  value={calendarMonth}
-                  onChange={(e) => setCalendarMonth(e.target.value)}
-                  className="px-3 py-1.5 border border-[#C3C6D7] rounded-[8px] text-sm"
-                />
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-[#2563EB]" />
+                  <input
+                    type="month"
+                    value={calendarMonth}
+                    onChange={(e) => setCalendarMonth(e.target.value)}
+                    className="px-3 py-1.5 border border-[#C3C6D7] rounded-[8px] text-sm"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleSelectWorkdays}
+                  className="py-1.5 px-3 text-xs"
+                >
+                  Dias Úteis
+                </Button>
               </div>
               <Button onClick={handleScheduleTrips} loading={scheduleLoading} className="py-2.5">
                 Gerar Viagens nos Dias Selecionados
@@ -309,7 +403,7 @@ export default function RotaDetailPage() {
             </div>
 
             <div className="grid grid-cols-7 gap-2">
-              {[...Array(30)].map((_, index) => {
+              {[...Array(getDaysInMonth(calendarMonth))].map((_, index) => {
                 const day = index + 1;
                 const formatted = `${calendarMonth}-${String(day).padStart(2, '0')}`;
                 const isScheduled = scheduledDates.includes(formatted);
@@ -318,7 +412,8 @@ export default function RotaDetailPage() {
                 return (
                   <button
                     key={day}
-                    onClick={() => handleDaySelect(day)}
+                    type="button"
+                    onClick={() => handleDayClick(day)}
                     className={`h-11 rounded-[8px] font-bold text-sm flex flex-col items-center justify-center relative border transition-all ${
                       isSelected
                         ? 'bg-[#2563EB] text-white border-[#2563EB]'
@@ -346,7 +441,7 @@ export default function RotaDetailPage() {
             </h3>
             <select
               value={selectedBusId}
-              onChange={(e) => setSelectedBusId(e.target.value)}
+              onChange={(e) => handleBusChange(e.target.value)}
               className="w-full px-3 py-2 bg-white border border-[#C3C6D7] rounded-[12px] text-sm text-[#131B2E] outline-none"
             >
               <option value="">Selecione um ônibus...</option>
@@ -369,7 +464,7 @@ export default function RotaDetailPage() {
             <div className="flex flex-col gap-4">
               <select
                 value={selectedDriverId}
-                onChange={(e) => setSelectedDriverId(e.target.value)}
+                onChange={(e) => handleDriverChange(e.target.value)}
                 className="w-full px-3 py-2 bg-white border border-[#C3C6D7] rounded-[12px] text-sm text-[#131B2E] outline-none"
               >
                 <option value="">Selecione o motorista para viagem...</option>

@@ -119,13 +119,14 @@ export async function deletePickupPoint(routeId: string, pointId: string): Promi
   await api.delete(`/fleet/points/${pointId}`);
 }
 
-export async function getRouteCalendar(routeId: string, month: string): Promise<{ scheduledDates: string[] }> {
+export async function getRouteCalendar(routeId: string, month: string): Promise<{ scheduledDates: string[]; trips: any[] }> {
   const [year, monthStr] = month.split('-');
   const monthNum = parseInt(monthStr, 10).toString();
   const r = await api.get(`/trips/route/${routeId}/calendar`, { params: { year, month: monthNum } });
   const trips = Array.isArray(r.data) ? r.data : [];
-  const scheduledDates = Array.from(new Set(trips.map((t: any) => t.tripDate)));
-  return { scheduledDates };
+  const activeTrips = trips.filter((t: any) => t.status !== 'CANCELLED');
+  const scheduledDates = Array.from(new Set(activeTrips.map((t: any) => t.tripDate)));
+  return { scheduledDates, trips };
 }
 
 export async function scheduleTrips(payload: {
@@ -172,4 +173,12 @@ export async function scheduleTrips(payload: {
 export async function assignDriverToTrip(tripId: string, driverId: string): Promise<Trip> {
   const r = await api.patch(`/trips/${tripId}/driver`, { driverId });
   return r.data;
+}
+
+export async function assignDefaultBus(routeId: string, busId: string): Promise<void> {
+  await api.patch(`/fleet/routes/${routeId}/bus`, { busId });
+}
+
+export async function assignDefaultDriver(routeId: string, driverId: string): Promise<void> {
+  await api.patch(`/fleet/routes/${routeId}/driver`, { driverId });
 }
