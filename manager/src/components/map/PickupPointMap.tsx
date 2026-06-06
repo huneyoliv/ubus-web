@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { APIProvider, Map, AdvancedMarker, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
+import React, { useEffect, useState } from 'react';
+import { APIProvider, Map, Marker, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 
 interface PickupPointMapProps {
   lat: number;
@@ -120,7 +120,7 @@ function PickupPointMapContent({ lat, lng, onChange, onNameSuggestion }: PickupP
       autocompleteService.getPlacePredictions(
         {
           input: searchQuery,
-          componentRestrictions: { country: 'br' },
+          componentRestrictions: { country: 'BR' },
         },
         (results, status) => {
           if (status === 'OK' && results) {
@@ -230,7 +230,7 @@ function PickupPointMapContent({ lat, lng, onChange, onNameSuggestion }: PickupP
           }}
           onFocus={() => setShowDropdown(true)}
           onBlur={() => setTimeout(() => setShowDropdown(false), 250)}
-          className="w-full px-4 py-2.5 border border-[#C3C6D7] rounded-[12px] text-sm outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/15 pr-10 bg-[#131B2E] text-white"
+          className="w-full px-4 py-2.5 border border-[#C3C6D7] rounded-[12px] text-sm outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/15 pr-10 bg-white text-[#131B2E]"
         />
         {isSearching && (
           <div className="absolute right-3 top-3">
@@ -242,15 +242,15 @@ function PickupPointMapContent({ lat, lng, onChange, onNameSuggestion }: PickupP
         )}
 
         {showDropdown && predictions.length > 0 && (
-          <ul className="absolute left-0 right-0 mt-1 bg-[#131B2E] border border-[#334155]/60 rounded-[12px] shadow-lg max-h-60 overflow-y-auto z-[9999] py-1.5">
+          <ul className="absolute left-0 right-0 mt-1 bg-white border border-[#C3C6D7]/40 rounded-[12px] shadow-lg max-h-60 overflow-y-auto z-[9999] py-1.5">
             {predictions.map((prediction) => (
               <li
                 key={prediction.place_id}
                 onMouseDown={() => handlePredictionSelect(prediction)}
-                className="px-4 py-2 hover:bg-[#2563EB]/20 cursor-pointer text-sm text-white transition-colors duration-150 flex flex-col gap-0.5"
+                className="px-4 py-2 hover:bg-[#F0F4FF] cursor-pointer text-sm text-[#131B2E] transition-colors duration-150 flex flex-col gap-0.5"
               >
                 <span className="font-semibold">{prediction.structured_formatting.main_text}</span>
-                <span className="text-xs text-[#94A3B8]">{prediction.structured_formatting.secondary_text}</span>
+                <span className="text-xs text-[#6B7280]">{prediction.structured_formatting.secondary_text}</span>
               </li>
             ))}
           </ul>
@@ -262,20 +262,15 @@ function PickupPointMapContent({ lat, lng, onChange, onNameSuggestion }: PickupP
           defaultCenter={center}
           defaultZoom={zoom}
           gestureHandling="cooperative"
-          disableDefaultUI={false}
-          mapTypeControl={false}
-          fullscreenControl={false}
-          streetViewControl={false}
-          zoomControl={true}
+          disableDefaultUI={true}
           restriction={{
             latLngBounds: boundsBrazil,
             strictBounds: true
           }}
           onClick={handleMapClick}
           styles={darkMapStyle}
-          mapId="DEMO_MAP_ID"
         >
-          <AdvancedMarker
+          <Marker
             position={center}
             draggable={true}
             onDragEnd={handleDragEnd}
@@ -290,7 +285,7 @@ export function PickupPointMap(props: PickupPointMapProps) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
   return (
-    <APIProvider apiKey={apiKey} libraries={['places']}>
+    <APIProvider apiKey={apiKey} libraries={['places', 'geocoding']}>
       <PickupPointMapContent {...props} />
     </APIProvider>
   );
