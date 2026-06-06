@@ -56,7 +56,7 @@ export default function Relatorios() {
                 <Users className="h-5 w-5 text-[#2563EB]" />
               </div>
               <span className="text-4xl font-black text-[#131B2E] font-outfit mt-2">
-                {metrics?.totalStudents ?? 120}
+                {metrics?.totalStudents ?? 0}
               </span>
             </Card>
 
@@ -66,7 +66,7 @@ export default function Relatorios() {
                 <ClipboardCheck className="h-5 w-5 text-emerald-500" />
               </div>
               <span className="text-4xl font-black text-[#131B2E] font-outfit mt-2">
-                {metrics?.approvedStudents ?? 112}
+                {metrics?.approvedStudents ?? 0}
               </span>
             </Card>
 
@@ -76,7 +76,7 @@ export default function Relatorios() {
                 <Users className="h-5 w-5 text-indigo-500" />
               </div>
               <span className="text-4xl font-black text-[#131B2E] font-outfit mt-2">
-                {metrics?.totalDrivers ?? 14}
+                {metrics?.totalDrivers ?? 0}
               </span>
             </Card>
 
@@ -86,7 +86,7 @@ export default function Relatorios() {
                 <Bus className="h-5 w-5 text-violet-500" />
               </div>
               <span className="text-4xl font-black text-[#131B2E] font-outfit mt-2">
-                {metrics?.totalBuses ?? 8}
+                {metrics?.totalBuses ?? 0}
               </span>
             </Card>
           </div>
@@ -120,7 +120,11 @@ export default function Relatorios() {
                     <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
                     <span className="text-sm font-semibold text-[#131B2E]">Média Geral de Avaliação</span>
                   </div>
-                  <span className="text-lg font-black text-[#131B2E] font-outfit">4.8 / 5.0</span>
+                  <span className="text-lg font-black text-[#131B2E] font-outfit">
+                    {metrics?.averageRating !== undefined && metrics?.averageRating !== null
+                      ? `${metrics.averageRating.toFixed(1)} / 5.0`
+                      : '0.0 / 5.0'}
+                  </span>
                 </div>
                 <p className="text-[10px] font-semibold text-[#434655]">
                   Estatísticas baseadas nas avaliações enviadas pelos estudantes após a finalização de cada viagem escolar.

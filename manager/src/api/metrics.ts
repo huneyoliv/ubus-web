@@ -8,6 +8,7 @@ export interface DashboardMetrics {
   approvedStudents?: number;
   totalDrivers?: number;
   totalBuses?: number;
+  averageRating?: number;
 }
 
 export async function getDashboardMetrics(): Promise<DashboardMetrics> {
