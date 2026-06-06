@@ -20,7 +20,12 @@ export async function reviewAccessibility(
   id: string,
   payload: { status: 'APPROVED' | 'REJECTED'; reviewNote?: string }
 ): Promise<User> {
-  const r = await api.patch(`/users/${id}/accessibility-review`, payload);
+  const { reviewNote, ...rest } = payload;
+  const backendPayload = {
+    ...rest,
+    ...(reviewNote !== undefined ? { note: reviewNote } : {}),
+  };
+  const r = await api.patch(`/users/${id}/accessibility`, backendPayload);
   return r.data;
 }
 

@@ -41,6 +41,12 @@ export function PickupPointModal({ routeId, pointToEdit, onClose, onSaved }: Pic
     setLng(newLng);
   };
 
+  const handleNameSuggestion = (suggestedName: string) => {
+    if (!name.trim()) {
+      setName(suggestedName);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -90,29 +96,9 @@ export function PickupPointModal({ routeId, pointToEdit, onClose, onSaved }: Pic
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              id="lat"
-              type="number"
-              step="any"
-              label="Latitude"
-              value={lat}
-              onChange={(e) => setLat(parseFloat(e.target.value) || 0)}
-            />
-            <Input
-              id="lng"
-              type="number"
-              step="any"
-              label="Longitude"
-              value={lng}
-              onChange={(e) => setLng(parseFloat(e.target.value) || 0)}
-            />
-          </div>
-
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-semibold text-[#434655]">Selecione a Localização</label>
-            <PickupPointMap lat={lat} lng={lng} onChange={handleMapChange} />
+            <PickupPointMap lat={lat} lng={lng} onChange={handleMapChange} onNameSuggestion={handleNameSuggestion} />
           </div>
 
           <div className="flex gap-4 mt-6 border-t border-[#C3C6D7]/20 pt-6 flex-shrink-0">

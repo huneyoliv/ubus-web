@@ -1,4 +1,5 @@
 import { api } from './client';
+import { useAuthStore } from '../stores/auth.store';
 
 export interface Route {
   id: string;
@@ -29,6 +30,8 @@ export interface PickupPoint {
   lat: number;
   lng: number;
   routeId: string;
+  order?: number;
+  address?: string;
 }
 
 export interface Trip {
@@ -48,7 +51,13 @@ export async function listRoutes(): Promise<Route[]> {
 }
 
 export async function createRoute(payload: Omit<Route, 'id'>): Promise<Route> {
-  const r = await api.post('/fleet/routes', payload);
+  const fullPayload = {
+    ...payload,
+    weekDays: [1, 2, 3, 4, 5],
+    votingOpenTime: '06:00',
+    votingCloseTime: '07:30'
+  };
+  const r = await api.post('/fleet/routes', fullPayload);
   return r.data;
 }
 
@@ -127,8 +136,37 @@ export async function scheduleTrips(payload: {
   shifts: string[];
   directions: string[];
 }): Promise<string> {
-  const r = await api.post('/trips/schedule', payload);
-  return r.data;
+  const municipalityId = useAuthStore.getState().user?.municipalityId || '';
+  let realCapacity = 40;
+  try {
+    const busRes = await api.get(`/fleet/buses/${payload.busId}`);
+    realCapacity = busRes.data.standardCapacity ?? busRes.data.capacity ?? 40;
+  } catch (err) {
+    // Ignora erro de busca
+  }
+
+  const basePayload = {
+    municipalityId,
+    routeId: payload.routeId,
+    busId: payload.busId,
+    driverId: payload.driverId,
+    dates: payload.dates,
+    realCapacity,
+  };
+
+  const r1 = await api.post('/trips/schedule', {
+    ...basePayload,
+    shift: 'MORNING',
+    direction: 'OUTBOUND',
+  });
+
+  await api.post('/trips/schedule', {
+    ...basePayload,
+    shift: 'MORNING',
+    direction: 'INBOUND',
+  });
+
+  return r1.data;
 }
 
 export async function assignDriverToTrip(tripId: string, driverId: string): Promise<Trip> {

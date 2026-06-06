@@ -79,3 +79,4 @@ Este documento descreve as correções técnicas efetuadas na integração com a
 * **Solução:** 
   * Removemos toda a lógica, visualização e referências a `weekDays` nos arquivos [RotasPage.tsx](file:///home/huneyoliv/Projetos/ubus-web/manager/src/pages/rotas/RotasPage.tsx) e [RotaDetailPage.tsx](file:///home/huneyoliv/Projetos/ubus-web/manager/src/pages/rotas/RotaDetailPage.tsx).
   * Substituímos na interface `Route` e nas telas pelas propriedades `departureTimeOutbound` (horário de saída da ida) e `departureTimeInbound` (horário de saída da volta).
+wh
