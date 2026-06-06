@@ -14,8 +14,8 @@ interface PickupPointModalProps {
 
 export function PickupPointModal({ routeId, pointToEdit, onClose, onSaved }: PickupPointModalProps) {
   const [name, setName] = useState('');
-  const [lat, setLat] = useState(-23.55052);
-  const [lng, setLng] = useState(-46.633308);
+  const [lat, setLat] = useState(-10.9472);
+  const [lng, setLng] = useState(-37.0731);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
