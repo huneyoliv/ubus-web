@@ -6,10 +6,12 @@ import { User } from '../../stores/auth.store';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { StatusBadge } from '../../components/ui/StatusBadge';
+import { useToast } from '../../hooks/useToast';
 
 export default function MotoristaDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [driver, setDriver] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -41,10 +43,11 @@ export default function MotoristaDetailPage() {
     setError('');
     try {
       await updateStatus(driver.id, status as any);
-      alert('Status do motorista atualizado com sucesso!');
+      showToast('Status do motorista atualizado com sucesso!', 'success');
       navigate('/motoristas');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao processar ação.');
+      showToast(err.response?.data?.message || 'Erro ao processar ação.', 'error');
     } finally {
       setActionLoading(false);
     }

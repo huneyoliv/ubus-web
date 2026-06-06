@@ -6,9 +6,11 @@ import { api } from '../api/client';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
+import { useToast } from '../hooks/useToast';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const loginStore = useAuthStore((state) => state.login);
   const logoutStore = useAuthStore((state) => state.logout);
   const [email, setEmail] = useState('');
@@ -97,7 +99,7 @@ export default function Login() {
           <button
             type="button"
             className="text-xs font-bold text-[#2563EB] hover:underline self-center"
-            onClick={() => alert('Entre em contato com o suporte ou envie um e-mail para administrador@ubus.me para redefinir sua senha.')}
+            onClick={() => showToast('Entre em contato com o suporte ou envie um e-mail para administrador@ubus.me para redefinir sua senha.', 'warning')}
           >
             Esqueceu sua senha?
           </button>

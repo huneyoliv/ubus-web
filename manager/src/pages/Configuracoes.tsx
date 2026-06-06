@@ -6,10 +6,13 @@ import { requestVerificationCode, updateWithVerificationCode } from '../api/user
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { useToast } from '../hooks/useToast';
+import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 
 export default function Configuracoes() {
   const navigate = useNavigate();
   const { user, logout, login, token } = useAuth();
+  const { showToast } = useToast();
   
   const [showEditModal, setShowEditModal] = useState(false);
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -21,6 +24,8 @@ export default function Configuracoes() {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const [confirmLogoutOpen, setConfirmLogoutOpen] = useState(false);
 
   const resetForm = () => {
     setShowEditModal(false);
@@ -35,10 +40,13 @@ export default function Configuracoes() {
   };
 
   const handleLogout = () => {
-    if (confirm('Deseja realmente sair do painel administrativo?')) {
-      logout();
-      navigate('/login');
-    }
+    setConfirmLogoutOpen(true);
+  };
+
+  const performLogout = () => {
+    setConfirmLogoutOpen(false);
+    logout();
+    navigate('/login');
   };
 
   return (
@@ -362,10 +370,11 @@ export default function Configuracoes() {
                         if (user && token) {
                           login(token, updated);
                         }
-                        alert('Alteração realizada com sucesso!');
+                        showToast('Alteração realizada com sucesso!', 'success');
                         resetForm();
                       } catch (err: any) {
                         setError(err.response?.data?.message || 'Erro ao validar o código e atualizar dados.');
+                        showToast(err.response?.data?.message || 'Erro ao validar o código e atualizar dados.', 'error');
                       } finally {
                         setLoading(false);
                       }
@@ -388,6 +397,16 @@ export default function Configuracoes() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmLogoutOpen}
+        title="Deseja realmente sair?"
+        description="Ao sair do painel administrativo, você precisará informar suas credenciais novamente para acessar."
+        confirmLabel="Sair"
+        variant="danger"
+        onConfirm={performLogout}
+        onCancel={() => setConfirmLogoutOpen(false)}
+      />
     </div>
   );
 }

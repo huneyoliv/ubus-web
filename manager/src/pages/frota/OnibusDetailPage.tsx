@@ -5,10 +5,12 @@ import { listBuses, updateBus, Bus } from '../../api/fleet';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { useToast } from '../../hooks/useToast';
 
 export default function OnibusDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [bus, setBus] = useState<Bus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,9 +72,10 @@ export default function OnibusDetailPage() {
         active,
       });
       setBus(updated);
-      alert('Veículo atualizado com sucesso!');
+      showToast('Veículo atualizado com sucesso!', 'success');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao atualizar veículo.');
+      showToast(err.response?.data?.message || 'Erro ao atualizar veículo.', 'error');
     } finally {
       setSaveLoading(false);
     }
@@ -90,9 +93,9 @@ export default function OnibusDetailPage() {
     try {
       // Simula ou chama o PATCH /fleet/buses/{id} salvando o array no metadado preferentialSeats
       await updateBus(id, { preferentialSeats });
-      alert('Layout de assentos preferenciais salvo com sucesso!');
+      showToast('Layout de assentos preferenciais salvo com sucesso!', 'success');
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message || 'Erro ao salvar layout de assentos.');
+      showToast(err.response?.data?.message || err.message || 'Erro ao salvar layout de assentos.', 'error');
     } finally {
       setLayoutLoading(false);
     }

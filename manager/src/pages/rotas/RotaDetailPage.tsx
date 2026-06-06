@@ -22,12 +22,80 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { PickupPointModal } from './PickupPointModal';
+import { useToast } from '../../hooks/useToast';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
+const getEasterDate = (year: number) => {
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return { month, day };
+};
 
+const getVariableHolidays = (year: number): Record<string, string> => {
+  const { month, day } = getEasterDate(year);
+  const easterDate = new Date(year, month - 1, day);
+  const formatDate = (date: Date): string => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+  const carnivalMonday = new Date(easterDate);
+  carnivalMonday.setDate(easterDate.getDate() - 48);
+  const carnivalTuesday = new Date(easterDate);
+  carnivalTuesday.setDate(easterDate.getDate() - 47);
+  const ashWednesday = new Date(easterDate);
+  ashWednesday.setDate(easterDate.getDate() - 46);
+  const goodFriday = new Date(easterDate);
+  goodFriday.setDate(easterDate.getDate() - 2);
+  const corpusChristi = new Date(easterDate);
+  corpusChristi.setDate(easterDate.getDate() + 60);
+  return {
+    [formatDate(carnivalMonday)]: 'Carnaval',
+    [formatDate(carnivalTuesday)]: 'Carnaval',
+    [formatDate(ashWednesday)]: 'Quarta-feira de Cinzas',
+    [formatDate(goodFriday)]: 'Sexta-feira Santa',
+    [formatDate(corpusChristi)]: 'Corpus Christi',
+  };
+};
+
+const getHolidayName = (dateStr: string): string | null => {
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return null;
+  const year = parseInt(parts[0], 10);
+  const month = parts[1];
+  const day = parts[2];
+  const fixedHoliday = {
+    '01-01': 'Confraternização Universal',
+    '04-21': 'Tiradentes',
+    '05-01': 'Dia do Trabalho',
+    '09-07': 'Independência do Brasil',
+    '10-12': 'Nossa Senhora Aparecida',
+    '11-02': 'Finados',
+    '11-15': 'Proclamação da República',
+    '11-20': 'Consciência Negra',
+    '12-25': 'Natal',
+  }[`${month}-${day}`];
+  if (fixedHoliday) return fixedHoliday;
+  return getVariableHolidays(year)[dateStr] || null;
+};
 
 export default function RotaDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [route, setRoute] = useState<Route | null>(null);
   const [buses, setBuses] = useState<Bus[]>([]);
@@ -59,7 +127,17 @@ export default function RotaDetailPage() {
 
   const [generalLoading, setGeneralLoading] = useState(false);
   const [scheduleLoading, setScheduleLoading] = useState(false);
+  const [busLoading, setBusLoading] = useState(false);
+  const [driverLoading, setDriverLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const [confirmConfig, setConfirmConfig] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    variant?: 'danger' | 'default';
+    onConfirm: () => void;
+  } | null>(null);
 
   const loadData = async () => {
     if (!id) return;
@@ -115,50 +193,76 @@ export default function RotaDetailPage() {
         requiresElevator,
       });
       setRoute(updated);
+      showToast('Dados gerais atualizados com sucesso!', 'success');
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Erro ao atualizar dados gerais.');
+      showToast(err.response?.data?.message || err.message || 'Erro ao atualizar dados gerais.', 'error');
     } finally {
       setGeneralLoading(false);
     }
   };
 
-
-  const handleDeletePoint = async (pointId: string) => {
-    if (!id || !confirm('Excluir ponto de embarque?')) return;
-    try {
-      await deletePickupPoint(id, pointId);
-      loadData();
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Erro ao excluir ponto.');
-    }
+  const handleDeletePoint = (pointId: string) => {
+    if (!id) return;
+    setConfirmConfig({
+      open: true,
+      title: 'Excluir ponto de embarque?',
+      description: 'Deseja realmente excluir este ponto de embarque? Esta ação não poderá ser desfeita.',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmConfig(null);
+        try {
+          await deletePickupPoint(id, pointId);
+          loadData();
+          showToast('Ponto de embarque excluído com sucesso!', 'success');
+        } catch (err: any) {
+          showToast(err.response?.data?.message || err.message || 'Erro ao excluir ponto.', 'error');
+        }
+      }
+    });
   };
 
-  const handleDaySelect = (day: number) => {
-    const formatted = `${calendarMonth}-${String(day).padStart(2, '0')}`;
-    setSelectedDates((prev) =>
-      prev.includes(formatted) ? prev.filter((d) => d !== formatted) : [...prev, formatted]
-    );
-  };
-
-  const handleBusChange = async (busId: string) => {
+  const handleBusChange = (busId: string) => {
     setSelectedBusId(busId);
-    if (id) {
-      try {
-        await assignDefaultBus(id, busId);
-      } catch (err) {
-        // Silently ignore
-      }
+  };
+
+  const handleDriverChange = (driverId: string) => {
+    setSelectedDriverId(driverId);
+  };
+
+  const handleSaveBus = async () => {
+    if (!id) return;
+    if (!selectedBusId) {
+      showToast('Por favor, selecione um ônibus.', 'warning');
+      return;
+    }
+    setBusLoading(true);
+    try {
+      await assignDefaultBus(id, selectedBusId);
+      localStorage.setItem(`ubus-route-bus-${id}`, selectedBusId);
+      showToast('Ônibus atribuído com sucesso!', 'success');
+    } catch (err: any) {
+      showToast(err.response?.data?.message || err.message || 'Erro ao atribuir ônibus.', 'error');
+    } finally {
+      setBusLoading(false);
     }
   };
 
-  const handleDriverChange = async (driverId: string) => {
-    setSelectedDriverId(driverId);
-    if (id) {
-      try {
-        await assignDefaultDriver(id, driverId);
-      } catch (err) {
-        // Silently ignore
+  const handleSaveDriver = async () => {
+    if (!id) return;
+    setDriverLoading(true);
+    try {
+      await assignDefaultDriver(id, selectedDriverId || '');
+      if (selectedDriverId) {
+        localStorage.setItem(`ubus-route-driver-${id}`, selectedDriverId);
+      } else {
+        localStorage.removeItem(`ubus-route-driver-${id}`);
       }
+      showToast('Motorista escalado com sucesso!', 'success');
+    } catch (err: any) {
+      showToast(err.response?.data?.message || err.message || 'Erro ao escalar motorista.', 'error');
+    } finally {
+      setDriverLoading(false);
     }
   };
 
@@ -167,19 +271,19 @@ export default function RotaDetailPage() {
     const [yearStr, monthStr] = calendarMonth.split('-');
     const year = parseInt(yearStr, 10);
     const month = parseInt(monthStr, 10) - 1;
-
     const date = new Date(year, month, 1);
     const workdays: string[] = [];
-
     while (date.getMonth() === month) {
       const dayOfWeek = date.getDay();
-      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-        const formattedDate = `${calendarMonth}-${String(date.getDate()).padStart(2, '0')}`;
+      const formattedDate = `${calendarMonth}-${String(date.getDate()).padStart(2, '0')}`;
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isScheduled = scheduledDates.includes(formattedDate);
+      const isHoliday = getHolidayName(formattedDate) !== null;
+      if (!isWeekend && !isScheduled && !isHoliday) {
         workdays.push(formattedDate);
       }
       date.setDate(date.getDate() + 1);
     }
-
     setSelectedDates(workdays);
   };
 
@@ -189,27 +293,39 @@ export default function RotaDetailPage() {
     return new Date(year, month, 0).getDate();
   };
 
+  const getDayOfWeekOffset = (monthString: string): number => {
+    if (!monthString) return 0;
+    const [year, month] = monthString.split('-').map(Number);
+    return new Date(year, month - 1, 1).getDay();
+  };
+
   const handleDayClick = async (day: number) => {
     const formatted = `${calendarMonth}-${String(day).padStart(2, '0')}`;
-    
     if (scheduledDates.includes(formatted)) {
-      if (confirm(`Deseja desmarcar e cancelar as viagens agendadas para o dia ${day}?`)) {
-        setScheduleLoading(true);
-        try {
-          const tripsOnDay = trips.filter((t) => t.tripDate === formatted && t.status !== 'CANCELLED');
-          await Promise.all(
-            tripsOnDay.map((t) => api.patch(`/trips/${t.id}`, { status: 'CANCELLED' }))
-          );
-          loadData();
-        } catch (err: any) {
-          alert(err.response?.data?.message || 'Erro ao cancelar viagens do dia.');
-        } finally {
-          setScheduleLoading(false);
+      setConfirmConfig({
+        open: true,
+        title: 'Desmarcar viagens?',
+        description: `Deseja realmente desmarcar e cancelar as viagens agendadas para o dia ${day}?`,
+        variant: 'danger',
+        onConfirm: async () => {
+          setConfirmConfig(null);
+          setScheduleLoading(true);
+          try {
+            const tripsOnDay = trips.filter((t) => t.tripDate === formatted && t.status !== 'CANCELLED');
+            await Promise.all(
+              tripsOnDay.map((t) => api.patch(`/trips/${t.id}`, { status: 'CANCELLED' }))
+            );
+            loadData();
+            showToast('Viagens do dia canceladas com sucesso!', 'success');
+          } catch (err: any) {
+            showToast(err.response?.data?.message || 'Erro ao cancelar viagens do dia.', 'error');
+          } finally {
+            setScheduleLoading(false);
+          }
         }
-      }
+      });
       return;
     }
-
     setSelectedDates((prev) =>
       prev.includes(formatted) ? prev.filter((d) => d !== formatted) : [...prev, formatted]
     );
@@ -217,14 +333,13 @@ export default function RotaDetailPage() {
 
   const handleScheduleTrips = async () => {
     if (!id || selectedDates.length === 0) {
-      alert('Selecione pelo menos um dia no calendário.');
+      showToast('Selecione pelo menos um dia no calendário.', 'warning');
       return;
     }
     if (!selectedBusId) {
-      alert('Por favor, selecione um ônibus antes de agendar viagens.');
+      showToast('Por favor, selecione um ônibus antes de agendar viagens.', 'warning');
       return;
     }
-
     setScheduleLoading(true);
     try {
       await scheduleTrips({
@@ -237,13 +352,14 @@ export default function RotaDetailPage() {
       });
       setSelectedDates([]);
       loadData();
-      alert('Viagens geradas com sucesso!');
+      showToast('Viagens geradas com sucesso!', 'success');
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erro ao gerar viagens.');
+      showToast(err.response?.data?.message || 'Erro ao gerar viagens.', 'error');
     } finally {
       setScheduleLoading(false);
     }
   };
+
 
   if (loading) {
     return (
@@ -403,28 +519,39 @@ export default function RotaDetailPage() {
             </div>
 
             <div className="grid grid-cols-7 gap-2">
+              {[...Array(getDayOfWeekOffset(calendarMonth))].map((_, i) => (
+                <div key={`empty-${i}`} />
+              ))}
               {[...Array(getDaysInMonth(calendarMonth))].map((_, index) => {
                 const day = index + 1;
                 const formatted = `${calendarMonth}-${String(day).padStart(2, '0')}`;
                 const isScheduled = scheduledDates.includes(formatted);
                 const isSelected = selectedDates.includes(formatted);
+                const holidayName = getHolidayName(formatted);
+                const isHoliday = holidayName !== null;
 
                 return (
                   <button
                     key={day}
                     type="button"
                     onClick={() => handleDayClick(day)}
+                    title={holidayName || undefined}
                     className={`h-11 rounded-[8px] font-bold text-sm flex flex-col items-center justify-center relative border transition-all ${
                       isSelected
                         ? 'bg-[#2563EB] text-white border-[#2563EB]'
                         : isScheduled
                         ? 'bg-blue-50 text-[#2563EB] border-[#2563EB]/40'
+                        : isHoliday
+                        ? 'bg-red-50 text-[#DC2626] border-red-200 hover:border-red-400'
                         : 'bg-white border-[#C3C6D7]/20 hover:border-[#131B2E]'
                     }`}
                   >
                     <span>{day}</span>
                     {isScheduled && !isSelected && (
                       <span className="absolute bottom-1 h-1.5 w-1.5 bg-[#2563EB] rounded-full" />
+                    )}
+                    {isHoliday && !isSelected && !isScheduled && (
+                      <span className="absolute bottom-1 text-[8px] font-extrabold text-[#DC2626]">F</span>
                     )}
                   </button>
                 );
@@ -452,8 +579,12 @@ export default function RotaDetailPage() {
               ))}
             </select>
             <p className="text-[10px] font-semibold text-[#434655]">
-              O ônibus selecionado será usado ao gerar a escala de viagens abaixo.
+              Ônibus padrão escalado para esta rota.
             </p>
+            <Button onClick={handleSaveBus} loading={busLoading} className="py-2">
+              <Save className="h-4 w-4 mr-2" />
+              Atribuir Ônibus
+            </Button>
           </Card>
 
           <Card className="flex flex-col gap-5">
@@ -475,8 +606,12 @@ export default function RotaDetailPage() {
                 ))}
               </select>
               <p className="text-[10px] font-semibold text-[#434655]">
-                O motorista selecionado será vinculado por padrão ao gerar a escala de viagens desta rota.
+                Motorista padrão escalado para esta rota.
               </p>
+              <Button onClick={handleSaveDriver} loading={driverLoading} className="py-2">
+                <Save className="h-4 w-4 mr-2" />
+                Escalar Motorista
+              </Button>
             </div>
           </Card>
         </div>
@@ -497,6 +632,18 @@ export default function RotaDetailPage() {
           }}
         />
       )}
+
+      {confirmConfig && (
+        <ConfirmDialog
+          open={confirmConfig.open}
+          title={confirmConfig.title}
+          description={confirmConfig.description}
+          variant={confirmConfig.variant}
+          onConfirm={confirmConfig.onConfirm}
+          onCancel={() => setConfirmConfig(null)}
+        />
+      )}
     </div>
   );
 }
+

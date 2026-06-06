@@ -58,16 +58,12 @@ test.describe('Fluxos de Autenticação e Gestão de Frota no Gestor', () => {
     const updatedPointElement = page.locator('text=Ponto E2E Playwright Alterado');
     await expect(updatedPointElement).toBeVisible();
 
-    // 6. Deleção do Ponto de Embarque
-    // Captura o diálogo do navegador para aceitar o confirm()
-    page.once('dialog', async dialog => {
-      expect(dialog.message()).toContain('Excluir ponto de embarque');
-      await dialog.accept();
-    });
-
     const updatedParentContainer = page.locator('.bg-slate-50', { hasText: 'Ponto E2E Playwright Alterado' });
     // Clica no segundo botão (ícone Trash2)
     await updatedParentContainer.locator('button').nth(1).click();
+
+    // Clica no botão de confirmar do dialog customizado
+    await page.click('button:has-text("Confirmar")');
 
     // Verifica se sumiu da listagem
     await expect(updatedPointElement).not.toBeVisible();
