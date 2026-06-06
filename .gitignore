@@ -16,6 +16,7 @@
 
 # testing
 **/coverage/
+**/e2e/
 .agent/
 
 # next.js

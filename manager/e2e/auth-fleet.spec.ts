@@ -39,8 +39,6 @@ test.describe('Fluxos de Autenticação e Gestão de Frota no Gestor', () => {
     await expect(page.locator('h3:has-text("Adicionar Ponto de Embarque")')).toBeVisible();
 
     await page.fill('#point-name', 'Ponto E2E Playwright');
-    await page.fill('#lat', '-23.55052');
-    await page.fill('#lng', '-46.633308');
     await page.click('button:has-text("Salvar Ponto")');
 
     // Verifica se o ponto foi criado na listagem

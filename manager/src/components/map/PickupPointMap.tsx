@@ -89,52 +89,45 @@ const darkMapStyle = [
 function PickupPointMapContent({ lat, lng, onChange, onNameSuggestion }: PickupPointMapProps) {
   const map = useMap();
   const placesLibrary = useMapsLibrary('places');
-  const geocodingLibrary = useMapsLibrary('geocoding');
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [predictions, setPredictions] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-
-  const [autocompleteService, setAutocompleteService] = useState<google.maps.places.AutocompleteService | null>(null);
   const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
 
   useEffect(() => {
-    if (!placesLibrary) return;
-    setAutocompleteService(new placesLibrary.AutocompleteService());
+    if (placesLibrary && window.google?.maps) {
+      setGeocoder(new window.google.maps.Geocoder());
+    }
   }, [placesLibrary]);
 
   useEffect(() => {
-    if (!geocodingLibrary) return;
-    setGeocoder(new geocodingLibrary.Geocoder());
-  }, [geocodingLibrary]);
-
-  useEffect(() => {
-    if (!searchQuery.trim() || !autocompleteService) {
+    if (!searchQuery.trim() || !placesLibrary || !window.google?.maps?.places) {
       setPredictions([]);
       return;
     }
 
-    const delayDebounce = setTimeout(() => {
+    const delayDebounce = setTimeout(async () => {
       setIsSearching(true);
-      autocompleteService.getPlacePredictions(
-        {
-          input: searchQuery,
-          componentRestrictions: { country: 'BR' },
-        },
-        (results, status) => {
-          if (status === 'OK' && results) {
-            setPredictions(results.slice(0, 5));
-          } else {
-            setPredictions([]);
-          }
-          setIsSearching(false);
+      try {
+        const { AutocompleteSuggestion } = google.maps.places as any;
+        if (AutocompleteSuggestion) {
+          const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+            input: searchQuery,
+            includedRegionCodes: ['br'],
+          });
+          setPredictions((suggestions || []).slice(0, 5));
         }
-      );
+      } catch (err) {
+        setPredictions([]);
+      } finally {
+        setIsSearching(false);
+      }
     }, 400);
 
     return () => clearTimeout(delayDebounce);
-  }, [searchQuery, autocompleteService]);
+  }, [searchQuery, placesLibrary]);
 
   const performReverseGeocode = (latitude: number, longitude: number) => {
     if (!geocoder) return;
@@ -165,25 +158,31 @@ function PickupPointMapContent({ lat, lng, onChange, onNameSuggestion }: PickupP
     );
   };
 
-  const handlePredictionSelect = (prediction: google.maps.places.AutocompletePrediction) => {
-    if (!geocoder) return;
+  const handlePredictionSelect = async (prediction: any) => {
+    if (!placesLibrary || !window.google?.maps?.places) return;
 
     setIsSearching(true);
-    geocoder.geocode({ placeId: prediction.place_id }, (results, status) => {
-      setIsSearching(false);
-      if (status === 'OK' && results && results[0]) {
-        const result = results[0];
-        const nextLat = result.geometry.location.lat();
-        const nextLng = result.geometry.location.lng();
+    try {
+      const { Place } = google.maps.places as any;
+      const placeId = prediction.placePrediction.placeId;
+      const place = new Place({ id: placeId });
+      await place.fetchFields({
+        fields: ['location', 'displayName', 'formattedAddress']
+      });
+
+      const location = place.location;
+      if (location) {
+        const nextLat = location.lat();
+        const nextLng = location.lng();
 
         onChange(nextLat, nextLng);
 
-        const mainText = prediction.structured_formatting.main_text || prediction.description;
+        const mainText = place.displayName || prediction.placePrediction.mainText.text;
         if (onNameSuggestion && mainText) {
           onNameSuggestion(mainText);
         }
 
-        setSearchQuery(prediction.description);
+        setSearchQuery(prediction.placePrediction.text.text);
         setShowDropdown(false);
 
         if (map) {
@@ -191,7 +190,11 @@ function PickupPointMapContent({ lat, lng, onChange, onNameSuggestion }: PickupP
           map.setZoom(15);
         }
       }
-    });
+    } catch (err) {
+      // Silently fail
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const handleMapClick = (e: any) => {
@@ -245,12 +248,12 @@ function PickupPointMapContent({ lat, lng, onChange, onNameSuggestion }: PickupP
           <ul className="absolute left-0 right-0 mt-1 bg-white border border-[#C3C6D7]/40 rounded-[12px] shadow-lg max-h-60 overflow-y-auto z-[9999] py-1.5">
             {predictions.map((prediction) => (
               <li
-                key={prediction.place_id}
+                key={prediction.placePrediction.placeId}
                 onMouseDown={() => handlePredictionSelect(prediction)}
                 className="px-4 py-2 hover:bg-[#F0F4FF] cursor-pointer text-sm text-[#131B2E] transition-colors duration-150 flex flex-col gap-0.5"
               >
-                <span className="font-semibold">{prediction.structured_formatting.main_text}</span>
-                <span className="text-xs text-[#6B7280]">{prediction.structured_formatting.secondary_text}</span>
+                <span className="font-semibold">{prediction.placePrediction.mainText.text}</span>
+                <span className="text-xs text-[#6B7280]">{prediction.placePrediction.secondaryText.text}</span>
               </li>
             ))}
           </ul>
@@ -285,7 +288,7 @@ export function PickupPointMap(props: PickupPointMapProps) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
   return (
-    <APIProvider apiKey={apiKey} libraries={['places', 'geocoding']}>
+    <APIProvider apiKey={apiKey} version="beta" libraries={['places']}>
       <PickupPointMapContent {...props} />
     </APIProvider>
   );
