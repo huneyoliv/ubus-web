@@ -72,6 +72,7 @@ describe('BusLayoutEngine Web Port', () => {
       p4capacity: 44,
       p5: 'NONE',
       p6: 'LEFT',
+      p6b: 'SEQUENTIAL',
       p7physicalNumbers: {},
     };
 
@@ -81,5 +82,44 @@ describe('BusLayoutEngine Web Port', () => {
     expect(updated.rows[0].cells[0].physicalNumber).toBe(101);
     expect(updated.rows[0].cells[1].physicalNumber).toBe(102);
     expect(updated.rows[0].cells[3].physicalNumber).toBeNull();
+  });
+
+  test('patterned numbering (ODD_WINDOW and EVEN_WINDOW)', () => {
+    const baseAnswers: BusWizardAnswers = {
+      plate: 'ABC-1234',
+      identificationNumber: '1050',
+      p1: 'PHYSICAL',
+      p2: 'FOUR',
+      p3: 'NORMAL',
+      p4capacity: 44,
+      p5: 'NONE',
+      p6: 'LEFT',
+      p6b: 'ODD_WINDOW',
+      p7physicalNumbers: {},
+    };
+
+    // ODD_WINDOW: Janela ímpar, Corredor par
+    const layoutOdd = BusLayoutEngine.buildLayout(baseAnswers);
+    expect(layoutOdd.rows[0].cells[0].virtualNumber).toBe(1); // WINDOW_LEFT
+    expect(layoutOdd.rows[0].cells[1].virtualNumber).toBe(2); // AISLE_LEFT
+    expect(layoutOdd.rows[0].cells[3].virtualNumber).toBe(4); // AISLE_RIGHT
+    expect(layoutOdd.rows[0].cells[4].virtualNumber).toBe(3); // WINDOW_RIGHT
+
+    expect(layoutOdd.rows[1].cells[0].virtualNumber).toBe(5); // WINDOW_LEFT
+    expect(layoutOdd.rows[1].cells[1].virtualNumber).toBe(6); // AISLE_LEFT
+    expect(layoutOdd.rows[1].cells[3].virtualNumber).toBe(8); // AISLE_RIGHT
+    expect(layoutOdd.rows[1].cells[4].virtualNumber).toBe(7); // WINDOW_RIGHT
+
+    // EVEN_WINDOW: Janela par, Corredor ímpar
+    const layoutEven = BusLayoutEngine.buildLayout({ ...baseAnswers, p6b: 'EVEN_WINDOW' });
+    expect(layoutEven.rows[0].cells[0].virtualNumber).toBe(2); // WINDOW_LEFT
+    expect(layoutEven.rows[0].cells[1].virtualNumber).toBe(1); // AISLE_LEFT
+    expect(layoutEven.rows[0].cells[3].virtualNumber).toBe(3); // AISLE_RIGHT
+    expect(layoutEven.rows[0].cells[4].virtualNumber).toBe(4); // WINDOW_RIGHT
+
+    expect(layoutEven.rows[1].cells[0].virtualNumber).toBe(6); // WINDOW_LEFT
+    expect(layoutEven.rows[1].cells[1].virtualNumber).toBe(5); // AISLE_LEFT
+    expect(layoutEven.rows[1].cells[3].virtualNumber).toBe(7); // AISLE_RIGHT
+    expect(layoutEven.rows[1].cells[4].virtualNumber).toBe(8); // WINDOW_RIGHT
   });
 });

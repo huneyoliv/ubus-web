@@ -4,6 +4,7 @@ export type FrontRowLayout = 'FOUR' | 'THREE' | 'TWO';
 export type RearLayout = 'BATHROOM' | 'NORMAL' | 'FIVE' | 'BOX';
 export type AccessibilityFeature = 'DPM' | 'BOX' | 'NONE';
 export type NumerationSide = 'LEFT' | 'RIGHT';
+export type NumberingPattern = 'SEQUENTIAL' | 'ODD_WINDOW' | 'EVEN_WINDOW';
 
 export interface BusWizardAnswers {
   plate: string;
@@ -14,6 +15,7 @@ export interface BusWizardAnswers {
   p4capacity: number;
   p5: AccessibilityFeature;
   p6: NumerationSide;
+  p6b: NumberingPattern;
   p7physicalNumbers: Record<number, number>;
 }
 
@@ -61,33 +63,14 @@ export const BusLayoutEngine = {
     }
     allRowsCells.push(this.buildRearRowCells(p3));
 
-    let virtualCounter = 1;
     const isRearFive = p3 === 'FIVE';
 
-    for (let i = 0; i < allRowsCells.length; i++) {
-      const rowCells = allRowsCells[i];
-      const isLastRow = i === allRowsCells.length - 1;
-      let colIndices: number[] = [];
-
-      if (isLastRow && isRearFive) {
-        colIndices = [0, 1, 2, 3, 4];
-      } else if (p6 === 'LEFT') {
-        colIndices = [0, 1, 2, 3, 4];
-      } else {
-        colIndices = [4, 3, 2, 1, 0];
-      }
-
-      for (const colIdx of colIndices) {
-        const cell = rowCells[colIdx];
-        if (cell.type === 'SEAT') {
-          const virtualNum = virtualCounter++;
-          rowCells[colIdx] = {
-            ...cell,
-            virtualNumber: virtualNum,
-            physicalNumber: p1 === 'PHYSICAL' ? virtualNum : (answers.p7physicalNumbers[virtualNum] ?? null),
-          };
-        }
-      }
+    if (answers.p6b === 'SEQUENTIAL') {
+      this.assignSequential(allRowsCells, p6, isRearFive, answers);
+    } else if (answers.p6b === 'ODD_WINDOW') {
+      this.assignOddEvenWindow(allRowsCells, p6, isRearFive, answers, true);
+    } else if (answers.p6b === 'EVEN_WINDOW') {
+      this.assignOddEvenWindow(allRowsCells, p6, isRearFive, answers, false);
     }
 
     const tempRows = allRowsCells.map((cells) => ({ cells }));
@@ -125,6 +108,113 @@ export const BusLayoutEngine = {
       updatedAt: null,
       rows: finalRows,
     };
+  },
+
+  assignSequential(
+    allRowsCells: BusCell[][],
+    p6: NumerationSide,
+    isRearFive: boolean,
+    answers: BusWizardAnswers
+  ) {
+    let virtualCounter = 1;
+    for (let i = 0; i < allRowsCells.length; i++) {
+      const rowCells = allRowsCells[i];
+      const isLastRow = i === allRowsCells.length - 1;
+      let colIndices: number[] = [];
+
+      if (isLastRow && isRearFive) {
+        colIndices = [0, 1, 2, 3, 4];
+      } else if (p6 === 'LEFT') {
+        colIndices = [0, 1, 2, 3, 4];
+      } else {
+        colIndices = [4, 3, 2, 1, 0];
+      }
+
+      for (const colIdx of colIndices) {
+        const cell = rowCells[colIdx];
+        if (cell.type === 'SEAT') {
+          const virtualNum = virtualCounter++;
+          rowCells[colIdx] = {
+            ...cell,
+            virtualNumber: virtualNum,
+            physicalNumber: this.physicalFor(virtualNum, answers),
+          };
+        }
+      }
+    }
+  },
+
+  assignOddEvenWindow(
+    allRowsCells: BusCell[][],
+    p6: NumerationSide,
+    isRearFive: boolean,
+    answers: BusWizardAnswers,
+    windowGetsOdd: boolean
+  ) {
+    const windowPositions = new Set<SeatPosition>(['WINDOW_LEFT', 'WINDOW_RIGHT']);
+    const aislePositions = new Set<SeatPosition>(['AISLE_LEFT', 'AISLE_RIGHT']);
+
+    let oddCounter = windowGetsOdd ? 1 : 2;
+    let evenCounter = windowGetsOdd ? 2 : 1;
+
+    const normalIndices = p6 === 'LEFT' ? [0, 1, 2, 3, 4] : [4, 3, 2, 1, 0];
+
+    for (let i = 0; i < allRowsCells.length; i++) {
+      const rowCells = allRowsCells[i];
+      const isLastRow = i === allRowsCells.length - 1;
+      const colIndices = (isLastRow && isRearFive) ? [0, 1, 2, 3, 4] : normalIndices;
+
+      if (isLastRow && isRearFive) {
+        const lastAssigned = allRowsCells
+          .slice(0, i)
+          .flatMap((row) => row)
+          .map((cell) => cell.virtualNumber)
+          .filter((num): num is number => num !== null);
+        const maxVal = lastAssigned.length > 0 ? Math.max(...lastAssigned) : 0;
+        let seqCounter = maxVal + 1;
+
+        for (const colIdx of colIndices) {
+          const cell = rowCells[colIdx];
+          if (cell.type === 'SEAT') {
+            const virtualNum = seqCounter++;
+            rowCells[colIdx] = {
+              ...cell,
+              virtualNumber: virtualNum,
+              physicalNumber: this.physicalFor(virtualNum, answers),
+            };
+          }
+        }
+        continue;
+      }
+
+      for (const colIdx of colIndices) {
+        const cell = rowCells[colIdx];
+        if (cell.type !== 'SEAT') continue;
+        const pos = cell.position;
+
+        let virtualNum: number;
+        if (pos && windowPositions.has(pos)) {
+          virtualNum = oddCounter;
+          oddCounter += 2;
+        } else if (pos && aislePositions.has(pos)) {
+          virtualNum = evenCounter;
+          evenCounter += 2;
+        } else {
+          virtualNum = Math.max(oddCounter, evenCounter);
+          oddCounter = virtualNum + 2;
+        }
+
+        rowCells[colIdx] = {
+          ...cell,
+          virtualNumber: virtualNum,
+          physicalNumber: this.physicalFor(virtualNum, answers),
+        };
+      }
+    }
+  },
+
+  physicalFor(virtualNum: number, answers: BusWizardAnswers): number | null {
+    return answers.p1 === 'PHYSICAL' ? virtualNum : (answers.p7physicalNumbers[virtualNum] ?? null);
   },
 
   computeDpmVirtualNumber(answers: BusWizardAnswers, layout: BusLayout): number | null {

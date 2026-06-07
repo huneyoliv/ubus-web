@@ -9,6 +9,7 @@ import {
   RearLayout,
   AccessibilityFeature,
   NumerationSide,
+  NumberingPattern,
 } from './BusLayoutEngine';
 import { BusLayout, NumberingMode } from '../../api/fleet';
 
@@ -35,6 +36,8 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
   const [p4capacity, setP4capacity] = useState<number | null>(null);
   const [p5, setP5] = useState<AccessibilityFeature | null>(null);
   const [p6, setP6] = useState<NumerationSide | null>(null);
+  const [p6b, setP6b] = useState<NumberingPattern | null>(null);
+  const [virtualCapacity, setVirtualCapacity] = useState('');
   const [p7numbers, setP7numbers] = useState<Record<number, number>>({});
 
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -52,9 +55,10 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
     p1: p1 || 'PHYSICAL',
     p2: p2 || 'FOUR',
     p3: p3 || 'NORMAL',
-    p4capacity: p4capacity || 44,
+    p4capacity: p1 === 'VIRTUAL' ? (parseInt(virtualCapacity, 10) || 44) : (p4capacity || 44),
     p5: p5 || 'NONE',
     p6: p6 || 'LEFT',
+    p6b: p6b || 'SEQUENTIAL',
     p7physicalNumbers: p7numbers,
   });
 
@@ -76,37 +80,42 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
   };
 
   const handleSave = async () => {
-    if (!layout) return;
+    const answers = buildAnswers();
     setLoading(true);
     setError('');
 
     try {
-      const answers = buildAnswers();
-      const finalLayout = BusLayoutEngine.applyPhysicalNumbers(layout, p7numbers);
-      const dpmNum = BusLayoutEngine.computeDpmVirtualNumber(answers, finalLayout);
+      let finalLayout = layout;
+      let dpmNum: number | null = null;
+      if (answers.p1 !== 'VIRTUAL' && layout) {
+        finalLayout = BusLayoutEngine.applyPhysicalNumbers(layout, p7numbers);
+        dpmNum = BusLayoutEngine.computeDpmVirtualNumber(answers, finalLayout);
+      }
 
       const bus = await createBus({
         plate: plate.toUpperCase(),
         identificationNumber: identificationNumber.trim(),
         capacity: answers.p4capacity,
-        hasBathroom: answers.p3 === 'BATHROOM',
+        hasBathroom: answers.p1 !== 'VIRTUAL' && answers.p3 === 'BATHROOM',
         hasAirConditioning: false,
-        hasElevator: answers.p5 === 'BOX' || answers.p3 === 'BOX',
+        hasElevator: answers.p5 === 'BOX' || (answers.p1 !== 'VIRTUAL' && answers.p3 === 'BOX'),
         active: true,
         routeId: null,
         preferentialSeats: dpmNum !== null ? [dpmNum] : [],
       });
 
-      try {
-        await saveBusLayout(bus.id, {
-          numberingMode: answers.p1,
-          numerationSide: answers.p6,
-          rows: finalLayout.rows,
-          dpmSeatVirtualNumber: dpmNum,
-          preferentialSeats: dpmNum !== null ? [dpmNum] : [],
-        });
-      } catch (layoutErr) {
-        // Falha silenciosa se o endpoint não existir
+      if (answers.p1 !== 'VIRTUAL' && finalLayout) {
+        try {
+          await saveBusLayout(bus.id, {
+            numberingMode: answers.p1,
+            numerationSide: answers.p6,
+            rows: finalLayout.rows,
+            dpmSeatVirtualNumber: dpmNum,
+            preferentialSeats: dpmNum !== null ? [dpmNum] : [],
+          });
+        } catch (layoutErr) {
+          // Falha silenciosa se o endpoint não existir
+        }
       }
 
       onSaved();
@@ -119,6 +128,8 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
 
   const handleAdvance = () => {
     setError('');
+    const isVirtual = p1 === 'VIRTUAL';
+
     if (step === 0) {
       if (!plate.trim() || !identificationNumber.trim()) {
         setError('Preencha a placa e o número do veículo.');
@@ -127,7 +138,14 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
       setStep(1);
     } else if (step === 1) {
       if (!p1) return;
-      setStep(2);
+      setStep(isVirtual ? 11 : 2);
+    } else if (step === 11) {
+      const cap = parseInt(virtualCapacity, 10);
+      if (isNaN(cap) || cap < 1) {
+        setError('Informe uma capacidade válida.');
+        return;
+      }
+      setStep(5);
     } else if (step === 2) {
       if (!p2) return;
       setStep(3);
@@ -139,9 +157,12 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
       setStep(5);
     } else if (step === 5) {
       if (!p5) return;
-      setStep(6);
+      setStep(isVirtual ? 9 : 6);
     } else if (step === 6) {
       if (!p6) return;
+      setStep(10);
+    } else if (step === 10) {
+      if (!p6b) return;
       const answers = buildAnswers();
       const err = BusLayoutEngine.validate(answers);
       if (err) {
@@ -151,7 +172,7 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
         const built = BusLayoutEngine.buildLayout(answers);
         setLayout(built);
         setDpmWarning(computeDpmWarningMessage(answers, built));
-        if (p1 === 'MIXED') {
+        if (answers.p1 === 'MIXED') {
           setStep(8);
         } else {
           setStep(9);
@@ -166,12 +187,34 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
 
   const handleBack = () => {
     setError('');
+    const isVirtual = p1 === 'VIRTUAL';
+
     if (step === 0) {
       onClose();
-    } else if (step === 7 || step === 8) {
+    } else if (step === 1) {
+      setStep(0);
+    } else if (step === 11) {
+      setStep(1);
+    } else if (step === 2) {
+      setStep(1);
+    } else if (step === 3) {
+      setStep(2);
+    } else if (step === 4) {
+      setStep(3);
+    } else if (step === 5) {
+      setStep(isVirtual ? 11 : 4);
+    } else if (step === 6) {
+      setStep(5);
+    } else if (step === 10) {
       setStep(6);
+    } else if (step === 7 || step === 8) {
+      setStep(10);
     } else if (step === 9) {
-      setStep(p1 === 'MIXED' ? 8 : 6);
+      if (isVirtual) {
+        setStep(5);
+      } else {
+        setStep(p1 === 'MIXED' ? 8 : 10);
+      }
     } else {
       setStep(step - 1);
     }
@@ -183,6 +226,8 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
         return !plate.trim() || !identificationNumber.trim();
       case 1:
         return !p1;
+      case 11:
+        return !virtualCapacity.trim() || isNaN(parseInt(virtualCapacity, 10)) || parseInt(virtualCapacity, 10) < 1;
       case 2:
         return !p2;
       case 3:
@@ -193,6 +238,8 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
         return !p5;
       case 6:
         return !p6;
+      case 10:
+        return !p6b;
       default:
         return false;
     }
@@ -214,6 +261,12 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
               <h1 className="text-lg font-bold text-slate-800">Novo Ônibus</h1>
               {step >= 1 && step <= 6 && (
                 <span className="text-xs text-slate-400">Etapa {step} de 6</span>
+              )}
+              {step === 10 && (
+                <span className="text-xs text-slate-400">Padrão de Numeração</span>
+              )}
+              {step === 11 && (
+                <span className="text-xs text-slate-400">Capacidade</span>
               )}
             </div>
           </div>
@@ -253,6 +306,19 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
               selectedValue={p1}
               onSelect={setP1}
             />
+          )}
+
+          {step === 11 && (
+            <div className="flex flex-col gap-4">
+              <h2 className="text-xl font-bold text-[#131B2E]">Qual a capacidade total de passageiros?</h2>
+              <input
+                type="number"
+                value={virtualCapacity}
+                onChange={(e) => setVirtualCapacity(e.target.value)}
+                placeholder="Ex: 44"
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#002776] focus:border-transparent text-sm"
+              />
+            </div>
           )}
 
           {step === 2 && (
@@ -316,6 +382,19 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
             />
           )}
 
+          {step === 10 && (
+            <StepMultiChoice
+              question="Como as poltronas são numeradas?"
+              options={[
+                { value: 'SEQUENTIAL', title: 'Sequencial', subtitle: '1, 2, 3, 4... — cada coluna da frente para o fundo recebe o próximo número.' },
+                { value: 'ODD_WINDOW', title: 'Ímpares na janela', subtitle: 'Janela: 1, 3, 5… / Corredor: 2, 4, 6…' },
+                { value: 'EVEN_WINDOW', title: 'Pares na janela', subtitle: 'Janela: 2, 4, 6… / Corredor: 1, 3, 5…' },
+              ]}
+              selectedValue={p6b}
+              onSelect={setP6b}
+            />
+          )}
+
           {step === 7 && (
             <StepValidation
               error={validationError || 'Layout inválido'}
@@ -339,7 +418,7 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
             />
           )}
 
-          {step === 9 && layout && (
+          {step === 9 && layout && p1 !== 'VIRTUAL' && (
             <StepPreview
               title="Mapa Final do Veículo"
               subtitle="Este é o mapa final gerado para o ônibus cadastrado."
@@ -347,6 +426,39 @@ export function BusWizard({ onClose, onSaved }: BusWizardProps) {
               p7numbers={p7numbers}
               dpmWarning={dpmWarning}
             />
+          )}
+
+          {step === 9 && p1 === 'VIRTUAL' && (
+            <div className="flex flex-col gap-6">
+              <div>
+                <h2 className="text-xl font-bold text-[#131B2E]">Confirmação de Cadastro</h2>
+                <p className="text-sm text-slate-500 mt-1">Revise as informações antes de cadastrar o veículo.</p>
+              </div>
+              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 flex flex-col gap-4">
+                <div className="flex justify-between border-b border-slate-200/60 pb-3">
+                  <span className="text-sm font-medium text-slate-500">Placa</span>
+                  <span className="text-sm font-bold text-slate-800">{plate.toUpperCase()}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-3">
+                  <span className="text-sm font-medium text-slate-500">Prefixo</span>
+                  <span className="text-sm font-bold text-slate-800">{identificationNumber}</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-3">
+                  <span className="text-sm font-medium text-slate-500">Tipo de Numeração</span>
+                  <span className="text-sm font-bold text-slate-800">Virtual (Sem marcação)</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200/60 pb-3">
+                  <span className="text-sm font-medium text-slate-500">Capacidade</span>
+                  <span className="text-sm font-bold text-slate-800">{virtualCapacity} passageiros</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-slate-500">Acessibilidade</span>
+                  <span className="text-sm font-bold text-[#002776]">
+                    {p5 === 'BOX' ? 'Espaço de cadeirante / Box' : p5 === 'DPM' ? 'DPM (Dispositivo de Poltrona Móvel)' : 'Nenhum'}
+                  </span>
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
