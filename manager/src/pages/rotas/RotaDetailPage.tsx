@@ -7,11 +7,14 @@ import {
   listBuses,
   listPickupPoints,
   deletePickupPoint,
+  listDropoffPoints,
+  deleteDropoffPoint,
   getRouteCalendar,
   scheduleTrips,
   Route,
   Bus,
   PickupPoint,
+  DropoffPoint,
   assignDefaultBus,
   assignDefaultDriver
 } from '../../api/fleet';
@@ -22,6 +25,7 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { PickupPointModal } from './PickupPointModal';
+import { DropoffPointModal } from './DropoffPointModal';
 import { useToast } from '../../hooks/useToast';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
@@ -102,6 +106,7 @@ export default function RotaDetailPage() {
   const [allBuses, setAllBuses] = useState<Bus[]>([]);
   const [drivers, setDrivers] = useState<User[]>([]);
   const [points, setPoints] = useState<PickupPoint[]>([]);
+  const [dropoffPoints, setDropoffPoints] = useState<DropoffPoint[]>([]);
   const [scheduledDates, setScheduledDates] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -124,6 +129,8 @@ export default function RotaDetailPage() {
 
   const [showPointModal, setShowPointModal] = useState(false);
   const [pointToEdit, setPointToEdit] = useState<PickupPoint | null>(null);
+  const [showDropoffPointModal, setShowDropoffPointModal] = useState(false);
+  const [dropoffPointToEdit, setDropoffPointToEdit] = useState<DropoffPoint | null>(null);
 
   const [generalLoading, setGeneralLoading] = useState(false);
   const [scheduleLoading, setScheduleLoading] = useState(false);
@@ -142,10 +149,11 @@ export default function RotaDetailPage() {
   const loadData = async () => {
     if (!id) return;
     try {
-      const [routesList, busesList, pointsList, calendarData, driversList] = await Promise.all([
+      const [routesList, busesList, pointsList, dropoffPointsList, calendarData, driversList] = await Promise.all([
         listRoutes(),
         listBuses(),
         listPickupPoints(id),
+        listDropoffPoints(id),
         getRouteCalendar(id, calendarMonth),
         listUsers({ role: 'DRIVER', status: 'APPROVED' }),
       ]);
@@ -162,6 +170,7 @@ export default function RotaDetailPage() {
       }
 
       setPoints(pointsList);
+      setDropoffPoints(dropoffPointsList);
       setAllBuses(busesList);
       setDrivers(driversList);
       setBuses(busesList);
@@ -215,6 +224,26 @@ export default function RotaDetailPage() {
           await deletePickupPoint(id, pointId);
           loadData();
           showToast('Ponto de embarque excluído com sucesso!', 'success');
+        } catch (err: any) {
+          showToast(err.response?.data?.message || err.message || 'Erro ao excluir ponto.', 'error');
+        }
+      }
+    });
+  };
+
+  const handleDeleteDropoffPoint = (pointId: string) => {
+    if (!id) return;
+    setConfirmConfig({
+      open: true,
+      title: 'Excluir ponto de desembarque?',
+      description: 'Deseja realmente excluir este ponto de desembarque? Esta ação não poderá ser desfeita.',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmConfig(null);
+        try {
+          await deleteDropoffPoint(id, pointId);
+          loadData();
+          showToast('Ponto de desembarque excluído com sucesso!', 'success');
         } catch (err: any) {
           showToast(err.response?.data?.message || err.message || 'Erro ao excluir ponto.', 'error');
         }
@@ -482,6 +511,52 @@ export default function RotaDetailPage() {
           </Card>
 
           <Card className="flex flex-col gap-6">
+            <div className="flex items-center justify-between border-b border-[#C3C6D7]/20 pb-4">
+              <h2 className="text-lg font-bold text-[#131B2E]">Pontos de Desembarque</h2>
+              <Button
+                onClick={() => {
+                  setDropoffPointToEdit(null);
+                  setShowDropoffPointModal(true);
+                }}
+                className="py-2 px-3 text-xs"
+              >
+                <Plus className="h-4 w-4 mr-1.5" />
+                Adicionar Ponto
+              </Button>
+            </div>
+            {dropoffPoints.length === 0 ? (
+              <p className="text-xs font-semibold text-[#434655]">Nenhum ponto de desembarque cadastrado nesta rota.</p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {dropoffPoints.map((pt) => (
+                  <div key={pt.id} className="flex items-center justify-between p-4 bg-slate-50 border border-[#C3C6D7]/20 rounded-[12px]">
+                    <div>
+                      <h4 className="text-sm font-bold text-[#131B2E]">{pt.name}</h4>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setDropoffPointToEdit(pt);
+                          setShowDropoffPointModal(true);
+                        }}
+                        className="p-1.5 bg-white border border-[#C3C6D7]/30 text-slate-500 hover:text-[#2563EB] rounded-[8px]"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteDropoffPoint(pt.id)}
+                        className="p-1.5 bg-white border border-red-100 text-red-500 hover:bg-red-50 rounded-[8px]"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+
+          <Card className="flex flex-col gap-6">
             <h2 className="text-lg font-bold text-[#131B2E]">Calendário e Escala de Viagens</h2>
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center gap-3">
@@ -628,6 +703,22 @@ export default function RotaDetailPage() {
           onSaved={() => {
             setShowPointModal(false);
             setPointToEdit(null);
+            loadData();
+          }}
+        />
+      )}
+
+      {showDropoffPointModal && (
+        <DropoffPointModal
+          routeId={id!}
+          pointToEdit={dropoffPointToEdit}
+          onClose={() => {
+            setShowDropoffPointModal(false);
+            setDropoffPointToEdit(null);
+          }}
+          onSaved={() => {
+            setShowDropoffPointModal(false);
+            setDropoffPointToEdit(null);
             loadData();
           }}
         />

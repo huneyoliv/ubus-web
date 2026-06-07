@@ -34,6 +34,16 @@ export interface PickupPoint {
   address?: string;
 }
 
+export interface DropoffPoint {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  routeId: string;
+  order?: number;
+  address?: string;
+}
+
 export interface Trip {
   id: string;
   tripDate: string;
@@ -117,6 +127,25 @@ export async function updatePickupPoint(routeId: string, pointId: string, payloa
 
 export async function deletePickupPoint(routeId: string, pointId: string): Promise<void> {
   await api.delete(`/fleet/points/${pointId}`);
+}
+
+export async function listDropoffPoints(routeId: string): Promise<DropoffPoint[]> {
+  const r = await api.get(`/fleet/routes/${routeId}/dropoff-points`);
+  return r.data;
+}
+
+export async function createDropoffPoint(routeId: string, payload: { name: string; lat: number; lng: number }): Promise<DropoffPoint> {
+  const r = await api.post(`/fleet/routes/${routeId}/dropoff-points`, payload);
+  return r.data;
+}
+
+export async function updateDropoffPoint(routeId: string, pointId: string, payload: { name?: string; lat?: number; lng?: number }): Promise<DropoffPoint> {
+  const r = await api.patch(`/fleet/dropoff-points/${pointId}`, payload);
+  return r.data;
+}
+
+export async function deleteDropoffPoint(routeId: string, pointId: string): Promise<void> {
+  await api.delete(`/fleet/dropoff-points/${pointId}`);
 }
 
 export async function getRouteCalendar(routeId: string, month: string): Promise<{ scheduledDates: string[]; trips: any[] }> {
