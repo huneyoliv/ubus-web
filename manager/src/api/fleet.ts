@@ -1,6 +1,33 @@
 import { api } from './client';
 import { useAuthStore } from '../stores/auth.store';
 
+export type CellType = 'SEAT' | 'AISLE' | 'EMPTY' | 'BATHROOM' | 'BOX';
+export type SeatPosition = 'WINDOW_LEFT' | 'AISLE_LEFT' | 'CENTER' | 'AISLE_RIGHT' | 'WINDOW_RIGHT';
+export type NumberingMode = 'PHYSICAL' | 'VIRTUAL' | 'MIXED';
+
+export interface BusCell {
+  col: number;
+  type: CellType;
+  virtualNumber: number | null;
+  physicalNumber: number | null;
+  position: SeatPosition | null;
+  isDpm: boolean;
+}
+
+export interface BusLayoutRow {
+  cells: BusCell[];
+}
+
+export interface BusLayout {
+  busId: string;
+  numberingMode: NumberingMode;
+  numerationSide: 'LEFT' | 'RIGHT';
+  dpmSeatVirtualNumber: number | null;
+  preferentialSeats: number[];
+  updatedAt: string | null;
+  rows: BusLayoutRow[];
+}
+
 export interface Route {
   id: string;
   name: string;
@@ -210,4 +237,26 @@ export async function assignDefaultBus(routeId: string, busId: string): Promise<
 
 export async function assignDefaultDriver(routeId: string, driverId: string): Promise<void> {
   await api.patch(`/fleet/routes/${routeId}/driver`, { driverId });
+}
+
+export async function saveBusLayout(busId: string, payload: Omit<BusLayout, 'busId' | 'updatedAt'>): Promise<BusLayout> {
+  const r = await api.put(`/fleet/buses/${busId}/layout`, payload);
+  return r.data;
+}
+
+export async function getBusLayout(busId: string): Promise<BusLayout | null> {
+  try {
+    const r = await api.get(`/fleet/buses/${busId}/layout`);
+    return r.data;
+  } catch {
+    return null;
+  }
+}
+
+export async function getBusById(busId: string): Promise<Bus> {
+  const r = await api.get(`/fleet/buses/${busId}`);
+  return {
+    ...r.data,
+    capacity: r.data.standardCapacity ?? r.data.capacity,
+  };
 }

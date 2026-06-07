@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Accessibility, Shield, Check } from 'lucide-react';
-import { listBuses, updateBus, Bus } from '../../api/fleet';
+import { listBuses, updateBus, getBusLayout, Bus, BusLayout } from '../../api/fleet';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { useToast } from '../../hooks/useToast';
+import { BusLayoutGrid } from '../../components/bus/BusLayoutGrid';
 
 export default function OnibusDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +14,7 @@ export default function OnibusDetailPage() {
   const { showToast } = useToast();
 
   const [bus, setBus] = useState<Bus | null>(null);
+  const [busLayout, setBusLayout] = useState<BusLayout | null>(null);
   const [loading, setLoading] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
   const [layoutLoading, setLayoutLoading] = useState(false);
@@ -43,7 +45,14 @@ export default function OnibusDetailPage() {
           setHasAirConditioning(found.hasAirConditioning);
           setHasElevator(found.hasElevator);
           setActive(found.active);
-          setPreferentialSeats(found.preferentialSeats || [1, 2, 3, 4]); // Fallback inicial de assentos preferenciais
+          setPreferentialSeats(found.preferentialSeats || [1, 2, 3, 4]);
+          
+          try {
+            const layoutData = await getBusLayout(id);
+            setBusLayout(layoutData);
+          } catch {
+            // Ignora erro de layout
+          }
         } else {
           setError('Veículo não encontrado.');
         }
@@ -182,85 +191,99 @@ export default function OnibusDetailPage() {
         </div>
 
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <Card className="flex flex-col gap-6">
-            <div className="flex items-center justify-between border-b border-[#C3C6D7]/20 pb-4">
-              <div>
+          {busLayout ? (
+            <Card className="flex flex-col gap-6">
+              <div className="border-b border-[#C3C6D7]/20 pb-4">
                 <h2 className="text-lg font-bold text-[#131B2E]">Layout de Assentos</h2>
                 <p className="text-xs font-semibold text-[#434655] mt-1">
-                  Clique nos assentos para torná-los preferenciais (Lei nº 10.048/2000).
+                  Disposição física do mapa de assentos configurada para o veículo.
                 </p>
               </div>
-              <Button onClick={handleSaveLayout} loading={layoutLoading} className="py-2.5">
-                Salvar Layout
-              </Button>
-            </div>
-
-            <div className="flex justify-center bg-slate-50 p-8 rounded-[18px] border border-[#C3C6D7]/20 overflow-x-auto">
-              <div className="flex flex-col gap-3 min-w-[280px]">
-                {/* Cabine do Motorista */}
-                <div className="flex justify-between items-center bg-slate-200 p-3 rounded-[12px] mb-4 text-xs font-bold text-[#434655]">
-                  <span>Frente do Ônibus</span>
-                  <div className="h-6 w-6 bg-slate-400 rounded-full flex items-center justify-center text-white">M</div>
-                </div>
-
-                {/* Grid de assentos */}
-                {[...Array(totalRows)].map((_, rowIndex) => {
-                  return (
-                    <div key={rowIndex} className="flex items-center justify-between gap-8">
-                      {/* Lado Esquerdo */}
-                      <div className="flex gap-2">
-                        {[1, 2].map((colIndex) => {
-                          const seatNumber = rowIndex * 4 + colIndex;
-                          if (seatNumber > validCapacity) return <div key={colIndex} className="w-10 h-10" />;
-                          const isPref = preferentialSeats.includes(seatNumber);
-                          return (
-                            <button
-                              key={colIndex}
-                              onClick={() => handleSeatToggle(seatNumber)}
-                              className={`w-10 h-10 rounded-[8px] font-bold text-xs flex items-center justify-center border transition-all ${
-                                isPref
-                                  ? 'bg-violet-600 text-white border-violet-600 shadow-md shadow-violet-600/20'
-                                  : 'bg-white border-[#C3C6D7] text-[#131B2E] hover:border-[#2563EB]'
-                              }`}
-                            >
-                              {isPref ? <Accessibility className="h-4 w-4" /> : seatNumber}
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {/* Corredor Central */}
-                      <div className="w-6 text-[10px] text-slate-400 font-bold flex items-center justify-center">
-                        C
-                      </div>
-
-                      {/* Lado Direito */}
-                      <div className="flex gap-2">
-                        {[3, 4].map((colIndex) => {
-                          const seatNumber = rowIndex * 4 + colIndex;
-                          if (seatNumber > validCapacity) return <div key={colIndex} className="w-10 h-10" />;
-                          const isPref = preferentialSeats.includes(seatNumber);
-                          return (
-                            <button
-                              key={colIndex}
-                              onClick={() => handleSeatToggle(seatNumber)}
-                              className={`w-10 h-10 rounded-[8px] font-bold text-xs flex items-center justify-center border transition-all ${
-                                isPref
-                                  ? 'bg-violet-600 text-white border-violet-600 shadow-md shadow-violet-600/20'
-                                  : 'bg-white border-[#C3C6D7] text-[#131B2E] hover:border-[#2563EB]'
-                              }`}
-                            >
-                              {isPref ? <Accessibility className="h-4 w-4" /> : seatNumber}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="flex justify-center bg-slate-50 p-8 rounded-[18px] border border-[#C3C6D7]/20 overflow-x-auto">
+                <BusLayoutGrid layout={busLayout} />
               </div>
-            </div>
-          </Card>
+            </Card>
+          ) : (
+            <Card className="flex flex-col gap-6">
+              <div className="flex items-center justify-between border-b border-[#C3C6D7]/20 pb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-[#131B2E]">Layout de Assentos</h2>
+                  <p className="text-xs font-semibold text-[#434655] mt-1">
+                    Clique nos assentos para torná-los preferenciais (Lei nº 10.048/2000).
+                  </p>
+                </div>
+                <Button onClick={handleSaveLayout} loading={layoutLoading} className="py-2.5">
+                  Salvar Layout
+                </Button>
+              </div>
+
+              <div className="flex justify-center bg-slate-50 p-8 rounded-[18px] border border-[#C3C6D7]/20 overflow-x-auto">
+                <div className="flex flex-col gap-3 min-w-[280px]">
+                  {/* Cabine do Motorista */}
+                  <div className="flex justify-between items-center bg-slate-200 p-3 rounded-[12px] mb-4 text-xs font-bold text-[#434655]">
+                    <span>Frente do Ônibus</span>
+                    <div className="h-6 w-6 bg-slate-400 rounded-full flex items-center justify-center text-white">M</div>
+                  </div>
+
+                  {/* Grid de assentos */}
+                  {[...Array(totalRows)].map((_, rowIndex) => {
+                    return (
+                      <div key={rowIndex} className="flex items-center justify-between gap-8">
+                        {/* Lado Esquerdo */}
+                        <div className="flex gap-2">
+                          {[1, 2].map((colIndex) => {
+                            const seatNumber = rowIndex * 4 + colIndex;
+                            if (seatNumber > validCapacity) return <div key={colIndex} className="w-10 h-10" />;
+                            const isPref = preferentialSeats.includes(seatNumber);
+                            return (
+                              <button
+                                key={colIndex}
+                                onClick={() => handleSeatToggle(seatNumber)}
+                                className={`w-10 h-10 rounded-[8px] font-bold text-xs flex items-center justify-center border transition-all ${
+                                  isPref
+                                    ? 'bg-violet-600 text-white border-violet-600 shadow-md shadow-violet-600/20'
+                                    : 'bg-white border-[#C3C6D7] text-[#131B2E] hover:border-[#2563EB]'
+                                }`}
+                              >
+                                {isPref ? <Accessibility className="h-4 w-4" /> : seatNumber}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Corredor Central */}
+                        <div className="w-6 text-[10px] text-slate-400 font-bold flex items-center justify-center">
+                          C
+                        </div>
+
+                        {/* Lado Direito */}
+                        <div className="flex gap-2">
+                          {[3, 4].map((colIndex) => {
+                            const seatNumber = rowIndex * 4 + colIndex;
+                            if (seatNumber > validCapacity) return <div key={colIndex} className="w-10 h-10" />;
+                            const isPref = preferentialSeats.includes(seatNumber);
+                            return (
+                              <button
+                                key={colIndex}
+                                onClick={() => handleSeatToggle(seatNumber)}
+                                className={`w-10 h-10 rounded-[8px] font-bold text-xs flex items-center justify-center border transition-all ${
+                                  isPref
+                                    ? 'bg-violet-600 text-white border-violet-600 shadow-md shadow-violet-600/20'
+                                    : 'bg-white border-[#C3C6D7] text-[#131B2E] hover:border-[#2563EB]'
+                                }`}
+                              >
+                                {isPref ? <Accessibility className="h-4 w-4" /> : seatNumber}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </Card>
+          )}
         </div>
       </div>
     </div>

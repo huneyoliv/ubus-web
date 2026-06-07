@@ -5,6 +5,7 @@ import { listBuses, createBus, Bus } from '../../api/fleet';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { BusWizard } from '../../components/bus/BusWizard';
 
 export default function FrotaPage() {
   const navigate = useNavigate();
@@ -190,174 +191,13 @@ export default function FrotaPage() {
       )}
 
       {showDrawer && (
-        <div className="fixed inset-0 bg-[#0F172A]/50 z-50 flex justify-end">
-          <div className="absolute inset-0" onClick={() => resetDrawer()} />
-          <div className="relative w-full max-w-md bg-white h-full flex flex-col p-8 shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-200">
-            <div className="flex items-center justify-between border-b border-[#C3C6D7]/20 pb-4 mb-6">
-              <div className="flex flex-col gap-1">
-                <h2 className="text-xl font-bold text-[#131B2E]">Novo Veículo</h2>
-                <span className="text-xs font-bold text-[#2563EB] bg-[#F0F4FF] px-2 py-0.5 rounded-full w-max font-outfit">
-                  Etapa {drawerStep} de 3
-                </span>
-              </div>
-              <button onClick={() => resetDrawer()} className="p-1.5 text-[#434655] hover:text-[#131B2E]">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5 flex-1">
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-[12px] text-xs font-semibold text-[#BA1A1A]">
-                  {error}
-                </div>
-              )}
-
-              {drawerStep === 1 && (
-                <div className="flex flex-col gap-5 flex-1">
-                  <Input
-                    id="plate"
-                    label="Placa do Veículo"
-                    placeholder="Ex: ABC1D23"
-                    value={plate}
-                    onChange={(e) => setPlate(e.target.value.toUpperCase())}
-                  />
-
-                  <Input
-                    id="identificationNumber"
-                    label="Prefixo / Número de Identificação"
-                    placeholder="Ex: 2022"
-                    value={identificationNumber}
-                    onChange={(e) => setIdentificationNumber(e.target.value)}
-                  />
-
-                  <div className="flex gap-4 mt-auto pt-6 border-t border-[#C3C6D7]/20">
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        if (!plate.trim()) {
-                          setError('A placa do veículo é obrigatória.');
-                          return;
-                        }
-                        if (!identificationNumber.trim()) {
-                          setError('O prefixo / identificação do veículo é obrigatório.');
-                          return;
-                        }
-                        setError('');
-                        setDrawerStep(2);
-                      }}
-                      className="flex-1 py-3"
-                    >
-                      Avançar
-                    </Button>
-                    <Button type="button" variant="outline" onClick={() => resetDrawer()} className="flex-1 py-3">
-                      Cancelar
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {drawerStep === 2 && (
-                <div className="flex flex-col gap-5 flex-1">
-                  <label className="text-sm font-semibold text-[#434655]">Recursos do Veículo</label>
-
-                  <div className="flex flex-col gap-3">
-                    <label className="flex items-center gap-3 p-4 border border-[#C3C6D7]/30 rounded-[12px] text-sm font-semibold text-[#131B2E] cursor-pointer hover:bg-slate-50 transition">
-                      <input type="checkbox" checked={hasAirConditioning} onChange={(e) => setHasAirConditioning(e.target.checked)} className="rounded text-[#2563EB]" />
-                      <div className="flex flex-col">
-                        <span>Ar-Condicionado ❄️</span>
-                        <span className="text-[10px] font-normal text-[#434655]">Climatização para dias quentes</span>
-                      </div>
-                    </label>
-
-                    <label className="flex items-center gap-3 p-4 border border-[#C3C6D7]/30 rounded-[12px] text-sm font-semibold text-[#131B2E] cursor-pointer hover:bg-slate-50 transition">
-                      <input type="checkbox" checked={hasBathroom} onChange={(e) => setHasBathroom(e.target.checked)} className="rounded text-[#2563EB]" />
-                      <div className="flex flex-col">
-                        <span>Banheiro 🚻</span>
-                        <span className="text-[10px] font-normal text-[#434655]">Sanitário interno para viagens longas</span>
-                      </div>
-                    </label>
-
-                    <label className="flex items-center gap-3 p-4 border border-[#C3C6D7]/30 rounded-[12px] text-sm font-semibold text-[#131B2E] cursor-pointer hover:bg-slate-50 transition">
-                      <input type="checkbox" checked={hasElevator} onChange={(e) => setHasElevator(e.target.checked)} className="rounded text-[#2563EB]" />
-                      <div className="flex flex-col">
-                        <span>Elevador de Acessibilidade ♿</span>
-                        <span className="text-[10px] font-normal text-[#434655]">Plataforma elevatória para cadeirantes</span>
-                      </div>
-                    </label>
-                  </div>
-
-                  <div className="flex gap-4 mt-auto pt-6 border-t border-[#C3C6D7]/20">
-                    <Button type="button" onClick={() => setDrawerStep(3)} className="flex-1 py-3">
-                      Avançar
-                    </Button>
-                    <Button type="button" variant="outline" onClick={() => setDrawerStep(1)} className="flex-1 py-3">
-                      Voltar
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {drawerStep === 3 && (
-                <div className="flex flex-col gap-5 flex-1">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-xs font-bold text-[#434655] uppercase tracking-wider font-outfit">Layout do Ônibus</label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        key="executivo-layout"
-                        type="button"
-                        onClick={() => {
-                          setLayout('EXECUTIVO');
-                          setCapacity(40);
-                        }}
-                        className={`p-4 rounded-[12px] border text-left flex flex-col gap-1.5 transition ${
-                          layout === 'EXECUTIVO'
-                            ? 'border-[#2563EB] bg-[#F0F4FF]/30'
-                            : 'border-[#C3C6D7]/40 hover:bg-slate-50'
-                        }`}
-                      >
-                        <span className="text-sm font-bold text-[#131B2E]">Executivo</span>
-                        <span className="text-[10px] font-semibold text-[#434655]">4 poltronas por fileira (padrão: 40)</span>
-                      </button>
-                      <button
-                        key="leito-layout"
-                        type="button"
-                        onClick={() => {
-                          setLayout('LEITO');
-                          setCapacity(24);
-                        }}
-                        className={`p-4 rounded-[12px] border text-left flex flex-col gap-1.5 transition ${
-                          layout === 'LEITO'
-                            ? 'border-[#2563EB] bg-[#F0F4FF]/30'
-                            : 'border-[#C3C6D7]/40 hover:bg-slate-50'
-                        }`}
-                      >
-                        <span className="text-sm font-bold text-[#131B2E]">Leito</span>
-                        <span className="text-[10px] font-semibold text-[#434655]">3 poltronas por fileira (padrão: 24)</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <Input
-                    id="capacity"
-                    type="number"
-                    label="Capacidade Total de Assentos"
-                    value={capacity}
-                    onChange={(e) => setCapacity(parseInt(e.target.value) || 0)}
-                  />
-
-                  <div className="flex gap-4 mt-auto pt-6 border-t border-[#C3C6D7]/20">
-                    <Button type="submit" loading={submitLoading} className="flex-1 py-3">
-                      Salvar Ônibus
-                    </Button>
-                    <Button type="button" variant="outline" onClick={() => setDrawerStep(2)} className="flex-1 py-3">
-                      Voltar
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </form>
-          </div>
-        </div>
+        <BusWizard
+          onClose={() => setShowDrawer(false)}
+          onSaved={() => {
+            setShowDrawer(false);
+            loadBuses();
+          }}
+        />
       )}
     </div>
   );
