@@ -644,7 +644,7 @@ export default function RotaDetailPage() {
             <select
               value={selectedBusId}
               onChange={(e) => handleBusChange(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-[#C3C6D7] rounded-[12px] text-sm text-[#131B2E] outline-none"
+              className="w-full px-4 py-2.5 bg-white border border-[#C3C6D7] rounded-[12px] text-sm text-[#131B2E] transition-all duration-200 outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/15 h-[46px]"
             >
               <option value="">Selecione um ônibus...</option>
               {availableBuses.map((b) => (
@@ -671,7 +671,7 @@ export default function RotaDetailPage() {
               <select
                 value={selectedDriverId}
                 onChange={(e) => handleDriverChange(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-[#C3C6D7] rounded-[12px] text-sm text-[#131B2E] outline-none"
+                className="w-full px-4 py-2.5 bg-white border border-[#C3C6D7] rounded-[12px] text-sm text-[#131B2E] transition-all duration-200 outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/15 h-[46px]"
               >
                 <option value="">Selecione o motorista para viagem...</option>
                 {drivers.map((drv) => (
