@@ -11,20 +11,21 @@ describe('LandingPage Component', () => {
             </MemoryRouter>
         )
 
-        expect(screen.getByText(/Revolucione a Gestão/i)).toBeInTheDocument()
-        expect(screen.getByText(/Mobilidade Inteligente & Sustentável/i)).toBeInTheDocument()
-        expect(screen.getByText(/Solicitar Demonstração/i)).toBeInTheDocument()
+        expect(screen.getAllByText(/Impulsione o crescimento/i)[0]).toBeInTheDocument()
+        expect(screen.getByText(/Veja seus negócios claramente/i)).toBeInTheDocument()
+        expect(screen.getAllByText(/Começar Agora/i)[0]).toBeInTheDocument()
     })
 
-    it('deve renderizar as seções de público-alvo', () => {
+    it('deve renderizar as seções de recursos e planos', () => {
         render(
             <MemoryRouter>
                 <LandingPage />
             </MemoryRouter>
         )
 
-        expect(screen.getByText(/Para Passageiros/i)).toBeInTheDocument()
-        expect(screen.getByText(/Para Motoristas/i)).toBeInTheDocument()
-        expect(screen.getByText(/Para Gestores/i)).toBeInTheDocument()
+        expect(screen.getByText(/Acompanhe suas metas/i)).toBeInTheDocument()
+        expect(screen.getByText(/Entenda seu saldo/i)).toBeInTheDocument()
+        expect(screen.getByText(/Plano Iniciante/i)).toBeInTheDocument()
+        expect(screen.getByText(/Plano Enterprise/i)).toBeInTheDocument()
     })
 })
