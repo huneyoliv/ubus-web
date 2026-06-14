@@ -103,6 +103,10 @@ export async function updateRoute(id: string, payload: Partial<Route>): Promise<
   return r.data;
 }
 
+export async function deleteRoute(id: string): Promise<void> {
+  await api.delete(`/fleet/routes/${id}`);
+}
+
 export async function listBuses(): Promise<Bus[]> {
   const r = await api.get('/fleet/buses');
   return r.data.map((bus: any) => ({

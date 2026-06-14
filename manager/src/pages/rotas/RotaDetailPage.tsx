@@ -4,6 +4,7 @@ import { ArrowLeft, Trash2, Edit2, Plus, Calendar, Save, Bus as BusIcon, User as
 import {
   listRoutes,
   updateRoute,
+  deleteRoute,
   listBuses,
   listPickupPoints,
   deletePickupPoint,
@@ -137,6 +138,7 @@ export default function RotaDetailPage() {
   const [busLoading, setBusLoading] = useState(false);
   const [driverLoading, setDriverLoading] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [error, setError] = useState('');
 
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -234,6 +236,29 @@ export default function RotaDetailPage() {
           showToast(err.response?.data?.message || err.message || 'Erro ao alterar status da rota.', 'error');
         } finally {
           setStatusLoading(false);
+        }
+      }
+    });
+  };
+
+  const handleDeleteRoute = () => {
+    if (!id || !route) return;
+    setConfirmConfig({
+      open: true,
+      title: 'Excluir rota?',
+      description: 'Deseja realmente excluir esta rota? Esta ação é permanente e não poderá ser desfeita.',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmConfig(null);
+        setDeleteLoading(true);
+        try {
+          await deleteRoute(id);
+          showToast('Rota excluída com sucesso!', 'success');
+          navigate('/rotas');
+        } catch (err: any) {
+          showToast(err.response?.data?.message || err.message || 'Erro ao excluir a rota.', 'error');
+        } finally {
+          setDeleteLoading(false);
         }
       }
     });
@@ -472,15 +497,29 @@ export default function RotaDetailPage() {
             <p className="text-sm font-semibold text-[#434655] mt-1">Configurações e escala da linha.</p>
           </div>
         </div>
-        <Button
-          type="button"
-          variant={route.active ? 'danger' : 'default'}
-          onClick={handleToggleActiveStatus}
-          loading={statusLoading}
-          className="py-2.5 px-4 text-sm font-bold"
-        >
-          {route.active ? 'Desativar Rota' : 'Ativar Rota'}
-        </Button>
+        <div className="flex gap-3">
+          {!route.active && (
+            <Button
+              type="button"
+              variant="danger"
+              onClick={handleDeleteRoute}
+              loading={deleteLoading}
+              className="py-2.5 px-4 text-sm font-bold flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span>Excluir Rota</span>
+            </Button>
+          )}
+          <Button
+            type="button"
+            variant={route.active ? 'danger' : 'default'}
+            onClick={handleToggleActiveStatus}
+            loading={statusLoading}
+            className="py-2.5 px-4 text-sm font-bold"
+          >
+            {route.active ? 'Desativar Rota' : 'Ativar Rota'}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
