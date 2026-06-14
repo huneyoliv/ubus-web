@@ -234,10 +234,9 @@ export default function LandingPage() {
                             <div>
                                 <span className="inline-block px-3 py-1 rounded-full bg-[#F0F4FF] text-[#2563EB] text-xs font-bold uppercase tracking-wider mb-6">Plano Standard</span>
                                 <div className="flex items-baseline gap-1 mb-4">
-                                    <span className="text-5xl font-extrabold text-[#0F172A]">Grátis</span>
-                                    <span className="text-sm font-semibold text-[#94A3B8]"> / 30 dias</span>
+                                    <span className="text-4xl font-extrabold text-[#0F172A]">Sob Consulta</span>
                                 </div>
-                                <p className="text-[#64748B] text-sm mb-8">Ideal para testar a plataforma e planejar a roteirização de pequenas operações.</p>
+                                <p className="text-[#64748B] text-sm mb-8">Ideal para iniciar a otimização e planejar a roteirização do seu município ou empresa.</p>
                                 <ul className="space-y-4 mb-8">
                                     {['Até 3 ônibus monitorados', 'Acesso básico ao painel do gestor', 'Aplicativo do motorista integrado', 'Suporte por e-mail em horário comercial'].map((feat, i) => (
                                         <li key={i} className="flex items-center gap-3 text-sm text-[#64748B]">
@@ -248,7 +247,7 @@ export default function LandingPage() {
                                 </ul>
                             </div>
                             <a href="#contato" className="w-full py-3.5 border border-[#E2E8F0] hover:border-[#2563EB] hover:text-[#2563EB] text-sm font-bold rounded-xl transition-all text-[#0F172A] text-center bg-white">
-                                Começar Teste
+                                Solicitar Orçamento
                             </a>
                         </div>
 
@@ -257,8 +256,7 @@ export default function LandingPage() {
                             <div>
                                 <span className="inline-block px-3 py-1 rounded-full bg-[#0F172A] text-white text-xs font-bold uppercase tracking-wider mb-6">Plano Profissional</span>
                                 <div className="flex items-baseline gap-1 mb-4">
-                                    <span className="text-5xl font-extrabold text-[#0F172A]">R$ 120</span>
-                                    <span className="text-sm font-semibold text-[#94A3B8]">/ veículo / mês</span>
+                                    <span className="text-4xl font-extrabold text-[#0F172A]">Sob Consulta</span>
                                 </div>
                                 <p className="text-[#64748B] text-sm mb-8">Controle total e escalabilidade. Projetado para frotas maiores e municípios com alta demanda escolar.</p>
                                 <ul className="space-y-4 mb-8">
@@ -271,7 +269,7 @@ export default function LandingPage() {
                                 </ul>
                             </div>
                             <a href="#contato" className="w-full py-3.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-bold rounded-xl transition-all shadow-sm text-center">
-                                Solicitar Demonstração
+                                Solicitar Orçamento
                             </a>
                         </div>
                     </div>
