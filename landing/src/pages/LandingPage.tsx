@@ -67,10 +67,16 @@ export default function LandingPage() {
                     >
                         <div className="relative w-full max-w-[420px]">
                             <div className="absolute inset-0 bg-[#2563EB]/5 rounded-3xl filter blur-3xl opacity-30" />
-                            <img
+                            <motion.img
                                 src="/hero_phone_hand.png"
                                 alt="Ubus Dashboard App"
                                 className="relative w-full object-contain rounded-2xl"
+                                animate={{ y: [0, -10, 0] }}
+                                transition={{
+                                    repeat: Infinity,
+                                    duration: 4,
+                                    ease: "easeInOut"
+                                }}
                             />
                         </div>
                     </motion.div>
@@ -85,7 +91,13 @@ export default function LandingPage() {
 
                     <div className="space-y-24">
                         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-                            <div className="flex-1 max-w-xl">
+                            <motion.div
+                                initial={{ opacity: 0, x: -30 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true, margin: "-100px" }}
+                                transition={{ duration: 0.6 }}
+                                className="flex-1 max-w-xl"
+                            >
                                 <h3 className="text-3xl font-extrabold mb-4 text-[#0F172A]">Acompanhe sua frota</h3>
                                 <p className="text-[#64748B] mb-8 leading-relaxed">
                                     Tudo em uma única tela. Monitore seus veículos, rotas escolares e universitárias e garanta a ocupação ideal de cada linha.
@@ -107,8 +119,14 @@ export default function LandingPage() {
                                 <a href="#contato" className="inline-block px-6 py-3 bg-white border border-[#E2E8F0] hover:border-[#2563EB] hover:text-[#2563EB] font-bold text-sm rounded-full transition-all text-[#0F172A]">
                                     Ver Ocupação
                                 </a>
-                            </div>
-                            <div className="flex-1 w-full flex justify-center lg:justify-end">
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, x: 30 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true, margin: "-100px" }}
+                                transition={{ duration: 0.6 }}
+                                className="flex-1 w-full flex justify-center lg:justify-end"
+                            >
                                 <div className="w-full max-w-[400px] bg-white border border-[#E2E8F0] rounded-3xl p-6 shadow-sm">
                                     <div className="flex justify-between items-center mb-6">
                                         <span className="text-xs font-bold text-[#94A3B8] uppercase">Pontualidade da Frota</span>
@@ -136,11 +154,17 @@ export default function LandingPage() {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
                         </div>
 
                         <div className="flex flex-col lg:flex-row-reverse items-center gap-12 lg:gap-20">
-                            <div className="flex-1 max-w-xl">
+                            <motion.div
+                                initial={{ opacity: 0, x: 30 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true, margin: "-100px" }}
+                                transition={{ duration: 0.6 }}
+                                className="flex-1 max-w-xl"
+                            >
                                 <h3 className="text-3xl font-extrabold mb-4 text-[#0F172A]">Otimize seus custos</h3>
                                 <p className="text-[#64748B] mb-8 leading-relaxed">
                                     Reduza gastos operacionais. Monitore o consumo de combustível, quilometragem rodada e a eficiência de cada trajeto.
@@ -162,8 +186,14 @@ export default function LandingPage() {
                                 <a href="#contato" className="inline-block px-6 py-3 bg-white border border-[#E2E8F0] hover:border-[#2563EB] hover:text-[#2563EB] font-bold text-sm rounded-full transition-all text-[#0F172A]">
                                     Ver Economia
                                 </a>
-                            </div>
-                            <div className="flex-1 w-full flex justify-center lg:justify-start">
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, x: -30 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true, margin: "-100px" }}
+                                transition={{ duration: 0.6 }}
+                                className="flex-1 w-full flex justify-center lg:justify-start"
+                            >
                                 <div className="w-full max-w-[400px] bg-white border border-[#E2E8F0] rounded-3xl p-6 shadow-sm">
                                     <div className="flex justify-between items-center mb-6">
                                         <span className="text-xs font-bold text-[#94A3B8] uppercase">Economia Mensal</span>
@@ -182,11 +212,17 @@ export default function LandingPage() {
                                         </svg>
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
                         </div>
 
                         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-                            <div className="flex-1 max-w-xl">
+                            <motion.div
+                                initial={{ opacity: 0, x: -30 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true, margin: "-100px" }}
+                                transition={{ duration: 0.6 }}
+                                className="flex-1 max-w-xl"
+                            >
                                 <h3 className="text-3xl font-extrabold mb-4 text-[#0F172A]">Alertas em tempo real</h3>
                                 <p className="text-[#64748B] mb-8 leading-relaxed">
                                     Foque nos eventos críticos da operação. Receba notificações instantâneas sobre desvios de rota, velocidade ou problemas mecânicos.
@@ -204,30 +240,48 @@ export default function LandingPage() {
                                 <a href="#contato" className="inline-block px-6 py-3 bg-white border border-[#E2E8F0] hover:border-[#2563EB] hover:text-[#2563EB] font-bold text-sm rounded-full transition-all text-[#0F172A]">
                                     Ver Alertas
                                 </a>
-                            </div>
-                            <div className="flex-1 w-full flex justify-center lg:justify-end">
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, x: 30 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true, margin: "-100px" }}
+                                transition={{ duration: 0.6 }}
+                                className="flex-1 w-full flex justify-center lg:justify-end"
+                            >
                                 <div className="w-full max-w-[400px] bg-white border border-[#E2E8F0] rounded-3xl p-8 shadow-sm flex flex-col items-center justify-center text-center">
                                     <div className="w-24 h-24 rounded-full border-4 border-[#F0F4FF] border-t-[#2563EB] flex items-center justify-center mb-6 relative">
                                         <span className="text-xl font-extrabold text-[#0F172A]">99%</span>
                                     </div>
                                     <p className="text-sm font-semibold text-[#64748B] max-w-[240px]">Redução de incidentes e atrasos operacionais reportados.</p>
                                 </div>
-                            </div>
+                            </motion.div>
                         </div>
                     </div>
                 </section>
 
 
                 <section className="w-full py-12 border-t border-[#E2E8F0] flex flex-col items-center gap-16">
-                    <div className="w-full max-w-4xl">
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-100px" }}
+                        transition={{ duration: 0.8 }}
+                        className="w-full max-w-4xl"
+                    >
                         <img
                             src="/phone_mockups_group.png"
                             alt="Mockups de celulares Ubus"
                             className="w-full object-contain rounded-2xl"
                         />
-                    </div>
+                    </motion.div>
 
-                    <div className="max-w-2xl text-center flex flex-col items-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-100px" }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="max-w-2xl text-center flex flex-col items-center"
+                    >
                         <div className="w-12 h-12 rounded-full overflow-hidden mb-6 bg-blue-100 flex items-center justify-center text-[#2563EB] text-sm font-bold">
                             CS
                         </div>
@@ -238,68 +292,16 @@ export default function LandingPage() {
                             <span className="block font-bold text-sm text-[#0F172A]">Consélio Souza</span>
                             <span className="block text-xs font-semibold text-[#94A3B8]">Secretário dos Transportes</span>
                         </cite>
-                    </div>
+                    </motion.div>
                 </section>
 
-                <section id="insights" className="w-full py-12 border-t border-[#E2E8F0]">
-                    <div className="text-center max-w-3xl mx-auto mb-16">
-                        <span className="inline-block px-3 py-1 rounded-full bg-white border border-[#E2E8F0] text-[#64748B] text-xs font-bold uppercase tracking-wider mb-4">Novidades</span>
-                        <h2 className="text-4xl font-extrabold text-[#0F172A] tracking-tight mb-4">Insights, guias e ideias para melhorar sua operação</h2>
-                        <p className="text-lg text-[#64748B]">Acompanhe as últimas novidades e técnicas de gestão de frotas preparadas pelos nossos especialistas.</p>
-                    </div>
-
-                    <div className="grid md:grid-cols-3 gap-8 mb-12">
-                        <div className="bg-white border border-[#E2E8F0] rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                            <div className="h-48 overflow-hidden bg-gray-100">
-                                <img src="/blog_image_1.png" alt="Otimização de consumo" className="w-full h-full object-cover" />
-                            </div>
-                            <div className="p-6">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-[#2563EB] text-xs font-bold">Dicas</span>
-                                    <span className="text-xs text-[#94A3B8]">Por Alexandre Sousa</span>
-                                </div>
-                                <h4 className="text-lg font-bold text-[#0F172A] mb-4 hover:text-[#2563EB] transition-colors cursor-pointer">
-                                    Como reduzir o consumo de combustível da frota em até 20%
-                                </h4>
-                                <span className="text-xs font-semibold text-[#94A3B8]">12 de Outubro, 2026</span>
-                            </div>
-                        </div>
-
-                        <div className="bg-white border border-[#E2E8F0] rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                            <div className="h-48 overflow-hidden bg-gray-100">
-                                <img src="/blog_image_2.png" alt="Roteirização por IA" className="w-full h-full object-cover" />
-                            </div>
-                            <div className="p-6">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <span className="px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 text-xs font-bold">Tecnologia</span>
-                                    <span className="text-xs text-[#94A3B8]">Por Sara Santos</span>
-                                </div>
-                                <h4 className="text-lg font-bold text-[#0F172A] mb-4 hover:text-[#2563EB] transition-colors cursor-pointer">
-                                    O papel da IA na otimização do transporte universitário
-                                </h4>
-                                <span className="text-xs font-semibold text-[#94A3B8]">12 de Outubro, 2026</span>
-                            </div>
-                        </div>
-
-                        <div className="bg-white border border-[#E2E8F0] rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                            <div className="h-48 overflow-hidden bg-gray-100">
-                                <img src="/blog_image_3.png" alt="Manutenção preventiva" className="w-full h-full object-cover" />
-                            </div>
-                            <div className="p-6">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <span className="px-2.5 py-0.5 rounded-full bg-pink-50 text-pink-700 text-xs font-bold">Segurança</span>
-                                    <span className="text-xs text-[#94A3B8]">Por Davi Lima</span>
-                                </div>
-                                <h4 className="text-lg font-bold text-[#0F172A] mb-4 hover:text-[#2563EB] transition-colors cursor-pointer">
-                                    Manual de segurança e manutenção preventiva para ônibus
-                                </h4>
-                                <span className="text-xs font-semibold text-[#94A3B8]">8 de Outubro, 2026</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="w-full py-16 px-8 rounded-3xl bg-[#0F172A] text-white relative overflow-hidden flex flex-col items-center text-center">
+                <motion.section
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.6 }}
+                    className="w-full py-16 px-8 rounded-3xl bg-[#0F172A] text-white relative overflow-hidden flex flex-col items-center text-center"
+                >
                     <div className="absolute inset-0 opacity-10 pointer-events-none">
                         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]" />
                     </div>
@@ -332,7 +334,7 @@ export default function LandingPage() {
                             <div className="text-xs font-semibold text-white/50 uppercase">Ônibus Monitorados</div>
                         </div>
                     </div>
-                </section>
+                </motion.section>
 
                 <section id="contato" className="w-full py-16 flex flex-col items-center border-t border-[#E2E8F0]">
                     <div className="max-w-xl text-center mb-10">
@@ -341,7 +343,14 @@ export default function LandingPage() {
                         <p className="text-[#64748B]">Preencha o formulário abaixo e receba o contato de um de nossos especialistas em mobilidade.</p>
                     </div>
 
-                    <form onSubmit={(e) => e.preventDefault()} className="w-full max-w-md space-y-4 bg-white p-8 rounded-3xl border border-[#E2E8F0] shadow-sm">
+                    <motion.form
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-100px" }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                        onSubmit={(e) => e.preventDefault()}
+                        className="w-full max-w-md space-y-4 bg-white p-8 rounded-3xl border border-[#E2E8F0] shadow-sm"
+                    >
                         <div>
                             <label className="block text-xs font-bold text-[#64748B] uppercase mb-2">Nome Completo</label>
                             <input
@@ -375,7 +384,7 @@ export default function LandingPage() {
                         >
                             Falar com um Consultor
                         </button>
-                    </form>
+                    </motion.form>
                 </section>
             </main>
 
