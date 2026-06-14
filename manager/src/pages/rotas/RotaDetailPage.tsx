@@ -288,21 +288,40 @@ export default function RotaDetailPage() {
   };
 
   const handleSaveBus = async () => {
-    if (!id) return;
+    if (!id || !route) return;
     if (!selectedBusId) {
       showToast('Por favor, selecione um ônibus.', 'warning');
       return;
     }
-    setBusLoading(true);
-    try {
-      await assignDefaultBus(id, selectedBusId);
-      localStorage.setItem(`ubus-route-bus-${id}`, selectedBusId);
-      showToast('Ônibus atribuído com sucesso!', 'success');
-    } catch (err: any) {
-      showToast(err.response?.data?.message || err.message || 'Erro ao atribuir ônibus.', 'error');
-    } finally {
-      setBusLoading(false);
+
+    const selectedBus = buses.find((b) => b.id === selectedBusId);
+    const runAssignment = async () => {
+      setBusLoading(true);
+      try {
+        await assignDefaultBus(id, selectedBusId);
+        localStorage.setItem(`ubus-route-bus-${id}`, selectedBusId);
+        showToast('Ônibus atribuído com sucesso!', 'success');
+      } catch (err: any) {
+        showToast(err.response?.data?.message || err.message || 'Erro ao atribuir ônibus.', 'error');
+      } finally {
+        setBusLoading(false);
+      }
+    };
+
+    if (route.requiresElevator && selectedBus && !selectedBus.hasElevator) {
+      setConfirmConfig({
+        open: true,
+        title: 'Ônibus sem elevador',
+        description: 'Esta rota exige um ônibus com elevador, mas o veículo selecionado não possui esse recurso. Deseja prosseguir com a atribuição?',
+        onConfirm: () => {
+          setConfirmConfig(null);
+          runAssignment();
+        }
+      });
+      return;
     }
+
+    await runAssignment();
   };
 
   const handleSaveDriver = async () => {
