@@ -136,6 +136,7 @@ export default function RotaDetailPage() {
   const [scheduleLoading, setScheduleLoading] = useState(false);
   const [busLoading, setBusLoading] = useState(false);
   const [driverLoading, setDriverLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false);
   const [error, setError] = useState('');
 
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -209,6 +210,33 @@ export default function RotaDetailPage() {
     } finally {
       setGeneralLoading(false);
     }
+  };
+
+  const handleToggleActiveStatus = () => {
+    if (!id || !route) return;
+    const nextStatus = !route.active;
+    setConfirmConfig({
+      open: true,
+      title: nextStatus ? 'Ativar rota?' : 'Desativar rota?',
+      description: nextStatus
+        ? 'Deseja realmente ativar esta rota? Ela voltará a ficar disponível para reservas e listagens.'
+        : 'Deseja realmente desativar esta rota? Novas reservas serão suspensas.',
+      variant: nextStatus ? 'default' : 'danger',
+      onConfirm: async () => {
+        setConfirmConfig(null);
+        setStatusLoading(true);
+        try {
+          const updated = await updateRoute(id, { active: nextStatus });
+          setRoute(updated);
+          setRouteActive(updated.active);
+          showToast(nextStatus ? 'Rota ativada com sucesso!' : 'Rota desativada com sucesso!', 'success');
+        } catch (err: any) {
+          showToast(err.response?.data?.message || err.message || 'Erro ao alterar status da rota.', 'error');
+        } finally {
+          setStatusLoading(false);
+        }
+      }
+    });
   };
 
   const handleDeletePoint = (pointId: string) => {
@@ -415,14 +443,25 @@ export default function RotaDetailPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-center gap-4">
-        <button onClick={() => navigate('/rotas')} className="p-2 bg-white border border-[#C3C6D7]/40 rounded-[12px] text-[#434655] hover:text-[#131B2E]">
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        <div>
-          <h1 className="text-3xl font-black text-[#131B2E] tracking-tight font-outfit">{route.name}</h1>
-          <p className="text-sm font-semibold text-[#434655] mt-1">Configurações e escala da linha.</p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <button onClick={() => navigate('/rotas')} className="p-2 bg-white border border-[#C3C6D7]/40 rounded-[12px] text-[#434655] hover:text-[#131B2E]">
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-black text-[#131B2E] tracking-tight font-outfit">{route.name}</h1>
+            <p className="text-sm font-semibold text-[#434655] mt-1">Configurações e escala da linha.</p>
+          </div>
         </div>
+        <Button
+          type="button"
+          variant={route.active ? 'danger' : 'default'}
+          onClick={handleToggleActiveStatus}
+          loading={statusLoading}
+          className="py-2.5 px-4 text-sm font-bold"
+        >
+          {route.active ? 'Desativar Rota' : 'Ativar Rota'}
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -67,6 +67,19 @@ test.describe('Fluxos de Autenticação e Gestão de Frota no Gestor', () => {
 
     // Verifica se sumiu da listagem
     await expect(updatedPointElement).not.toBeVisible();
+
+    const toggleActiveButton = page.locator('button:has-text("Desativar Rota")');
+    await expect(toggleActiveButton).toBeVisible();
+    await toggleActiveButton.click();
+    await expect(page.locator('h3:has-text("Desativar rota?")')).toBeVisible();
+    await page.click('button:has-text("Confirmar")');
+
+    const toggleInactiveButton = page.locator('button:has-text("Ativar Rota")');
+    await expect(toggleInactiveButton).toBeVisible();
+    await toggleInactiveButton.click();
+    await expect(page.locator('h3:has-text("Ativar rota?")')).toBeVisible();
+    await page.click('button:has-text("Confirmar")');
+    await expect(toggleActiveButton).toBeVisible();
   });
 
   test('Deve cadastrar um veículo no fluxo multi-step', async ({ page }) => {
@@ -80,20 +93,26 @@ test.describe('Fluxos de Autenticação e Gestão de Frota no Gestor', () => {
     await expect(page).toHaveURL(/\/frota/);
 
     await page.click('text=Cadastrar Veículo');
-    await expect(page.locator('h2:has-text("Novo Veículo")')).toBeVisible();
+    await expect(page.locator('h1:has-text("Novo Ônibus")')).toBeVisible();
 
     const plate = `E2E${Math.floor(1000 + Math.random() * 9000)}`;
     await page.fill('#plate', plate);
     await page.fill('#identificationNumber', `Prefix-${plate}`);
     await page.click('button:has-text("Avançar")');
 
-    await page.click('form label:has-text("Ar-Condicionado")');
+    await page.click('text=Não, o ônibus só informa a lotação total');
     await page.click('button:has-text("Avançar")');
 
-    await page.click('form button:has-text("Leito")');
-    await page.click('button:has-text("Salvar Ônibus")');
+    await page.fill('input[placeholder="Ex: 44"]', '40');
+    await page.click('button:has-text("Avançar")');
 
-    await expect(page.locator('h3', { hasText: plate })).toBeVisible();
+    await page.click('text=Nenhum');
+    await page.click('button:has-text("Avançar")');
+
+    await page.click('button:has-text("Concluir e Salvar")');
+
+    const plateFormatted = `${plate.slice(0, 3)}-${plate.slice(3)}`;
+    await expect(page.locator('h3', { hasText: plateFormatted })).toBeVisible({ timeout: 10000 });
   });
 
   test('Deve tentar realizar alteração cadastral e tratar erro se o endpoint não estiver implementado', async ({ page }) => {
