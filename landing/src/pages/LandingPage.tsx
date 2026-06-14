@@ -17,15 +17,10 @@ export default function LandingPage() {
                 <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-[#64748B]">
                     <a href="#inicio" className="hover:text-[#2563EB] transition-colors">Início</a>
                     <a href="#recursos" className="hover:text-[#2563EB] transition-colors">Recursos</a>
-                    <a href="#precos" className="hover:text-[#2563EB] transition-colors">Planos</a>
                     <a href="#contato" className="hover:text-[#2563EB] transition-colors">Contato</a>
                 </nav>
 
-                <div>
-                    <a href="/manager" className="px-5 py-2.5 rounded-full border border-[#E2E8F0] hover:border-[#2563EB] hover:text-[#2563EB] text-sm font-bold transition-all text-[#0F172A] bg-white shadow-sm">
-                        Entrar
-                    </a>
-                </div>
+                <div />
             </header>
 
             <main className="relative z-10 flex-1 flex flex-col items-center justify-center max-w-7xl w-full mx-auto px-6 py-12 gap-24">
@@ -222,58 +217,6 @@ export default function LandingPage() {
                     </div>
                 </section>
 
-                <section id="precos" className="w-full py-12 border-t border-[#E2E8F0]">
-                    <div className="text-center max-w-3xl mx-auto mb-16">
-                        <span className="inline-block px-3 py-1 rounded-full bg-white border border-[#E2E8F0] text-[#64748B] text-xs font-bold uppercase tracking-wider mb-4">Preços</span>
-                        <h2 className="text-4xl font-extrabold text-[#0F172A] tracking-tight mb-4">Planos que acompanham sua frota</h2>
-                        <p className="text-lg text-[#64748B]">Escolha a melhor opção para a gestão de transporte do seu município ou empresa.</p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                        <div className="bg-white border border-[#E2E8F0] rounded-3xl p-8 shadow-sm flex flex-col justify-between">
-                            <div>
-                                <span className="inline-block px-3 py-1 rounded-full bg-[#F0F4FF] text-[#2563EB] text-xs font-bold uppercase tracking-wider mb-6">Plano Standard</span>
-                                <div className="flex items-baseline gap-1 mb-4">
-                                    <span className="text-4xl font-extrabold text-[#0F172A]">Sob Consulta</span>
-                                </div>
-                                <p className="text-[#64748B] text-sm mb-8">Ideal para iniciar a otimização e planejar a roteirização do seu município ou empresa.</p>
-                                <ul className="space-y-4 mb-8">
-                                    {['Até 3 ônibus monitorados', 'Acesso básico ao painel do gestor', 'Aplicativo do motorista integrado', 'Suporte por e-mail em horário comercial'].map((feat, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-sm text-[#64748B]">
-                                            <Check size={16} className="text-[#2563EB] shrink-0" />
-                                            <span>{feat}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <a href="#contato" className="w-full py-3.5 border border-[#E2E8F0] hover:border-[#2563EB] hover:text-[#2563EB] text-sm font-bold rounded-xl transition-all text-[#0F172A] text-center bg-white">
-                                Solicitar Orçamento
-                            </a>
-                        </div>
-
-                        <div className="bg-white border border-[#2563EB] rounded-3xl p-8 shadow-sm flex flex-col justify-between relative">
-                            <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#2563EB] text-white text-xs font-bold uppercase">Recomendado</div>
-                            <div>
-                                <span className="inline-block px-3 py-1 rounded-full bg-[#0F172A] text-white text-xs font-bold uppercase tracking-wider mb-6">Plano Profissional</span>
-                                <div className="flex items-baseline gap-1 mb-4">
-                                    <span className="text-4xl font-extrabold text-[#0F172A]">Sob Consulta</span>
-                                </div>
-                                <p className="text-[#64748B] text-sm mb-8">Controle total e escalabilidade. Projetado para frotas maiores e municípios com alta demanda escolar.</p>
-                                <ul className="space-y-4 mb-8">
-                                    {['Veículos e rotas ilimitados', 'Roteirização inteligente otimizada por IA', 'Aplicativos completos para motorista e aluno', 'Suporte prioritário 24/7 com SLA'].map((feat, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-sm text-[#64748B]">
-                                            <Check size={16} className="text-[#2563EB] shrink-0" />
-                                            <span>{feat}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                            <a href="#contato" className="w-full py-3.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-bold rounded-xl transition-all shadow-sm text-center">
-                                Solicitar Orçamento
-                            </a>
-                        </div>
-                    </div>
-                </section>
 
                 <section className="w-full py-12 border-t border-[#E2E8F0] flex flex-col items-center gap-16">
                     <div className="w-full max-w-4xl">
@@ -449,7 +392,6 @@ export default function LandingPage() {
                         <h5 className="font-bold text-sm text-[#0F172A] uppercase tracking-wider mb-4">Soluções</h5>
                         <ul className="space-y-3 text-sm font-semibold text-[#64748B]">
                             <li><a href="#recursos" className="hover:text-[#2563EB] transition-colors">Recursos</a></li>
-                            <li><a href="#precos" className="hover:text-[#2563EB] transition-colors">Preços</a></li>
                             <li><a href="#contato" className="hover:text-[#2563EB] transition-colors">Contato</a></li>
                         </ul>
                     </div>
