@@ -36,6 +36,9 @@ export interface Route {
   requiresElevator?: boolean;
   departureTimeOutbound?: string;
   departureTimeInbound?: string;
+  votingOpenTime?: string;
+  votingCloseTime?: string;
+  votingOpenDaysBefore?: number;
 }
 
 export interface Bus {
@@ -89,10 +92,8 @@ export async function listRoutes(): Promise<Route[]> {
 
 export async function createRoute(payload: Omit<Route, 'id'>): Promise<Route> {
   const fullPayload = {
-    ...payload,
     weekDays: [1, 2, 3, 4, 5],
-    votingOpenTime: '06:00',
-    votingCloseTime: '07:30'
+    ...payload
   };
   const r = await api.post('/fleet/routes', fullPayload);
   return r.data;

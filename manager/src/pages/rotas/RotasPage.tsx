@@ -17,6 +17,9 @@ export default function RotasPage() {
   const [description, setDescription] = useState('');
   const [departureTimeOutbound, setDepartureTimeOutbound] = useState('07:00');
   const [departureTimeInbound, setDepartureTimeInbound] = useState('12:00');
+  const [votingOpenTime, setVotingOpenTime] = useState('06:00');
+  const [votingOpenDaysBefore, setVotingOpenDaysBefore] = useState(0);
+  const [votingCloseTime, setVotingCloseTime] = useState('18:00');
   const [error, setError] = useState('');
   const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -52,12 +55,18 @@ export default function RotasPage() {
         description,
         departureTimeOutbound,
         departureTimeInbound,
+        votingOpenTime,
+        votingCloseTime,
+        votingOpenDaysBefore,
         active: true,
       });
       setName('');
       setDescription('');
       setDepartureTimeOutbound('07:00');
       setDepartureTimeInbound('12:00');
+      setVotingOpenTime('06:00');
+      setVotingOpenDaysBefore(0);
+      setVotingCloseTime('18:00');
       setShowDrawer(false);
       loadRoutes();
     } catch (err: any) {
@@ -192,6 +201,43 @@ export default function RotasPage() {
                   onChange={(e) => setDepartureTimeInbound(e.target.value)}
                 />
               </div>
+
+              {departureTimeOutbound && (
+                <>
+                  <div className="border-t border-[#C3C6D7]/20 pt-4 mt-2">
+                    <h4 className="text-sm font-bold text-[#131B2E] mb-3">Configurações de Votação (Ida/Volta)</h4>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input
+                      id="votingOpenTime"
+                      type="time"
+                      label="Abertura da Votação"
+                      value={votingOpenTime}
+                      onChange={(e) => setVotingOpenTime(e.target.value)}
+                    />
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-semibold text-[#434655]">Dia de Abertura</label>
+                      <select
+                        value={votingOpenDaysBefore}
+                        onChange={(e) => setVotingOpenDaysBefore(Number(e.target.value))}
+                        className="w-full px-4 py-2 bg-white border border-[#C3C6D7] rounded-[12px] text-sm text-[#131B2E] outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/15 h-[42px]"
+                      >
+                        <option value={0}>No mesmo dia da viagem</option>
+                        <option value={1}>No dia anterior à viagem</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input
+                      id="votingCloseTime"
+                      type="time"
+                      label="Fechamento da Votação"
+                      value={votingCloseTime}
+                      onChange={(e) => setVotingCloseTime(e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="flex gap-4 mt-auto pt-6 border-t border-[#C3C6D7]/20">
                 <Button type="submit" loading={submitLoading} className="flex-1 py-3">
