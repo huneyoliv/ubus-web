@@ -1,7 +1,22 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Check, Activity, TrendingUp, Target, Users, Shield, Zap, Instagram } from 'lucide-react'
+import { ArrowRight, Check, Activity, TrendingUp, Target, Users, Shield, Zap, Instagram, MailCheck } from 'lucide-react'
 
 export default function LandingPage() {
+    const [leadName, setLeadName] = useState('');
+    const [leadEmail, setLeadEmail] = useState('');
+    const [leadOrg, setLeadOrg] = useState('');
+    const [leadSubmitted, setLeadSubmitted] = useState(false);
+
+    const handleLeadSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!leadName || !leadEmail) return;
+
+        const subject = encodeURIComponent(`Interesse UBUS - ${leadOrg || 'Contato Comercial'}`);
+        const body = encodeURIComponent(`Olá equipe UBUS,\n\nTenho interesse em conhecer a plataforma para meu município/empresa.\n\nNome: ${leadName}\nE-mail: ${leadEmail}\nInstituição/Município: ${leadOrg}\n\nAtenciosamente,\n${leadName}`);
+        window.location.href = `mailto:contato@ubus.me?subject=${subject}&body=${body}`;
+        setLeadSubmitted(true);
+    };
     return (
         <div className="w-full min-h-screen bg-[#F0F4FF] relative overflow-hidden flex flex-col font-sans text-[#0F172A]">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -343,48 +358,82 @@ export default function LandingPage() {
                         <p className="text-[#64748B]">Preencha o formulário abaixo e receba o contato de um de nossos especialistas em mobilidade.</p>
                     </div>
 
-                    <motion.form
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-100px" }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                        onSubmit={(e) => e.preventDefault()}
-                        className="w-full max-w-md space-y-4 bg-white p-8 rounded-3xl border border-[#E2E8F0] shadow-sm"
-                    >
-                        <div>
-                            <label className="block text-xs font-bold text-[#64748B] uppercase mb-2">Nome Completo</label>
-                            <input
-                                type="text"
-                                placeholder="Seu nome"
-                                className="w-full px-4 py-3 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl focus:border-[#2563EB] focus:outline-none transition-colors text-[#0F172A] text-sm"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-[#64748B] uppercase mb-2">E-mail Corporativo</label>
-                            <input
-                                type="email"
-                                placeholder="seu@email.com"
-                                className="w-full px-4 py-3 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl focus:border-[#2563EB] focus:outline-none transition-colors text-[#0F172A] text-sm"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-bold text-[#64748B] uppercase mb-2">Empresa / Município</label>
-                            <input
-                                type="text"
-                                placeholder="Nome da instituição ou cidade"
-                                className="w-full px-4 py-3 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl focus:border-[#2563EB] focus:outline-none transition-colors text-[#0F172A] text-sm"
-                                required
-                            />
-                        </div>
-                        <button
-                            type="submit"
-                            className="w-full py-3.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-xl transition-all active:scale-[0.98] shadow-sm shadow-[#2563EB]/10 cursor-pointer text-sm"
+                    {leadSubmitted ? (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="w-full max-w-md bg-white p-8 rounded-3xl border border-emerald-200 shadow-sm text-center flex flex-col items-center gap-4"
                         >
-                            Falar com um Consultor
-                        </button>
-                    </motion.form>
+                            <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                <MailCheck className="h-6 w-6" />
+                            </div>
+                            <h3 className="text-xl font-bold text-[#0F172A]">Solicitação Iniciada!</h3>
+                            <p className="text-sm text-[#64748B] leading-relaxed">
+                                Seu aplicativo de e-mail foi aberto com os dados preenchidos. Nossa equipe comercial entrará em contato em até 24 horas úteis.
+                            </p>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setLeadSubmitted(false);
+                                    setLeadName('');
+                                    setLeadEmail('');
+                                    setLeadOrg('');
+                                }}
+                                className="text-xs font-bold text-[#2563EB] hover:underline mt-2 cursor-pointer"
+                            >
+                                Enviar outra mensagem
+                            </button>
+                        </motion.div>
+                    ) : (
+                        <motion.form
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "-100px" }}
+                            transition={{ duration: 0.6, delay: 0.1 }}
+                            onSubmit={handleLeadSubmit}
+                            className="w-full max-w-md space-y-4 bg-white p-8 rounded-3xl border border-[#E2E8F0] shadow-sm"
+                        >
+                            <div>
+                                <label className="block text-xs font-bold text-[#64748B] uppercase mb-2">Nome Completo</label>
+                                <input
+                                    type="text"
+                                    placeholder="Seu nome"
+                                    value={leadName}
+                                    onChange={(e) => setLeadName(e.target.value)}
+                                    className="w-full px-4 py-3 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl focus:border-[#2563EB] focus:outline-none transition-colors text-[#0F172A] text-sm"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-[#64748B] uppercase mb-2">E-mail Corporativo</label>
+                                <input
+                                    type="email"
+                                    placeholder="seu@email.com"
+                                    value={leadEmail}
+                                    onChange={(e) => setLeadEmail(e.target.value)}
+                                    className="w-full px-4 py-3 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl focus:border-[#2563EB] focus:outline-none transition-colors text-[#0F172A] text-sm"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-[#64748B] uppercase mb-2">Empresa / Município</label>
+                                <input
+                                    type="text"
+                                    placeholder="Nome da instituição ou cidade"
+                                    value={leadOrg}
+                                    onChange={(e) => setLeadOrg(e.target.value)}
+                                    className="w-full px-4 py-3 bg-[#F8FAFF] border border-[#E2E8F0] rounded-xl focus:border-[#2563EB] focus:outline-none transition-colors text-[#0F172A] text-sm"
+                                    required
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="w-full py-3.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-xl transition-all active:scale-[0.98] shadow-sm shadow-[#2563EB]/10 cursor-pointer text-sm"
+                            >
+                                Falar com um Consultor
+                            </button>
+                        </motion.form>
+                    )}
                 </section>
             </main>
 
