@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bus as BusIcon, Plus, X, Shield, ShieldAlert, Sparkles } from 'lucide-react';
-import { listBuses, createBus, Bus } from '../../api/fleet';
+import { Bus as BusIcon, Plus } from 'lucide-react';
+import { listBuses, Bus } from '../../api/fleet';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
 import { BusWizard } from '../../components/bus/BusWizard';
 
 export default function FrotaPage() {
@@ -13,17 +12,6 @@ export default function FrotaPage() {
   const [loading, setLoading] = useState(true);
   const [showDrawer, setShowDrawer] = useState(false);
   const [listError, setListError] = useState('');
-
-  const [drawerStep, setDrawerStep] = useState<1 | 2 | 3>(1);
-  const [plate, setPlate] = useState('');
-  const [identificationNumber, setIdentificationNumber] = useState('');
-  const [capacity, setCapacity] = useState(40);
-  const [layout, setLayout] = useState<'EXECUTIVO' | 'LEITO'>('EXECUTIVO');
-  const [hasBathroom, setHasBathroom] = useState(false);
-  const [hasAirConditioning, setHasAirConditioning] = useState(false);
-  const [hasElevator, setHasElevator] = useState(false);
-  const [error, setError] = useState('');
-  const [submitLoading, setSubmitLoading] = useState(false);
 
   const loadBuses = async () => {
     setLoading(true);
@@ -41,58 +29,6 @@ export default function FrotaPage() {
   useEffect(() => {
     loadBuses();
   }, []);
-
-  const resetDrawer = () => {
-    setPlate('');
-    setIdentificationNumber('');
-    setCapacity(40);
-    setLayout('EXECUTIVO');
-    setHasBathroom(false);
-    setHasAirConditioning(false);
-    setHasElevator(false);
-    setError('');
-    setDrawerStep(1);
-    setShowDrawer(false);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!plate.trim()) {
-      setError('A placa do veículo é obrigatória.');
-      return;
-    }
-    if (!identificationNumber.trim()) {
-      setError('O prefixo / identificação do veículo é obrigatório.');
-      return;
-    }
-    if (capacity <= 0) {
-      setError('A capacidade do veículo deve ser maior que 0.');
-      return;
-    }
-
-    setSubmitLoading(true);
-    setError('');
-    try {
-      // Define assentos preferenciais como os 4 primeiros assentos
-      const preferentialSeats = capacity >= 4 ? [1, 2, 3, 4] : Array.from({ length: capacity }, (_, i) => i + 1);
-      await createBus({
-        plate,
-        identificationNumber,
-        capacity,
-        hasBathroom,
-        hasAirConditioning,
-        hasElevator,
-        active: true,
-        preferentialSeats,
-      });
-      resetDrawer();
-      loadBuses();
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Erro ao cadastrar o ônibus.');
-    } finally {
-      setSubmitLoading(false);
-    }
-  };
 
   return (
     <div className="flex flex-col gap-8 relative">
