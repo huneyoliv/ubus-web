@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 export interface User {
   id: string;
@@ -43,6 +43,19 @@ export const useAuthStore = create<AuthState>()(
       login: (token, user) => set({ token, user, isAuthenticated: true }),
       logout: () => set({ token: null, user: null, isAuthenticated: false }),
     }),
-    { name: 'ubus-manager-auth' }
+    {
+      name: 'ubus-manager-auth',
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => ({
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+        user: state.user
+          ? {
+              ...state.user,
+              cpf: '',
+            }
+          : null,
+      }),
+    }
   )
 );
