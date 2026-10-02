@@ -39,6 +39,8 @@ export interface Route {
   votingOpenTime?: string;
   votingCloseTime?: string;
   votingOpenDaysBefore?: number;
+  busId?: string | null;
+  driverId?: string | null;
 }
 
 export interface Bus {

@@ -121,15 +121,16 @@ export default function RotaDetailPage() {
   const [routeActive, setRouteActive] = useState(true);
   const [requiresElevator, setRequiresElevator] = useState(false);
 
-  const [selectedBusId, setSelectedBusId] = useState(() => {
-    return localStorage.getItem(`ubus-route-bus-${id}`) || '';
-  });
-  const [selectedDriverId, setSelectedDriverId] = useState(() => {
-    return localStorage.getItem(`ubus-route-driver-${id}`) || '';
-  });
+  const [selectedBusId, setSelectedBusId] = useState('');
+  const [selectedDriverId, setSelectedDriverId] = useState('');
   const [trips, setTrips] = useState<any[]>([]);
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
-  const [calendarMonth, setCalendarMonth] = useState('2026-06');
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  });
 
   const [showPointModal, setShowPointModal] = useState(false);
   const [pointToEdit, setPointToEdit] = useState<PickupPoint | null>(null);
@@ -176,6 +177,8 @@ export default function RotaDetailPage() {
         setVotingCloseTime(foundRoute.votingCloseTime || '18:00');
         setRouteActive(foundRoute.active);
         setRequiresElevator(foundRoute.requiresElevator || false);
+        if (foundRoute.busId) setSelectedBusId(foundRoute.busId);
+        if (foundRoute.driverId) setSelectedDriverId(foundRoute.driverId);
       }
 
       setPoints(pointsList);
@@ -333,7 +336,6 @@ export default function RotaDetailPage() {
       setBusLoading(true);
       try {
         await assignDefaultBus(id, selectedBusId);
-        localStorage.setItem(`ubus-route-bus-${id}`, selectedBusId);
         showToast('Ônibus atribuído com sucesso!', 'success');
       } catch (err: any) {
         showToast(err.response?.data?.message || err.message || 'Erro ao atribuir ônibus.', 'error');
@@ -363,11 +365,6 @@ export default function RotaDetailPage() {
     setDriverLoading(true);
     try {
       await assignDefaultDriver(id, selectedDriverId || '');
-      if (selectedDriverId) {
-        localStorage.setItem(`ubus-route-driver-${id}`, selectedDriverId);
-      } else {
-        localStorage.removeItem(`ubus-route-driver-${id}`);
-      }
       showToast('Motorista escalado com sucesso!', 'success');
     } catch (err: any) {
       showToast(err.response?.data?.message || err.message || 'Erro ao escalar motorista.', 'error');
